@@ -3,9 +3,6 @@
  * API 통신 및 15분 로컬 캐싱 레이어
  */
 window.BOJ_CF.Fetcher = (function() {
-    const CACHE_DURATION = 15 * 60 * 1000; // 15분
-    const DAILY_CACHE = 24 * 60 * 60 * 1000; // 24시간
-
     const getCached = (key, duration) => {
         const cached = localStorage.getItem(key);
         if (cached) {
@@ -18,7 +15,8 @@ window.BOJ_CF.Fetcher = (function() {
     return {
         fetchUserStatus: async (username) => {
             const key = `boj_cf_status_${username}`;
-            let data = getCached(key, CACHE_DURATION);
+            const duration = window.BOJ_CF.Config.API_CACHE_DURATION_MINS * 60 * 1000;
+            let data = getCached(key, duration);
             if (data) return data;
             
             try {
@@ -30,7 +28,8 @@ window.BOJ_CF.Fetcher = (function() {
         },
         fetchAllProblems: async () => {
             const key = `boj_cf_all_problems`;
-            let data = getCached(key, DAILY_CACHE);
+            const duration = window.BOJ_CF.Config.DB_CACHE_DURATION_HOURS * 60 * 60 * 1000;
+            let data = getCached(key, duration);
             if (data) return data;
 
             try {

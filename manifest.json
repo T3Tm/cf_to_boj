@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Codeforces to Baekjoon",
-  "version": "3.7",
-  "description": "Codeforces 백준 스타일 통합 렌더링 및 전역 검색 엔진",
+  "version": "3.9",
+  "description": "Codeforces 백준 스타일 전역 테마 및 통합 검색 엔진",
   "permissions": ["storage"],
   "host_permissions": ["https://codeforces.com/api/*"],
   "content_scripts": [
@@ -18,6 +18,7 @@
         "src/utils/domObserver.js",
         "src/utils/debounce.js",
         "src/utils/sanitizer.js",
+        "src/core/config.js",
         "src/core/tierCalculator.js",
         "src/core/stateManager.js",
         "src/core/queryParser.js",

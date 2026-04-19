@@ -2,18 +2,31 @@ window.BOJ_CF.Pages = window.BOJ_CF.Pages || {};
 window.BOJ_CF.Pages.Problemset = (function() {
     let globalDB = [];
 
+    // 정렬 미들웨어: 난이도 오름차순 (없는 문제는 맨 뒤로)
+    const sortProblems = (problems) => {
+        return problems.sort((a, b) => {
+            const rA = a.rating || Infinity;
+            const rB = b.rating || Infinity;
+            if (rA !== rB) return rA - rB;
+            return b.contestId - a.contestId; // 레이팅 같으면 최신 문제 순
+        });
+    };
+
     const buildVirtualTable = (problems) => {
         const tableHtml = `
-            <table class="datatable" style="width:100%; border-collapse:collapse;">
+            <table class="datatable boj-virtual-datatable" style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr><th>문제</th><th>제목</th><th>난이도</th><th>✅</th></tr>
+                </thead>
                 <tbody>
-                    <tr><th>#</th><th>Name</th><th>Rating</th></tr>
-                    ${problems.length === 0 ? `<tr><td colspan="3" style="text-align:center; padding:30px;">검색 결과가 없습니다.</td></tr>` : ''}
-                    ${problems.slice(0, 100).map(p => {
+                    ${problems.length === 0 ? `<tr><td colspan="4" style="text-align:center; padding:30px;">검색 결과가 없습니다.</td></tr>` : ''}
+                    ${sortProblems(problems).slice(0, window.BOJ_CF.Config.MAX_RENDER_COUNT).map(p => {
                         const icon = chrome.runtime.getURL(window.BOJ_CF.TierCalculator.getProblemTierIcon(p.rating));
                         return `<tr>
                             <td><a href="/problemset/problem/${p.contestId}/${p.index}">${p.contestId}${p.index}</a></td>
-                            <td><a href="/problemset/problem/${p.contestId}/${p.index}"><img src="${icon}" class="boj-tier-icon"> ${p.name}</a> ${p.isSolved ? '✅' : ''}</td>
-                            <td><span class="ProblemRating" title="Difficulty">${p.rating || '?'}</span></td>
+                            <td><a href="/problemset/problem/${p.contestId}/${p.index}">${p.name}</a></td>
+                            <td><img src="${icon}" class="boj-tier-icon" title="${p.rating || '?'}"></td>
+                            <td>${p.isSolved ? '<span style="color:#009874; font-weight:bold;">✔</span>' : ''}</td>
                         </tr>`;
                     }).join('')}
                 </tbody>
@@ -53,7 +66,6 @@ window.BOJ_CF.Pages.Problemset = (function() {
             window.BOJ_CF.Components.SearchBar.init(pc);
             window.BOJ_CF.Components.PillContainer.init();
 
-            // API 연동 (Global DB + Hydration)
             const handleEl = document.querySelector('.lang-chooser a[href^="/profile/"]');
             const handle = handleEl ? handleEl.innerText.trim() : null;
             
@@ -78,15 +90,22 @@ window.BOJ_CF.Pages.Problemset = (function() {
                 }));
             }
 
-            // 오리지널 테이블 티어 아이콘 주입
-            document.querySelectorAll('.datatable table tr:not(:first-child)').forEach(row => {
-                const idLink = row.querySelector('td:first-child a');
-                const ratingSpan = row.querySelector('span[title="Difficulty"]');
-                if (idLink && !idLink.querySelector('img')) {
-                    const iconUrl = chrome.runtime.getURL(window.BOJ_CF.TierCalculator.getProblemTierIcon(ratingSpan ? ratingSpan.innerText.trim() : '0'));
-                    idLink.innerHTML = `<img src="${iconUrl}" class="boj-tier-icon">` + idLink.innerHTML;
-                }
-            });
+            // 오리지널 테이블 티어 아이콘 및 헤더 변경
+            const origTable = document.querySelector('.datatable table');
+            if (origTable) {
+                const headRow = origTable.querySelector('tr:first-child');
+                if(headRow) headRow.innerHTML = `<th>문제</th><th>제목</th><th><div title="Difficulty" style="cursor:help;">난이도</div></th><th>✅</th>`;
+                origTable.querySelectorAll('tr:not(:first-child)').forEach(row => {
+                    const idLink = row.querySelector('td:first-child a');
+                    const ratingSpan = row.querySelector('span[title="Difficulty"]');
+                    const nameCell = row.querySelector('td:nth-child(2)');
+                    if (idLink && nameCell) {
+                        const iconUrl = chrome.runtime.getURL(window.BOJ_CF.TierCalculator.getProblemTierIcon(ratingSpan ? ratingSpan.innerText.trim() : '0'));
+                        // 아이콘을 번호 대신 이름 옆에 배치
+                        if(!nameCell.querySelector('img')) nameCell.innerHTML = `<img src="${iconUrl}" class="boj-tier-icon"> ` + nameCell.innerHTML;
+                    }
+                });
+            }
 
             window.BOJ_CF.StateManager.subscribe(handleFilters);
         }
