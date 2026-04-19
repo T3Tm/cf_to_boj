@@ -1,6 +1,7 @@
 window.BOJ_CF.Pages = window.BOJ_CF.Pages || {};
 window.BOJ_CF.Pages.Problemset = (function() {
     let globalDB = [];
+    let currentPage = 1; // [추가됨] 페이지네이션 현재 상태 변수
 
     // 정렬 미들웨어: 난이도 오름차순 (없는 문제는 맨 뒤로)
     const sortProblems = (problems) => {
@@ -13,6 +14,23 @@ window.BOJ_CF.Pages.Problemset = (function() {
     };
 
     const buildVirtualTable = (problems) => {
+        const max = window.BOJ_CF.Config.MAX_RENDER_COUNT;
+        const totalPages = Math.ceil(problems.length / max) || 1;
+        const startIndex = (currentPage - 1) * max;
+        const currentProblems = sortProblems(problems).slice(startIndex, startIndex + max);
+
+        // 페이지네이션 버튼 HTML 생성
+        let paginationHtml = `<div class="boj-pagination" style="text-align:center; margin-top:20px; padding-bottom:20px;">`;
+        for (let i = 1; i <= totalPages; i++) {
+            // 앞뒤 4페이지씩만 보여주어 버튼이 무한히 길어지는 것 방지
+            if (i === 1 || i === totalPages || (i >= currentPage - 4 && i <= currentPage + 4)) {
+                paginationHtml += `<button class="boj-page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}" style="margin:0 3px; padding:5px 12px; font-weight:bold; border:1px solid var(--boj-border); background:${i === currentPage ? 'var(--boj-primary)' : 'var(--boj-bg)'}; color:${i === currentPage ? '#fff' : 'var(--boj-text)'}; border-radius:4px; cursor:pointer;">${i}</button>`;
+            } else if (i === currentPage - 5 || i === currentPage + 5) {
+                paginationHtml += `<span style="margin:0 3px; color:var(--boj-text);">...</span>`;
+            }
+        }
+        paginationHtml += `</div>`;
+
         const tableHtml = `
             <table class="datatable boj-virtual-datatable" style="width:100%; border-collapse:collapse;">
                 <thead>
@@ -20,7 +38,7 @@ window.BOJ_CF.Pages.Problemset = (function() {
                 </thead>
                 <tbody>
                     ${problems.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:40px; color:#888;">검색 결과가 없습니다.</td></tr>` : ''}
-                    ${sortProblems(problems).slice(0, window.BOJ_CF.Config.MAX_RENDER_COUNT).map(p => {
+                    ${currentProblems.map(p => {
                         const icon = chrome.runtime.getURL(window.BOJ_CF.TierCalculator.getProblemTierIcon(p.rating));
                         return `<tr>
                             <td><a href="/problemset/problem/${p.contestId}/${p.index}" style="color:var(--boj-primary); font-weight:bold;">${p.contestId}${p.index}</a></td>
@@ -32,17 +50,31 @@ window.BOJ_CF.Pages.Problemset = (function() {
                     }).join('')}
                 </tbody>
             </table>
+            ${problems.length > max ? paginationHtml : ''}
         `;
+
         let vt = document.getElementById('boj-virtual-table');
         if (!vt) {
             vt = document.createElement('div'); vt.id = 'boj-virtual-table';
             document.querySelector('.boj-search-container').insertAdjacentElement('afterend', vt);
         }
         vt.innerHTML = tableHtml;
+
+        // [추가됨] 페이지 버튼 클릭 이벤트 위임
+        vt.querySelectorAll('.boj-page-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                currentPage = parseInt(e.target.getAttribute('data-page'));
+                buildVirtualTable(problems); // 변경된 페이지로 테이블 재렌더링
+                window.scrollTo({ top: 0, behavior: 'smooth' }); // 화면 맨 위로 부드럽게 스크롤
+            });
+        });
     };
 
     const handleFilters = (state) => {
-        const originalTable = document.querySelector('.datatable');
+        currentPage = 1; // [추가됨] 검색 조건이 바뀌면 1페이지로 강제 리셋
+
+        const originalTable = document.querySelector('.datatable:not(.boj-virtual-datatable)');
+        // ... (아래 로직은 기존과 동일) ...
         const pagination = document.querySelectorAll('.pagination');
         const vt = document.getElementById('boj-virtual-table');
 

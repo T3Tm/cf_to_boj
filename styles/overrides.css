@@ -71,3 +71,5 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
 :root[data-theme="dark"] .datatable table th, :root[data-theme="dark"] .boj-virtual-datatable th { color: #e0e0e0 !important; }
 
 .boj-tier-icon { width: 14px; height: 18px; vertical-align: -3px; margin-right: 6px; }
+/* 코드포스 낡은 서브 메뉴(Second-level Menu) 영구 숨김 */
+.second-level-menu { display: none !important; }

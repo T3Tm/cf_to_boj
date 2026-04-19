@@ -9,8 +9,9 @@ window.BOJ_CF.QueryParser = (function() {
 
         if (actualToken === '@me') return isNot ? !problemData.isSolved : problemData.isSolved;
         
+        // 2. 태그 매칭 (언더바를 띄어쓰기로 치환)
         if (actualToken.startsWith('tag:')) {
-            const tag = actualToken.substring(4);
+            const tag = actualToken.substring(4).replace(/_/g, ' '); // 언더바 치환 로직 추가
             const match = problemData.tags.some(t => t.toLowerCase().includes(tag));
             return isNot ? !match : match;
         }

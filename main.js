@@ -25,7 +25,7 @@
             <div class="boj-header-center">
                 <ul class="boj-menu-list">
                     <li><a href="/problemset">문제</a></li>
-                    <li><a href="/contests">대회</a></li>
+                    <li><a href="/problemset/submit">제출</a></li> <li><a href="/contests">대회</a></li>
                     <li><a href="/problemset/status">채점 현황</a></li>
                     <li><a href="/top">랭킹</a></li>
                     <li><a href="/groups/my">그룹</a></li>
