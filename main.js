@@ -1,21 +1,21 @@
 /**
  * main.js
- * 확장 프로그램 최종 실행 엔트리
+ * 확장 프로그램 진입점 및 라우터
  */
 (function() {
-    console.log("[BOJ_CF] Extension Active");
+    console.log("[BOJ_CF] Extension v3.1 Loaded");
 
-    // 공통 컴포넌트 실행 (테마 토글 등)
+    // 어느 페이지든 공통으로 들어가야 할 UI 마운트
     window.BOJ_CF.Components.ThemeToggle.init();
 
+    // 현재 URL 경로를 파악하여 필요한 컨트롤러만 실행 (Tree Shaking)
     const path = window.location.pathname;
 
-    // 페이지 라우팅
     if (path.includes('/problemset/problem/')) {
         window.BOJ_CF.Pages.Problem.init();
     } else if (path.includes('/problemset')) {
         window.BOJ_CF.Pages.Problemset.init();
     } else if (path.includes('/profile/')) {
-        // profile.js 로직 연결 가능
+        window.BOJ_CF.Pages.Profile.init();
     }
 })();

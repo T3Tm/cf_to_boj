@@ -1,15 +1,23 @@
-/* 전역 다크모드 대응 */
-:root[data-theme="dark"] body, :root[data-theme="dark"] #pageContent {
+/* styles/overrides.css */
+/* 다크모드 강제 동기화 */
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] #pageContent {
     background-color: #121212 !important; color: var(--boj-text) !important;
 }
-:root[data-theme="dark"] .roundbox, :root[data-theme="dark"] .datatable {
+:root[data-theme="dark"] .roundbox,
+:root[data-theme="dark"] .datatable {
     background-color: #1e1e1e !important; border-color: #444 !important;
 }
+:root[data-theme="dark"] .datatable td,
+:root[data-theme="dark"] .datatable th {
+    background-color: transparent !important; border-color: #444 !important; color: var(--boj-text) !important;
+}
+:root[data-theme="dark"] a { color: #4da6ff !important; }
 
-/* 테이블 정리 */
+/* 테이블 최적화 및 얼룩무늬 배경 */
 .problemset-mode .datatable table { width: 100% !important; border-collapse: collapse !important; }
-.problemset-mode .datatable tr:nth-child(even) { background: rgba(0,0,0,0.03); }
-:root[data-theme="dark"] .problemset-mode .datatable tr:nth-child(even) { background: rgba(255,255,255,0.03); }
+.problemset-mode .datatable tr:nth-child(even) td { background-color: var(--boj-table-stripe) !important; }
+.problemset-mode .datatable tr:nth-child(odd) td { background-color: transparent !important; }
 
-/* 기존 요소 숨김 */
-#boj-theme-toggle { margin-right: 10px; cursor: pointer; }
+/* 티어 아이콘 규격 정규화 */
+.boj-tier-icon { width: 14px; height: 18px; vertical-align: -3px; margin-right: 5px; }

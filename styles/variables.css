@@ -1,3 +1,4 @@
+/* styles/variables.css */
 :root[data-theme="light"] {
     --boj-bg: #ffffff;
     --boj-text: #333333;
@@ -5,6 +6,7 @@
     --boj-pill-bg: #e0eaf5;
     --boj-pill-text: #0076c0;
     --boj-input-bg: #ffffff;
+    --boj-table-stripe: rgba(0,0,0,0.03);
 }
 
 :root[data-theme="dark"] {
@@ -14,4 +16,5 @@
     --boj-pill-bg: #2a3d52;
     --boj-pill-text: #4da6ff;
     --boj-input-bg: #2d2d2d;
+    --boj-table-stripe: rgba(255,255,255,0.03);
 }

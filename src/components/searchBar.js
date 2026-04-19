@@ -1,6 +1,6 @@
 /**
  * src/components/searchBar.js
- * 통합 검색창 UI 및 입력 이벤트 핸들러
+ * 통합 검색창 UI 및 디바운스 입력 감지
  */
 window.BOJ_CF.Components.SearchBar = (function() {
     return {
@@ -15,38 +15,32 @@ window.BOJ_CF.Components.SearchBar = (function() {
                     <button id="boj-search-btn">검색</button>
                 </div>
             `;
-            // 컨테이너의 맨 앞에 검색창 삽입
             containerElement.insertBefore(searchUI, containerElement.firstChild);
 
             const input = document.getElementById('boj-search-input');
             const btn = document.getElementById('boj-search-btn');
 
-            // 입력값 처리 로직
             const handleInput = () => {
                 let val = input.value.replace(',', '').trim();
                 if (val.length > 0) {
                     window.BOJ_CF.StateManager.addFilter(val);
-                    input.value = ''; // 입력창 비우기
+                    input.value = ''; 
                 }
             };
 
-            // 키보드 엔터/쉼표 이벤트
             input.addEventListener('keyup', (e) => {
                 if (e.key === 'Enter' || e.key === ',') handleInput();
             });
 
-            // 키보드 백스페이스로 최근 알약 지우기
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Backspace' && input.value === '') {
                     const state = window.BOJ_CF.StateManager.getState();
                     if (state.activeFilters.length > 0) {
-                        const lastFilter = state.activeFilters[state.activeFilters.length - 1];
-                        window.BOJ_CF.StateManager.removeFilter(lastFilter);
+                        window.BOJ_CF.StateManager.removeFilter(state.activeFilters[state.activeFilters.length - 1]);
                     }
                 }
             });
 
-            // 검색 버튼 클릭 이벤트
             btn.addEventListener('click', handleInput);
         }
     };

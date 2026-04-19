@@ -1,11 +1,10 @@
 /**
  * src/components/pillContainer.js
- * 알약(Pill) 렌더링 및 이벤트 위임(Event Delegation) 기반 삭제 처리
+ * 알약 렌더링 및 이벤트 위임 삭제
  */
 window.BOJ_CF.Components.PillContainer = (function() {
     let containerElement = null;
 
-    // 상태가 변할 때마다 호출되는 렌더링 함수
     const render = (state) => {
         if (!containerElement) return;
         containerElement.innerHTML = '';
@@ -28,15 +27,12 @@ window.BOJ_CF.Components.PillContainer = (function() {
             containerElement.className = 'boj-selected-pills';
             searchContainer.appendChild(containerElement);
 
-            // [메모리 누수 방지] 컨테이너에 단 1개의 이벤트만 걸어 하위 삭제 버튼 모두 제어
             containerElement.addEventListener('click', (e) => {
                 if (e.target.classList.contains('boj-pill-remove')) {
-                    const val = e.target.getAttribute('data-val');
-                    window.BOJ_CF.StateManager.removeFilter(val);
+                    window.BOJ_CF.StateManager.removeFilter(e.target.getAttribute('data-val'));
                 }
             });
 
-            // 상태 관리자 구독
             window.BOJ_CF.StateManager.subscribe(render);
         }
     };
