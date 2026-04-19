@@ -153,23 +153,36 @@
 
 /* --- 다크 모드(Theme) 방어용 CSS 변수 및 반응형 --- */
 
-:root {
+/* --- 테마 엔진 (Theme Engine) --- */
+:root[data-theme="light"] {
     --boj-bg: #ffffff;
     --boj-text: #333333;
-    --boj-border: #ced4da;
+    --boj-border: #e0e0e0;
     --boj-pill-bg: #e0eaf5;
+    --boj-input-bg: #ffffff;
 }
 
-/* 코드포스의 기본 다크 테마 감지 (또는 시스템 다크모드) */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --boj-bg: #1e1e1e;
-        --boj-text: #e0e0e0;
-        --boj-border: #444444;
-        --boj-pill-bg: #2a3d52;
-    }
+:root[data-theme="dark"] {
+    --boj-bg: #1e1e1e;
+    --boj-text: #e0e0e0;
+    --boj-border: #444444;
+    --boj-pill-bg: #2a3d52;
+    --boj-input-bg: #2d2d2d;
+    background-color: #121212 !important; /* CF 기본 배경 덮어쓰기용 */
 }
 
+/* GNB 테마 토글 버튼 */
+#boj-theme-toggle {
+    margin-right: 15px;
+    padding: 3px 8px;
+    background: transparent;
+    border: 1px solid var(--boj-border);
+    color: var(--boj-text);
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+/* 통합 검색창 */
 .boj-search-container {
     background-color: var(--boj-bg);
     border: 1px solid var(--boj-border);
@@ -177,26 +190,21 @@
     padding: 15px;
     margin-bottom: 20px;
     clear: both !important;
-    display: block !important;
-    position: relative;
-    z-index: 10;
 }
 
 .boj-search-input-wrapper {
     display: flex;
-    flex-wrap: wrap; /* 반응형 붕괴 방지 */
     gap: 10px;
 }
 
 #boj-search-input {
     flex: 1;
-    min-width: 250px; /* 창이 좁아져도 버팀 */
+    min-width: 200px;
     padding: 10px 15px;
-    background-color: var(--boj-bg);
+    background-color: var(--boj-input-bg);
     color: var(--boj-text);
     border: 1px solid var(--boj-border);
     border-radius: 4px;
-    font-size: 15px;
     outline: none;
 }
 
@@ -206,29 +214,32 @@
     color: white;
     border: none;
     border-radius: 4px;
-    font-size: 15px;
     font-weight: bold;
     cursor: pointer;
 }
 
+/* 알약 (Pills) */
 .boj-selected-pills {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     margin-top: 12px;
-    max-height: 120px; 
-    overflow-y: auto;
 }
 
 .boj-pill {
     display: inline-flex;
     align-items: center;
     background-color: var(--boj-pill-bg);
-    color: #4da6ff; /* 다크/라이트 모두 잘 보이는 파란색 */
+    color: #4da6ff;
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 13px;
     font-weight: bold;
+}
+
+.boj-pill-remove {
+    background: none; border: none; color: inherit;
+    margin-left: 6px; cursor: pointer; font-size: 12px;
 }
 
 /* 테이블 강제 정렬 및 스포일러 숨김 방어 */
