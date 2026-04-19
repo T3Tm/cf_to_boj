@@ -1,22 +1,28 @@
-/**
- * src/pages/problemset.js
- * 문제 목록 페이지 컨트롤러 (인메모리 필터링 및 렌더링 전담)
- */
 window.BOJ_CF.Pages = window.BOJ_CF.Pages || {};
-
 window.BOJ_CF.Pages.Problemset = (function() {
     let indexedRows = []; 
 
-    // DOM 읽기 최소화를 위한 인메모리 인덱싱
-    const indexTableRows = () => {
+    const indexTableRows = (solvedSet = new Set()) => {
         const rows = document.querySelectorAll('.datatable table tr:not(:first-child)');
-        indexedRows = Array.from(rows).map(row => ({
-            element: row,
-            fullText: row.innerText.toLowerCase()
-        }));
+        indexedRows = Array.from(rows).map(row => {
+            if (row.classList.contains('boj-empty-state')) return null;
+            
+            const idLink = row.querySelector('td:first-child a');
+            const probId = idLink ? idLink.innerText.trim() : '';
+            const ratingSpan = row.querySelector('td:nth-child(4) span');
+            const tags = Array.from(row.querySelectorAll('a[title="Topic"]')).map(a => a.innerText.toLowerCase());
+
+            return {
+                element: row,
+                fullText: row.innerText.toLowerCase(),
+                id: probId,
+                rating: ratingSpan ? ratingSpan.innerText.trim() : '0',
+                tags: tags,
+                isSolved: solvedSet.has(probId) // 하이드레이션: 풀이 여부 저장
+            };
+        }).filter(Boolean);
     };
 
-    // 상태 변경 시 배치 렌더링 (Batch Rendering)
     const applyFilters = (state) => {
         const evaluator = window.BOJ_CF.QueryParser.createEvaluator(state.activeFilters);
         const paginations = document.querySelectorAll('.pagination');
@@ -25,35 +31,17 @@ window.BOJ_CF.Pages.Problemset = (function() {
         paginations.forEach(p => p.style.display = state.activeFilters.length > 0 ? 'none' : '');
 
         indexedRows.forEach(item => {
-            if (item.element.classList.contains('boj-empty-state')) return;
             const isVisible = evaluator(item);
             item.element.style.display = isVisible ? 'table-row' : 'none';
             if (isVisible) visibleCount++;
         });
-
-        handleEmptyState(visibleCount, state.activeFilters.length);
-    };
-
-    const handleEmptyState = (count, filterCount) => {
-        const existing = document.querySelector('.boj-empty-state');
-        if (existing) existing.remove();
-
-        if (count === 0 && filterCount > 0) {
-            const table = document.querySelector('.datatable table tbody') || document.querySelector('.datatable table');
-            const row = document.createElement('tr');
-            row.className = 'boj-empty-state';
-            row.innerHTML = `<td colspan="5" style="text-align:center; padding:40px; color:#888; font-weight:bold;">검색 조건과 일치하는 문제가 없습니다.</td>`;
-            table.appendChild(row);
-        }
     };
 
     const renderTiers = () => {
         indexedRows.forEach(item => {
             const idLink = item.element.querySelector('td:first-child a');
-            const ratingSpan = item.element.querySelector('td:nth-child(4) span');
             if (idLink && !idLink.querySelector('img')) {
-                const rating = ratingSpan ? ratingSpan.innerText.trim() : '';
-                const iconUrl = chrome.runtime.getURL(window.BOJ_CF.TierCalculator.getProblemTierIcon(rating));
+                const iconUrl = chrome.runtime.getURL(window.BOJ_CF.TierCalculator.getProblemTierIcon(item.rating));
                 idLink.innerHTML = `<img src="${iconUrl}" class="boj-tier-icon">` + idLink.innerHTML;
             }
         });
@@ -64,17 +52,30 @@ window.BOJ_CF.Pages.Problemset = (function() {
             const pc = document.querySelector('#pageContent');
             if (!pc) return;
 
-            // UI 컴포넌트 마운트
             window.BOJ_CF.Components.SearchBar.init(pc);
             window.BOJ_CF.Components.PillContainer.init();
             
+            // 1차 렌더링 (텍스트 기반)
             indexTableRows();
             renderTiers();
-
-            // 상태 구독
             window.BOJ_CF.StateManager.subscribe(applyFilters);
 
-            // AJAX 통신으로 표가 갱신되면 자동 복구
+            // 2차 하이드레이션 (API 기반 풀이 여부 결합)
+            const handleElement = document.querySelector('.lang-chooser a[href^="/profile/"]');
+            if (handleElement) {
+                const handle = handleElement.innerText.trim();
+                window.BOJ_CF.Fetcher.fetchUserStatus(handle).then(data => {
+                    if (data && data.result) {
+                        const solvedSet = new Set();
+                        data.result.forEach(sub => {
+                            if (sub.verdict === 'OK') solvedSet.add(`${sub.problem.contestId}${sub.problem.index}`);
+                        });
+                        indexTableRows(solvedSet); // 풀이 데이터와 함께 재인덱싱
+                        applyFilters(window.BOJ_CF.StateManager.getState());
+                    }
+                });
+            }
+
             window.BOJ_CF.DOMObserver.init('.datatable');
             window.BOJ_CF.DOMObserver.subscribe(() => {
                 indexTableRows();

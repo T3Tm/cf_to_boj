@@ -1,78 +1,44 @@
-# 🏆 Codeforces to Baekjoon (v3.3 Advanced Search & Theme Master)
+# 🛠️ Codeforces to Baekjoon (v3.7 Stability & Hotfix Master)
 
-본 프로젝트는 코드포스(Codeforces)의 사용자 경험을 백준(Baekjoon Online Judge/solved.ac) 스타일로 완전히 재구성하는 크롬 확장 프로그램입니다. v3.3 업데이트는 solved.ac의 강력한 복합 검색 문법을 완벽히 지원하는 **AST 파서 엔진** 탑재와, 백준 특유의 깔끔한 **카드형 UI 레이아웃**을 복원하는 데 집중했습니다.
-
----
-
-## 📂 1. 최종 확정 파일 구조 (Directory Tree)
-
-    .
-    ├── manifest.json            # 모듈 로딩 순서 강제 및 권한 설정
-    ├── theme-init.js            # 테마 초기화 (화면 깜빡임 차단용 최우선 실행)
-    ├── main.js                  # 최종 실행 진입점 및 페이지 라우터
-    ├── README.md                # 프로젝트 통합 명세서 (본 문서)
-    ├── icons/                   # 아이콘 에셋 (Snake Case 정규화 완료)
-    ├── src/                     
-    │   ├── api/                 
-    │   │   └── fetcher.js       # 15분 로컬 캐싱이 적용된 API 통신 레이어
-    │   ├── components/          
-    │   │   ├── pillContainer.js # 이벤트 위임 방식의 알약 렌더링 UI
-    │   │   ├── searchBar.js     # [업데이트] 띄어쓰기 기준 알약 분리(Tokenization) 생성 로직 탑재
-    │   │   ├── spoilerToggle.js # 개별 문제 스포일러 차단 UI
-    │   │   └── themeToggle.js   # 글로벌 테마 스위치
-    │   ├── core/                
-    │   │   ├── queryParser.js   # [전면개편] solved.ac 정규식 문법 완벽 지원 AST 평가 엔진
-    │   │   ├── stateManager.js  # Pub/Sub 기반 전역 상태 통제소
-    │   │   └── tierCalculator.js# 레이팅 -> 티어 변환 수학 공식
-    │   ├── pages/               
-    │   │   ├── problem.js       # 개별 문제 레이아웃 제어
-    │   │   ├── problemset.js    # [업데이트] API 데이터 하이드레이션(Hydration) 및 인메모리 인덱싱
-    │   │   ├── profile.js       # 유저 프로필 스트릭 및 2단 레이아웃 제어
-    │   │   └── status.js        # 채점 현황 테이블 티어 렌더링 전담 컨트롤러
-    │   └── utils/               
-    │       ├── debounce.js      # 입력 지연 최적화
-    │       ├── domObserver.js   # AJAX 증발 방지 싱글톤 옵저버
-    │       └── sanitizer.js     # XSS 해킹 방어
-    └── styles/                  
-        ├── variables.css        # 다크/라이트 색상표
-        ├── components.css       # 주입 UI 고유 디자인
-        └── overrides.css        # [업데이트] 백준 스타일 카드 컨테이너 래핑 및 폰트 강제화
+본 명세서는 확장 프로그램 실행 중 콘솔(Console)에 발생하는 두 가지 치명적 에러(`Cannot set properties of undefined`, `net::ERR_FILE_NOT_FOUND`)의 원인을 규명하고 이를 논리적으로 차단하는 지침서입니다.
 
 ---
 
-## 🚀 2. 핵심 구현 아키텍처 (Core Architecture)
+## 🚨 1. 치명적 버그 원인 분석 (3-Pass Verification)
 
-### ① solved.ac 문법 파서 엔진 (AST Query Parser)
-단순 문자열 비교(`includes`)가 아닌, 입력된 쿼리의 접두사(Prefix)를 분석하여 메타데이터와 대조하는 진정한 파서입니다.
-* **Tokenization:** 유저가 `tag:dp tier:s` 입력 후 엔터를 치면, 하나의 알약이 아닌 **2개의 독립된 알약**으로 자동 분리되어 UI의 가독성을 높입니다.
-* **지원 쿼리 규칙:**
-    * `tag:X` : 숨겨진 태그 데이터와 정확히 매칭.
-    * `tier:X` / `*tier` : 티어 정규식 파싱 및 일치 여부 확인.
-    * `s#A..B` : 해결한 사람 수(Solved Count)의 숫자 범위를 추출하여 비교 연산.
-    * `@me` / `~@me` : API 연동을 통해 내가 맞은 문제인지 여부 필터링.
+### ① 에러 1: `Cannot set properties of undefined (setting 'Problem')`
+* **1차 검증 (에러 위치):** `problem.js` 파일에서 `window.BOJ_CF.Pages.Problem` 객체에 접근하려 할 때 발생했습니다.
+* **2차 검증 (발생 원인):** 자바스크립트는 파일이 병렬로 로드될 때 실행 순서가 꼬일 수 있습니다. `problem.js`가 실행되는 시점에, 부모 객체인 `window.BOJ_CF.Pages`가 아직 메모리에 만들어지지 않았기 때문에 존재하지 않는 것(undefined)의 하위 속성을 설정하려다 앱이 뻗어버린 것입니다.
+* **3차 검증 (해결 설계):** 다른 파일(`problemset.js` 등)이 먼저 실행되기를 기대하는 안일한 구조를 버려야 합니다. 모든 페이지 컨트롤러 파일의 최상단에는 **"부모 객체가 없다면 빈 객체로 즉시 생성하라(Safeguard)"**는 방어 로직이 반드시 포함되어야 합니다.
 
-### ② 데이터 하이드레이션 (Data Hydration Pipeline)
-문제 목록(Problemset) 페이지는 더 이상 화면의 글자만 읽지 않습니다.
-1. 페이지 로드 즉시 `api/fetcher.js`가 백그라운드에서 유저의 풀이 기록을 가져옵니다.
-2. 테이블을 인메모리 배열로 만들 때, API 결과와 대조하여 각 문제 행 객체에 `isSolved: true/false` 속성을 은밀하게 주입합니다.
-3. 이를 통해 화면에 표시되지 않은 정보(`~@me` 쿼리)로도 완벽한 필터링이 가능해집니다.
-
-### ③ 백준 테마 복원 (Baekjoon Card Layout)
-* **Card Wrapper:** 코드포스의 넓고 휑한 구조를 버리고, `#pageContent`에 그림자(`box-shadow`)와 둥근 모서리(`border-radius`), 깔끔한 흰색 배경을 부여하여 백준 특유의 종이 질감 레이아웃을 강제합니다.
-* **글로벌 폰트:** 레거시 웹 폰트를 제압하고 가독성 높은 산세리프 폰트로 전면 교체하여 현대적인 UI 감각을 복원했습니다.
+### ② 에러 2: `Failed to load resource: bronze0.svg`
+* **1차 검증 (에러 위치):** 티어를 계산하는 `tierCalculator.js` 엔진의 반환값에서 발생했습니다.
+* **2차 검증 (발생 원인):** 이전 버전에서 티어 아이콘 경로를 지정할 때, 코드를 줄이기 위해 나눗셈과 내림(`Math.floor`)을 활용한 '수학적 공식'을 사용했습니다. 하지만 특정 레이팅 구간(예: 1300점대)을 이 공식에 대입했을 때, 계산 결과가 `0`으로 떨어지는 논리적 구멍(Boundary Flaw)이 존재했습니다. 백준 티어는 1부터 5까지만 존재하므로 `bronze0.svg`라는 파일은 애초에 존재하지 않아 404 에러를 뱉어낸 것입니다.
+* **3차 검증 (해결 설계):** 억지로 코드를 줄이려는 똑똑한 수학 공식을 전면 폐기해야 합니다. 티어 계산 로직은 0이나 6 같은 범위를 벗어난 값이 절대 나오지 않도록, 모든 100점 단위 구간마다 정확히 1~5 중 하나의 정수와 1:1로 매핑되는 **명시적인 조건문(If/Else) 구조**로 완전히 뜯어고쳐야 합니다.
 
 ---
 
-## ⚠️ 3. 아키텍처 방어 로직 (Defenses & Safeties)
+## 🛡️ 2. 아키텍처 해결 설계 및 조치 지침 (Resolution Guide)
 
-1. **라우팅 정밀도 상향:** URL 경로 검사 시 단순 포함이 아닌 정규식을 사용하여, `/problemset/status` 페이지에 검색창이 뜨는 라우팅 붕괴 현상을 100% 차단했습니다.
-2. **타겟팅 격리:** 채점 현황(`status.js`)과 문제 목록(`problemset.js`)의 DOM 구조가 다름을 인지하고, 컨트롤러를 분리하여 엉뚱한 제출 번호 열에 아이콘이 박히는 타겟팅 오류를 해결했습니다.
-3. **다크모드 스코프 누수 차단:** 코드포스 상단 헤더 메뉴의 강력한 기존 CSS를 제압하기 위해, `overrides.css`의 다크모드 선택자 명시도(Specificity)를 최대로 끌어올려 글자가 안 보이는 현상을 방어했습니다.
+개발자님께서는 아래 두 가지 지침에 따라 기존 로직을 수정해 주십시오.
+
+### 지침 1. `problem.js` 네임스페이스 방어벽 구축
+* **대상 파일:** `src/pages/problem.js`
+* **조치 사항:**
+  1. 파일의 가장 첫 번째 줄에, `window.BOJ_CF.Pages` 객체가 존재하지 않을 경우 이를 빈 객체(`{}`)로 초기화해주는 안전장치(Safeguard) 논리합 연산자를 반드시 선언하십시오.
+  2. 이 조치를 `status.js`, `profile.js` 등 모든 개별 페이지 컨트롤러 최상단에도 동일하게 적용하여, 어떤 파일이 먼저 로드되더라도 `undefined` 에러가 발생하지 않도록 격리하십시오.
+
+### 지침 2. `tierCalculator.js` 계산 공식 하드코딩화
+* **대상 파일:** `src/core/tierCalculator.js`
+* **조치 사항:**
+  1. `getProblemTierIcon` 함수 내부의 뺄셈 및 나눗셈(`Math.floor`) 공식을 모두 삭제하십시오.
+  2. 대신, 점수 구간을 100점 단위로 촘촘하게 쪼개는 명시적인 조건문 흐름을 작성하십시오.
+  3. 예를 들어 "900 미만은 브론즈 5", "900 이상 1000 미만은 브론즈 4", "1000 이상 1100 미만은 브론즈 3"과 같이, 각 점수대별로 정확한 문자열(`bronze4.svg` 등)을 반환하도록 하드코딩(Hardcoding) 하십시오. 이는 코드는 길어지지만 예측 불가능한 `0` 에러를 100% 원천 차단하는 가장 안전한 아키텍처입니다.
 
 ---
 
-## 🛠️ 4. 개발 및 유지보수 가이드 (Dev Guide)
+## 📝 3. 시스템 안정성 최종 점검 (Checklist)
 
-1. **새로운 검색 쿼리 추가:** `src/core/queryParser.js` 내부에 새로운 정규표현식 검사 로직을 추가하고 평가기(Evaluator)에 등록하십시오.
-2. **테마 수정:** 레이아웃의 형태(여백, 테두리 등)는 `overrides.css`에서 수정하고, 색상 톤은 반드시 `variables.css`의 변수값만 수정하여 일관성을 유지하십시오.
-3. **API 한도 주의:** 데이터 하이드레이션이 동작하므로, 개발 중 잦은 새로고침 시 429 에러가 발생하지 않도록 `fetcher.js`의 15분 캐싱 로직을 절대 비활성화하지 마십시오.
+* [ ] `problem.js` 진입 시 더 이상 콘솔에 빨간색 `TypeError`가 출력되지 않는가?
+* [ ] 1300점, 1800점, 2300점 등 수학적 경계선에 걸리는 문제를 렌더링할 때 `0`번 아이콘을 찾는 404 에러가 사라졌는가?
+* [ ] 모든 문제의 티어 아이콘이 1부터 5 사이의 올바른 아이콘으로 렌더링되는가?

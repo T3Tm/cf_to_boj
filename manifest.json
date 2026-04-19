@@ -1,14 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Codeforces to Baekjoon",
-  "version": "3.1",
-  "description": "Codeforces 백준 스타일 통합 렌더링 및 검색 엔진 (v3.1 Modular)",
-  "permissions": [
-    "storage"
-  ],
-  "host_permissions": [
-    "https://codeforces.com/api/*"
-  ],
+  "version": "3.3",
+  "description": "Codeforces 백준 스타일 통합 렌더링 및 검색 엔진 (v3.3)",
+  "permissions": ["storage"],
+  "host_permissions": ["https://codeforces.com/api/*"],
   "content_scripts": [
     {
       "matches": ["*://codeforces.com/*"],
@@ -33,6 +29,7 @@
         "src/pages/problem.js",
         "src/pages/problemset.js",
         "src/pages/profile.js",
+        "src/pages/status.js",
         "main.js"
       ],
       "run_at": "document_idle"
