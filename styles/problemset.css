@@ -1,0 +1,274 @@
+/**
+ * styles/problemset.css
+ * 전체 문제 목록 페이지 디자인
+ */
+
+.problemset-mode {
+    background-color: #ffffff !important;
+    padding: 0 0 60px 0 !important;
+}
+
+/* 1. 사이드바에서 구출해 온 검색/필터 영역을 상단 가로형으로 배치 */
+.boj-problemset-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 25px;
+}
+
+.boj-problemset-filter form {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    gap: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.boj-problemset-filter input[type="text"] {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    min-width: 150px;
+}
+
+.boj-problemset-filter input[type="submit"] {
+    background-color: #428bca !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 6px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.boj-problemset-filter input[type="submit"]:hover {
+    background-color: #3071a9 !important;
+}
+
+/* 2. 대망의 BOJ 스트라이프 테이블 */
+.boj-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 40px !important;
+    border-top: 2px solid #0076c0 !important; /* 백준 블루 포인트 선 */
+    border-bottom: 1px solid #ddd !important;
+    background-color: #fff !important;
+}
+
+.boj-table th {
+    background-color: #f8f9fa !important;
+    padding: 12px 10px !important;
+    font-size: 14px !important;
+    color: #333 !important;
+    border-bottom: 1px solid #ddd !important;
+    text-align: center !important;
+    white-space: nowrap;
+}
+
+.boj-table td {
+    padding: 15px 10px !important;
+    font-size: 14px !important;
+    color: #555 !important;
+    border-bottom: 1px solid #ddd !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+/* 문제 제목 열 좌측 정렬 */
+.boj-table td:nth-child(2), .boj-table th:nth-child(2) {
+    text-align: left !important;
+}
+
+/* 홀/짝 회색 스트라이프 효과 */
+.boj-table tr:nth-child(even) td { background-color: #f9f9f9 !important; }
+.boj-table tr:nth-child(odd) td { background-color: #ffffff !important; }
+.boj-table tr:hover td { background-color: #f1f1f1 !important; }
+
+/* 태그 텍스트 깔끔하게 */
+.problemset-mode .notice {
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+}
+
+/* 잡동사니 숨기기 */
+.problemset-mode .datatable .bottom-links { display: none !important; }
+
+
+
+/* --- [추가] 맞은 문제 / 틀린 문제 리스트 하이라이트 (백준 스타일) --- */
+
+/* 코드포스가 강제로 먹이는 행 배경색 투명하게 무력화 */
+.problemset-mode .boj-table tr.accepted-problem td { background-color: transparent !important; }
+.problemset-mode .boj-table tr.rejected-problem td { background-color: transparent !important; }
+
+/* 배경색은 지웠지만 스트라이프 무늬는 유지 */
+.problemset-mode .boj-table tr.accepted-problem:nth-child(even) td,
+.problemset-mode .boj-table tr.rejected-problem:nth-child(even) td { background-color: #f9f9f9 !important; }
+.problemset-mode .boj-table tr.accepted-problem:nth-child(odd) td,
+.problemset-mode .boj-table tr.rejected-problem:nth-child(odd) td { background-color: #ffffff !important; }
+.problemset-mode .boj-table tr.accepted-problem:hover td,
+.problemset-mode .boj-table tr.rejected-problem:hover td { background-color: #f1f1f1 !important; }
+
+/* 문제 제목(a 태그) 색상 변경 - 맞은 문제: 초록색, 틀린 문제: 빨간색 */
+.problemset-mode .boj-table tr.accepted-problem td:nth-child(2) > div > a,
+.problemset-mode .boj-table tr.accepted-problem td:nth-child(2) > a {
+    color: #009874 !important;
+    font-weight: bold !important;
+}
+
+.problemset-mode .boj-table tr.rejected-problem td:nth-child(2) > div > a,
+.problemset-mode .boj-table tr.rejected-problem td:nth-child(2) > a {
+    color: #dd4124 !important;
+    font-weight: bold !important;
+}
+
+
+/* --- [추가] Problemset 테이블 내의 알고리즘 분류 태그 영구 숨김 --- */
+
+/* 1. 코드포스 특유의 태그 감싸는 div (float: right 등 속성 포함) 숨김 */
+.problemset-mode .boj-table td > div[style*="float: right"] {
+    display: none !important;
+}
+
+/* 2. 문제 제목 밑에 작게 표시되는 태그 링크들 숨김 */
+.problemset-mode .boj-table td:nth-child(2) > div > div > a.notice {
+    display: none !important;
+}
+
+/* 3. 태그 텍스트, 쉼표 등 잔여물 청소 */
+.problemset-mode .boj-table td:nth-child(2) > div > div {
+    display: none !important;
+}
+
+/* 4. 오직 문제 제목(첫 번째 div의 a 태그)만 보이도록 강제 */
+.problemset-mode .boj-table td:nth-child(2) > div:first-child {
+    display: block !important;
+    margin-bottom: 0 !important;
+}
+
+
+
+/* --- 통합 검색 엔진 UI 스타일 및 레이아웃 충돌 방어 --- */
+
+.boj-search-container {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    
+    /* 레이아웃 충돌 방지 핵심 코드 */
+    clear: both !important;
+    display: block !important;
+    position: relative;
+    z-index: 10;
+}
+
+.boj-search-input-wrapper {
+    display: flex;
+    gap: 10px;
+}
+
+#boj-search-input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#boj-search-input:focus {
+    border-color: #0076c0;
+}
+
+#boj-search-btn {
+    padding: 0 25px;
+    background-color: #0076c0;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#boj-search-btn:hover {
+    background-color: #005a93;
+}
+
+/* 선택된 태그(알약) 영역 방어 (높이 붕괴 방지) */
+.boj-selected-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    max-height: 120px; /* 알약이 너무 많아져도 레이아웃을 해치지 않음 */
+    overflow-y: auto;
+}
+
+.boj-selected-pills:empty {
+    display: none;
+}
+
+.boj-pill {
+    display: inline-flex;
+    align-items: center;
+    background-color: #e0eaf5;
+    color: #0076c0;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.boj-pill-remove {
+    background: none;
+    border: none;
+    color: #0076c0;
+    margin-left: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 0;
+    line-height: 1;
+}
+
+.boj-pill-remove:hover {
+    color: #dd4124;
+}
+
+/* 테이블이 검색창 위로 기어 올라오는 현상 방어 */
+.problemset-mode .datatable {
+    clear: both !important;
+    display: block !important;
+    padding-top: 10px !important;
+}
+
+/* --- Problemset 테이블 내의 알고리즘 분류 태그 영구 숨김 --- */
+.problemset-mode .boj-table td > div[style*="float: right"] { display: none !important; }
+.problemset-mode .boj-table td:nth-child(2) > div > div > a.notice { display: none !important; }
+.problemset-mode .boj-table td:nth-child(2) > div > div { display: none !important; }
+.problemset-mode .boj-table td:nth-child(2) > div:first-child { display: block !important; margin-bottom: 0 !important; }
+
+/* --- 맞은 문제 / 틀린 문제 리스트 제목 색상 하이라이트 --- */
+.problemset-mode .boj-table tr.accepted-problem td { background-color: transparent !important; }
+.problemset-mode .boj-table tr.rejected-problem td { background-color: transparent !important; }
+
+.problemset-mode .boj-table tr.accepted-problem:nth-child(even) td,
+.problemset-mode .boj-table tr.rejected-problem:nth-child(even) td { background-color: #f9f9f9 !important; }
+.problemset-mode .boj-table tr.accepted-problem:nth-child(odd) td,
+.problemset-mode .boj-table tr.rejected-problem:nth-child(odd) td { background-color: #ffffff !important; }
+
+.problemset-mode .boj-table tr.accepted-problem td:nth-child(2) > div > a,
+.problemset-mode .boj-table tr.accepted-problem td:nth-child(2) > a { color: #009874 !important; font-weight: bold !important; }
+
+.problemset-mode .boj-table tr.rejected-problem td:nth-child(2) > div > a,
+.problemset-mode .boj-table tr.rejected-problem td:nth-child(2) > a { color: #dd4124 !important; font-weight: bold !important; }

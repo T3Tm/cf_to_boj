@@ -1,0 +1,96 @@
+/**
+ * styles/contest.css
+ * 대회 페이지 전용 스타일
+ */
+
+.contest-mode {
+    background-color: #ffffff !important;
+    padding: 0 0 60px 0 !important;
+}
+
+/* 1. 백준 스타일 파란색 상단 탭 (nav-pills) */
+.boj-nav-pills {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 25px 0;
+    display: flex;
+    gap: 5px;
+}
+.boj-nav-pills li a {
+    display: block;
+    padding: 8px 16px;
+    text-decoration: none !important;
+    color: #333;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+}
+.boj-nav-pills li.active a {
+    background-color: #428bca;
+    color: #fff;
+}
+.boj-nav-pills li:not(.active) a:hover {
+    background-color: #eee;
+}
+
+/* 2. 테이블 제목 (현재 예정된 대회 / 종료된 대회) */
+.boj-table-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+    margin-top: 20px;
+}
+
+/* 3. 대망의 BOJ 스트라이프 테이블 */
+.boj-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 40px !important;
+    border-top: 2px solid #0076c0 !important; /* 백준 블루 포인트 선 */
+    border-bottom: 1px solid #ddd !important;
+}
+
+.boj-table th {
+    background-color: #f8f9fa !important;
+    padding: 12px 10px !important;
+    font-size: 14px !important;
+    color: #333 !important;
+    border-bottom: 1px solid #ddd !important;
+    text-align: center !important;
+    white-space: nowrap;
+}
+
+.boj-table td {
+    padding: 15px 10px !important;
+    font-size: 14px !important;
+    color: #555 !important;
+    border-bottom: 1px solid #ddd !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+/* 대회 이름(첫번째 열)만 왼쪽 정렬 */
+.boj-table td:first-child {
+    text-align: left !important;
+    padding-left: 20px !important;
+}
+.boj-table th:first-child {
+    text-align: left !important;
+    padding-left: 20px !important;
+}
+
+/* 홀/짝 회색 스트라이프 효과 */
+.boj-table tr:nth-child(even) td {
+    background-color: #f9f9f9 !important;
+}
+.boj-table tr:nth-child(odd) td {
+    background-color: #ffffff !important;
+}
+.boj-table tr:hover td {
+    background-color: #f1f1f1 !important;
+}
+
+/* 잡동사니 제거 */
+.contest-mode .datatable .bottom-links { display: none !important; }
+.contest-mode .contestList { padding: 0 !important; }

@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "BOJ Style Codeforces",
+  "version": "1.9",
+  "content_scripts": [
+    {
+      "matches": ["*://codeforces.com/*", "*://*.codeforces.com/*"],
+      "css": [
+        "styles/common.css",
+        "styles/problem.css",
+        "styles/submit.css",
+        "styles/status.css",
+        "styles/contest.css",
+        "styles/problemset.css",
+        "styles/profile.css"
+      ],
+      "js": [
+        "scripts/utils.js",
+        "scripts/ui.js",
+        "scripts/problem.js",
+        "scripts/submit.js",
+        "scripts/status.js",
+        "scripts/contest.js",
+        "scripts/problemset.js",
+        "scripts/profile.js",
+        "scripts/main.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*.svg"],
+      "matches": ["*://*.codeforces.com/*"]
+    }
+  ]
+}

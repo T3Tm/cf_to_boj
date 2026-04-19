@@ -1,0 +1,161 @@
+/**
+ * styles/problem.css
+ * 개별 문제 페이지 전용 스타일
+ */
+
+.problem-mode {
+    background-color: #ffffff !important;
+    color: #333 !important;
+    padding: 0 0 60px 0 !important;
+    display: block !important;
+    width: 1170px !important;
+    margin: 0 auto !important;
+}
+
+/* 1. 문제 정보 테이블 */
+.boj-info-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 40px !important;
+    border-top: 2px solid #0076c0 !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    background: #fff !important;
+}
+.boj-info-table th {
+    background-color: #f8f9fa !important;
+    padding: 12px 0 !important;
+    color: #333 !important;
+    font-weight: bold !important;
+    font-size: 14px !important;
+    text-align: center !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+}
+.boj-info-table td {
+    padding: 15px 0 !important;
+    color: #555 !important;
+    font-size: 14px !important;
+    text-align: center !important;
+    border-bottom: none !important;
+}
+
+/* 2. 지문(본문) 섹션 */
+.boj-section {
+    margin-bottom: 40px !important;
+    display: block !important;
+}
+.boj-section h2 {
+    font-size: 22px !important;
+    font-weight: bold !important;
+    color: #333 !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 15px !important;
+    display: block !important;
+}
+.boj-text {
+    font-size: 16px !important;
+    line-height: 1.8 !important;
+    color: #333 !important;
+    display: block !important;
+}
+
+/* 3. 예제 입출력 반반 나누기 */
+.boj-sample-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 30px !important;
+    margin-bottom: 30px !important;
+}
+.boj-sample-col {
+    width: 48% !important;
+    display: block !important;
+}
+.boj-sample-col h2 {
+    font-size: 22px !important;
+    font-weight: bold !important;
+    color: #333 !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 15px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.copy-btn {
+    font-size: 12px !important;
+    color: #0076c0 !important;
+    cursor: pointer !important;
+    font-weight: normal !important;
+    border: 1px solid #0076c0 !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+}
+.copy-btn:hover { background-color: #0076c0 !important; color: #fff !important; }
+
+.sample-box {
+    background-color: #f8f9fa !important;
+    border: 1px solid #e0e0e0 !important;
+    padding: 15px !important;
+    border-radius: 4px !important;
+    font-family: 'Consolas', 'Courier New', monospace !important;
+    font-size: 15px !important;
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+    margin: 0 !important;
+    color: #333 !important;
+    display: block !important;
+}
+
+/* 4. 알고리즘 분류 (태그) 토글 */
+.boj-tags-section {
+    margin-top: 60px !important;
+    padding-top: 20px !important;
+    border-top: 1px solid #ddd !important;
+    margin-bottom: 20px !important;
+    display: block !important;
+}
+.boj-tags-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 15px !important;
+    margin-bottom: 15px !important;
+}
+.boj-tags-header h2 {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    font-size: 18px !important;
+}
+.boj-tags-toggle {
+    background: none !important;
+    border: none !important;
+    color: #0076c0 !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+}
+.boj-tags-toggle:hover { text-decoration: underline !important; }
+
+.boj-tags-content {
+    display: none !important; /* 기본적으로 무조건 숨김 */
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    padding-top: 5px !important;
+}
+
+.boj-tags-content.boj-show {
+    display: flex !important; /* 토글 시 강제로 보여줌 */
+}
+
+.boj-tag {
+    background-color: #f1f3f5 !important;
+    color: #333 !important;
+    padding: 6px 12px !important;
+    border-radius: 20px !important;
+    font-size: 13px !important;
+    border: 1px solid #e9ecef !important;
+    display: inline-block !important;
+}
