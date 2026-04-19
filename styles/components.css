@@ -1,35 +1,11 @@
-/* styles/components.css */
-#boj-theme-toggle {
-    margin-right: 15px; padding: 4px 8px; border-radius: 4px;
-    background: transparent; border: 1px solid var(--boj-border);
-    color: var(--boj-text); cursor: pointer; font-weight: bold;
-}
-
-.boj-search-container {
-    background-color: var(--boj-bg); border: 1px solid var(--boj-border);
-    border-radius: 4px; padding: 15px; margin-bottom: 20px; clear: both !important;
-}
-.boj-search-input-wrapper { display: flex; gap: 10px; }
-#boj-search-input {
-    flex: 1; min-width: 200px; padding: 10px; border-radius: 4px;
-    border: 1px solid var(--boj-border); background: var(--boj-input-bg); color: var(--boj-text); outline: none;
-}
-#boj-search-btn {
-    padding: 0 20px; background: #0076c0; color: #fff;
-    border: none; border-radius: 4px; font-weight: bold; cursor: pointer;
-}
-
-.boj-selected-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-.boj-pill {
-    display: inline-flex; align-items: center; background: var(--boj-pill-bg);
-    color: var(--boj-pill-text); padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: bold;
-}
-.boj-pill-remove { background: none; border: none; color: inherit; margin-left: 6px; cursor: pointer; }
-
-/* 스포일러 토글 UI */
-.boj-tags-section { margin-top: 40px; padding: 15px; border: 1px solid var(--boj-border); border-radius: 4px; background: var(--boj-bg); }
-.boj-tags-header { display: flex; justify-content: space-between; align-items: center; }
-.boj-tags-header h3 { margin: 0; color: var(--boj-text); font-size: 16px; }
-#boj-tag-toggle-btn { padding: 5px 15px; background: #0076c0; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-#boj-tag-toggle-btn.active { background: #666; }
-#boj-hidden-tags { margin-top: 15px; gap: 8px; flex-wrap: wrap; }
+#boj-theme-toggle { margin-right:15px; padding:4px 8px; border-radius:4px; background:transparent; border:1px solid var(--boj-border); color:var(--boj-text); cursor:pointer; font-weight:bold; }
+.boj-search-container { background:var(--boj-bg); border:1px solid var(--boj-border); border-radius:8px; padding:15px; margin-bottom:20px; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
+.boj-search-input-wrapper { display:flex; gap:10px; }
+#boj-search-input { flex:1; padding:10px; border-radius:4px; border:1px solid var(--boj-border); background:var(--boj-input-bg); color:var(--boj-text); outline:none; font-family:inherit;}
+#boj-search-btn { padding:0 20px; background:#0076c0; color:#fff; border:none; border-radius:4px; font-weight:bold; cursor:pointer; }
+.boj-selected-pills { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.boj-pill { display:inline-flex; align-items:center; background:var(--boj-pill-bg); color:var(--boj-pill-text); padding:5px 12px; border-radius:20px; font-size:13px; font-weight:bold; text-decoration:none !important;}
+.boj-pill.solved { background:#e7f4ef; color:#009874; } .boj-pill.tried { background:#feebe7; color:#dd4124; }
+.boj-pill-remove { background:none; border:none; color:inherit; margin-left:6px; cursor:pointer; }
+.boj-tags-section { margin-top:40px; padding:15px; border:1px solid var(--boj-border); border-radius:4px; background:var(--boj-bg); }
+.boj-profile-card { background:var(--boj-bg); border:1px solid var(--boj-border); padding:20px; border-radius:8px; }

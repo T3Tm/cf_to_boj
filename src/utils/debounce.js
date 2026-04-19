@@ -8,11 +8,7 @@ window.BOJ_CF.Utils = window.BOJ_CF.Utils || {};
 window.BOJ_CF.Utils.debounce = function(func, delay) {
     let timeoutId;
     return function(...args) {
-        if (timeoutId) {
-            clearTimeout(timeoutId);
-        }
-        timeoutId = setTimeout(() => {
-            func.apply(this, args);
-        }, delay);
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => { func.apply(this, args); }, delay);
     };
 };

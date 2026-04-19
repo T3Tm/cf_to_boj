@@ -1,20 +1,2 @@
-/* styles/variables.css */
-:root[data-theme="light"] {
-    --boj-bg: #ffffff;
-    --boj-text: #333333;
-    --boj-border: #ced4da;
-    --boj-pill-bg: #e0eaf5;
-    --boj-pill-text: #0076c0;
-    --boj-input-bg: #ffffff;
-    --boj-table-stripe: rgba(0,0,0,0.03);
-}
-
-:root[data-theme="dark"] {
-    --boj-bg: #1e1e1e;
-    --boj-text: #e0e0e0;
-    --boj-border: #444444;
-    --boj-pill-bg: #2a3d52;
-    --boj-pill-text: #4da6ff;
-    --boj-input-bg: #2d2d2d;
-    --boj-table-stripe: rgba(255,255,255,0.03);
-}
+:root[data-theme="light"] { --boj-bg: #fff; --boj-text: #333; --boj-border: #ced4da; --boj-pill-bg: #e0eaf5; --boj-pill-text: #0076c0; --boj-input-bg: #fff; --boj-table-stripe: rgba(0,0,0,0.03); }
+:root[data-theme="dark"] { --boj-bg: #1e1e1e; --boj-text: #e0e0e0; --boj-border: #444; --boj-pill-bg: #2a3d52; --boj-pill-text: #4da6ff; --boj-input-bg: #2d2d2d; --boj-table-stripe: rgba(255,255,255,0.03); }

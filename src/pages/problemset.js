@@ -1,87 +1,94 @@
 window.BOJ_CF.Pages = window.BOJ_CF.Pages || {};
 window.BOJ_CF.Pages.Problemset = (function() {
-    let indexedRows = []; 
+    let globalDB = [];
 
-    const indexTableRows = (solvedSet = new Set()) => {
-        const rows = document.querySelectorAll('.datatable table tr:not(:first-child)');
-        indexedRows = Array.from(rows).map(row => {
-            if (row.classList.contains('boj-empty-state')) return null;
-            
-            const idLink = row.querySelector('td:first-child a');
-            const probId = idLink ? idLink.innerText.trim() : '';
-            const ratingSpan = row.querySelector('td:nth-child(4) span');
-            const tags = Array.from(row.querySelectorAll('a[title="Topic"]')).map(a => a.innerText.toLowerCase());
-
-            return {
-                element: row,
-                fullText: row.innerText.toLowerCase(),
-                id: probId,
-                rating: ratingSpan ? ratingSpan.innerText.trim() : '0',
-                tags: tags,
-                isSolved: solvedSet.has(probId) // 하이드레이션: 풀이 여부 저장
-            };
-        }).filter(Boolean);
+    const buildVirtualTable = (problems) => {
+        const tableHtml = `
+            <table class="datatable" style="width:100%; border-collapse:collapse;">
+                <tbody>
+                    <tr><th>#</th><th>Name</th><th>Rating</th></tr>
+                    ${problems.length === 0 ? `<tr><td colspan="3" style="text-align:center; padding:30px;">검색 결과가 없습니다.</td></tr>` : ''}
+                    ${problems.slice(0, 100).map(p => {
+                        const icon = chrome.runtime.getURL(window.BOJ_CF.TierCalculator.getProblemTierIcon(p.rating));
+                        return `<tr>
+                            <td><a href="/problemset/problem/${p.contestId}/${p.index}">${p.contestId}${p.index}</a></td>
+                            <td><a href="/problemset/problem/${p.contestId}/${p.index}"><img src="${icon}" class="boj-tier-icon"> ${p.name}</a> ${p.isSolved ? '✅' : ''}</td>
+                            <td><span class="ProblemRating" title="Difficulty">${p.rating || '?'}</span></td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
+        let vt = document.getElementById('boj-virtual-table');
+        if (!vt) {
+            vt = document.createElement('div'); vt.id = 'boj-virtual-table';
+            document.querySelector('.boj-search-container').insertAdjacentElement('afterend', vt);
+        }
+        vt.innerHTML = tableHtml;
     };
 
-    const applyFilters = (state) => {
-        const evaluator = window.BOJ_CF.QueryParser.createEvaluator(state.activeFilters);
-        const paginations = document.querySelectorAll('.pagination');
-        let visibleCount = 0;
+    const handleFilters = (state) => {
+        const originalTable = document.querySelector('.datatable');
+        const pagination = document.querySelectorAll('.pagination');
+        const vt = document.getElementById('boj-virtual-table');
 
-        paginations.forEach(p => p.style.display = state.activeFilters.length > 0 ? 'none' : '');
-
-        indexedRows.forEach(item => {
-            const isVisible = evaluator(item);
-            item.element.style.display = isVisible ? 'table-row' : 'none';
-            if (isVisible) visibleCount++;
-        });
-    };
-
-    const renderTiers = () => {
-        indexedRows.forEach(item => {
-            const idLink = item.element.querySelector('td:first-child a');
-            if (idLink && !idLink.querySelector('img')) {
-                const iconUrl = chrome.runtime.getURL(window.BOJ_CF.TierCalculator.getProblemTierIcon(item.rating));
-                idLink.innerHTML = `<img src="${iconUrl}" class="boj-tier-icon">` + idLink.innerHTML;
-            }
-        });
+        if (state.activeFilters.length === 0) {
+            if (originalTable) originalTable.style.display = '';
+            pagination.forEach(p => p.style.display = '');
+            if (vt) vt.style.display = 'none';
+        } else {
+            if (originalTable) originalTable.style.display = 'none';
+            pagination.forEach(p => p.style.display = 'none');
+            const evaluator = window.BOJ_CF.QueryParser.createEvaluator(state.activeFilters);
+            const filtered = globalDB.filter(evaluator);
+            buildVirtualTable(filtered);
+            if (vt) vt.style.display = 'block';
+        }
     };
 
     return {
-        init: function() {
+        init: async function() {
             const pc = document.querySelector('#pageContent');
             if (!pc) return;
-
             window.BOJ_CF.Components.SearchBar.init(pc);
             window.BOJ_CF.Components.PillContainer.init();
-            
-            // 1차 렌더링 (텍스트 기반)
-            indexTableRows();
-            renderTiers();
-            window.BOJ_CF.StateManager.subscribe(applyFilters);
 
-            // 2차 하이드레이션 (API 기반 풀이 여부 결합)
-            const handleElement = document.querySelector('.lang-chooser a[href^="/profile/"]');
-            if (handleElement) {
-                const handle = handleElement.innerText.trim();
-                window.BOJ_CF.Fetcher.fetchUserStatus(handle).then(data => {
-                    if (data && data.result) {
-                        const solvedSet = new Set();
-                        data.result.forEach(sub => {
-                            if (sub.verdict === 'OK') solvedSet.add(`${sub.problem.contestId}${sub.problem.index}`);
-                        });
-                        indexTableRows(solvedSet); // 풀이 데이터와 함께 재인덱싱
-                        applyFilters(window.BOJ_CF.StateManager.getState());
-                    }
-                });
+            // API 연동 (Global DB + Hydration)
+            const handleEl = document.querySelector('.lang-chooser a[href^="/profile/"]');
+            const handle = handleEl ? handleEl.innerText.trim() : null;
+            
+            const [allProbs, userStatus] = await Promise.all([
+                window.BOJ_CF.Fetcher.fetchAllProblems(),
+                handle ? window.BOJ_CF.Fetcher.fetchUserStatus(handle) : Promise.resolve(null)
+            ]);
+
+            if (allProbs && allProbs.problems) {
+                const solvedSet = new Set();
+                if (userStatus && userStatus.result) {
+                    userStatus.result.forEach(sub => { if (sub.verdict === 'OK') solvedSet.add(`${sub.problem.contestId}${sub.problem.index}`); });
+                }
+                globalDB = allProbs.problems.map(p => ({
+                    id: `${p.contestId}${p.index}`,
+                    name: p.name,
+                    rating: p.rating,
+                    tags: p.tags,
+                    contestId: p.contestId,
+                    index: p.index,
+                    isSolved: solvedSet.has(`${p.contestId}${p.index}`)
+                }));
             }
 
-            window.BOJ_CF.DOMObserver.init('.datatable');
-            window.BOJ_CF.DOMObserver.subscribe(() => {
-                indexTableRows();
-                renderTiers();
-                applyFilters(window.BOJ_CF.StateManager.getState());
+            // 오리지널 테이블 티어 아이콘 주입
+            document.querySelectorAll('.datatable table tr:not(:first-child)').forEach(row => {
+                const idLink = row.querySelector('td:first-child a');
+                const ratingSpan = row.querySelector('span[title="Difficulty"]');
+                if (idLink && !idLink.querySelector('img')) {
+                    const iconUrl = chrome.runtime.getURL(window.BOJ_CF.TierCalculator.getProblemTierIcon(ratingSpan ? ratingSpan.innerText.trim() : '0'));
+                    idLink.innerHTML = `<img src="${iconUrl}" class="boj-tier-icon">` + idLink.innerHTML;
+                }
             });
+
+            window.BOJ_CF.StateManager.subscribe(handleFilters);
         }
     };
 })();

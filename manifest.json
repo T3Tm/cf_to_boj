@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Codeforces to Baekjoon",
-  "version": "3.3",
-  "description": "Codeforces 백준 스타일 통합 렌더링 및 검색 엔진 (v3.3)",
+  "version": "3.7",
+  "description": "Codeforces 백준 스타일 통합 렌더링 및 전역 검색 엔진",
   "permissions": ["storage"],
   "host_permissions": ["https://codeforces.com/api/*"],
   "content_scripts": [
