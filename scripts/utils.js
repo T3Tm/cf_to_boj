@@ -1,11 +1,10 @@
 /**
  * scripts/utils.js
- * 공통 유틸리티 (런타임 에러 방어 및 티어 분배 완벽 적용)
+ * 공통 유틸리티 (100점 단위 티어 분배 및 API 캐싱 방어)
  */
 const Utils = {
-    // 1. 유저 프로필용 레이팅 매핑
     getUserTierIcon: (rating) => {
-        if (rating === null || rating === undefined || rating === '') return 'icons/norating.svg';
+        if (!rating) return 'icons/norating.svg';
         const r = parseInt(rating);
         if (isNaN(r) || r === 0) return 'icons/norating.svg';
         
@@ -54,9 +53,8 @@ const Utils = {
         return 'icons/master.svg'; 
     },
 
-    // 2. 문제 난이도용 레이팅 매핑 (선택지 A: 100점 단위, 최고 루비3)
     getProblemTierIcon: (rating) => {
-        if (rating === null || rating === undefined || rating === '' || rating === '?') return 'icons/question_mark.svg';
+        if (!rating || rating === '?') return 'icons/question_mark.svg';
         const r = parseInt(rating);
         if (isNaN(r) || r === 0) return 'icons/question_mark.svg';
         
@@ -110,30 +108,48 @@ const Utils = {
         return document.querySelector('.lang-chooser a[href^="/profile/"]')?.innerText.trim() || '';
     },
 
-    // 3. [복구됨] 런타임 에러의 주범이었던 유저 정보 가져오기 함수 안전하게 처리
     getCurrentUser: () => {
         try {
             const profileLink = document.querySelector('div.lang-chooser a[href^="/profile/"]');
-            // 로그인 상태인 경우
             if (profileLink) {
                 const username = profileLink.innerText.trim();
                 const colorClass = Array.from(profileLink.classList).find(c => c.startsWith('user-')) || 'user-black';
-                
-                let fakeRating = 0;
-                if(colorClass === 'user-gray') fakeRating = 1000;
-                else if(colorClass === 'user-green') fakeRating = 1300;
+                let fakeRating = 1000;
+                if(colorClass === 'user-green') fakeRating = 1300;
                 else if(colorClass === 'user-cyan') fakeRating = 1500;
                 else if(colorClass === 'user-blue') fakeRating = 1700;
                 else if(colorClass === 'user-violet') fakeRating = 2000;
                 else if(colorClass === 'user-orange') fakeRating = 2300;
                 else if(colorClass === 'user-red' || colorClass === 'user-legendary') fakeRating = 2500;
-                
                 return { username, rating: fakeRating, colorClass };
             }
-            // 비로그인 (게스트) 상태인 경우 안전하게 null 반환
             return null;
         } catch (e) {
-            console.error("Error fetching user data:", e);
+            return null;
+        }
+    },
+
+    // [신규] API 초당 호출 제한 방어용 캐싱 함수 (15분 유효)
+    fetchUserStatusWithCache: async (username) => {
+        const cacheKey = `boj_cf_status_${username}`;
+        const cached = localStorage.getItem(cacheKey);
+        const now = Date.now();
+        
+        if (cached) {
+            const parsed = JSON.parse(cached);
+            if (now - parsed.timestamp < 15 * 60 * 1000) return parsed.data; // 15분 이내면 캐시 반환
+        }
+        
+        try {
+            const res = await fetch(`https://codeforces.com/api/user.status?handle=${username}`);
+            const data = await res.json();
+            if (data.status === 'OK') {
+                localStorage.setItem(cacheKey, JSON.stringify({ timestamp: now, data: data }));
+                return data;
+            }
+            return null;
+        } catch (e) {
+            console.error("API Fetch Error:", e);
             return null;
         }
     }

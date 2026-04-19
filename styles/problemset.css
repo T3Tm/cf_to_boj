@@ -151,19 +151,31 @@
     margin-bottom: 0 !important;
 }
 
+/* --- 다크 모드(Theme) 방어용 CSS 변수 및 반응형 --- */
 
+:root {
+    --boj-bg: #ffffff;
+    --boj-text: #333333;
+    --boj-border: #ced4da;
+    --boj-pill-bg: #e0eaf5;
+}
 
-/* --- 통합 검색 엔진 UI 스타일 및 레이아웃 충돌 방어 --- */
+/* 코드포스의 기본 다크 테마 감지 (또는 시스템 다크모드) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --boj-bg: #1e1e1e;
+        --boj-text: #e0e0e0;
+        --boj-border: #444444;
+        --boj-pill-bg: #2a3d52;
+    }
+}
 
 .boj-search-container {
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
+    background-color: var(--boj-bg);
+    border: 1px solid var(--boj-border);
     border-radius: 4px;
     padding: 15px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    
-    /* 레이아웃 충돌 방지 핵심 코드 */
     clear: both !important;
     display: block !important;
     position: relative;
@@ -172,21 +184,20 @@
 
 .boj-search-input-wrapper {
     display: flex;
+    flex-wrap: wrap; /* 반응형 붕괴 방지 */
     gap: 10px;
 }
 
 #boj-search-input {
     flex: 1;
+    min-width: 250px; /* 창이 좁아져도 버팀 */
     padding: 10px 15px;
-    border: 1px solid #ced4da;
+    background-color: var(--boj-bg);
+    color: var(--boj-text);
+    border: 1px solid var(--boj-border);
     border-radius: 4px;
     font-size: 15px;
     outline: none;
-    transition: border-color 0.2s;
-}
-
-#boj-search-input:focus {
-    border-color: #0076c0;
 }
 
 #boj-search-btn {
@@ -198,61 +209,30 @@
     font-size: 15px;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.2s;
 }
 
-#boj-search-btn:hover {
-    background-color: #005a93;
-}
-
-/* 선택된 태그(알약) 영역 방어 (높이 붕괴 방지) */
 .boj-selected-pills {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     margin-top: 12px;
-    max-height: 120px; /* 알약이 너무 많아져도 레이아웃을 해치지 않음 */
+    max-height: 120px; 
     overflow-y: auto;
-}
-
-.boj-selected-pills:empty {
-    display: none;
 }
 
 .boj-pill {
     display: inline-flex;
     align-items: center;
-    background-color: #e0eaf5;
-    color: #0076c0;
+    background-color: var(--boj-pill-bg);
+    color: #4da6ff; /* 다크/라이트 모두 잘 보이는 파란색 */
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 13px;
     font-weight: bold;
 }
 
-.boj-pill-remove {
-    background: none;
-    border: none;
-    color: #0076c0;
-    margin-left: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    padding: 0;
-    line-height: 1;
-}
-
-.boj-pill-remove:hover {
-    color: #dd4124;
-}
-
-/* 테이블이 검색창 위로 기어 올라오는 현상 방어 */
-.problemset-mode .datatable {
-    clear: both !important;
-    display: block !important;
-    padding-top: 10px !important;
-}
-
-/* --- Problemset 테이블 내의 알고리즘 분류 태그 영구 숨김 --- */
+/* 테이블 강제 정렬 및 스포일러 숨김 방어 */
+.problemset-mode .datatable { clear: both !important; padding-top: 10px !important; }
 .problemset-mode .boj-table td > div[style*="float: right"] { display: none !important; }
 .problemset-mode .boj-table td:nth-child(2) > div > div > a.notice { display: none !important; }
 .problemset-mode .boj-table td:nth-child(2) > div > div { display: none !important; }
