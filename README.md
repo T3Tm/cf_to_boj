@@ -1,77 +1,64 @@
-# 🛠️ Codeforces 백준화 프로젝트: v3.0 마이그레이션 및 파일 구조 재설계 명세서
+# 🏆 Codeforces to Baekjoon (v3.0 Modular Architecture)
 
-본 문서는 레거시 단일 파일(Monolithic) 구조에서 미래지향적 컴포넌트 기반 아키텍처(Modular Architecture)로 전환하기 위한 마이그레이션 작업 지침서입니다. 기존의 모든 방어 로직과 기능이 유실 없이 안전하게 이관되도록 설계되었습니다.
+본 프로젝트는 코드포스(Codeforces)의 사용자 경험을 백준(Baekjoon Online Judge/solved.ac) 스타일로 완전히 재구성하는 크롬 확장 프로그램입니다. v3.0 아키텍처는 단순한 스타일 변경을 넘어, 대규모 데이터 처리 성능과 확장성을 고려한 **컴포넌트 기반 모듈화**를 지향합니다.
 
 ---
 
-## 1. 무손실 마이그레이션 로직 검증 (Logic Mapping Check)
+## 📂 1. 아키텍처 및 파일 구조 (Directory Structure)
 
-기존 스크립트에 혼재되어 있던 기능들이 새 아키텍처의 어느 모듈로 이관되는지 점검한 내역입니다. 누락된 로직은 0건입니다.
+프로젝트는 역할 분담(Separation of Concerns) 원칙에 따라 설계되었습니다.
 
-| 기존 기능 (Legacy Logic) | 이관 대상 모듈 (New Component/Module) | 마이그레이션 상세 및 최적화 포인트 |
+* **`core/`**: DOM과 무관한 순수 비즈니스 로직 (티어 계산 공식, 검색어 AST 파싱, 전역 상태 관리).
+* **`components/`**: 재사용 가능한 독립 UI 조각 (통합 검색창, 알약 컨테이너, 테마 스위치, 스포일러 방지 토글).
+* **`pages/`**: 특정 페이지(문제 목록, 상세, 프로필)의 전체 렌더링 및 이벤트를 통제하는 뷰 컨트롤러.
+* **`api/`**: 네트워크 통신 최적화 및 Rate Limit 방어를 위한 캐싱 레이어.
+* **`utils/`**: 성능 최적화(디바운스), 보안(새니타이저), 변화 감지(DOM 옵저버) 도우미 함수군.
+* **`styles/`**: 변수, 컴포넌트, 레거시 레이아웃 제압용 스타일시트의 체계적 분리.
+
+---
+
+## 🚀 2. 핵심 기능 설계 (Key Implementation Logic)
+
+### ① solved.ac 스타일 통합 검색 엔진
+* **인메모리 인덱싱(In-memory Indexing):** 페이지 로드 시 1회만 데이터를 추출하여 자바스크립트 객체로 보관합니다. 검색 시 DOM에 다시 접근하지 않아 수천 개의 행을 필터링해도 화면 프리징이 발생하지 않습니다.
+* **복합 쿼리 평가:** `id:`, `#tag`, `*tier`, `~not` 등 복합 논리 연산을 지원하며, 모든 조건의 교집합(AND)을 계산하여 실시간으로 테이블 행을 제어합니다.
+* **배치 렌더링:** 검색 결과에 따른 DOM 표시/숨김 처리를 개별 속성 조작이 아닌 클래스 일괄 토글 방식으로 수행하여 브라우저 부하를 최소화합니다.
+
+### ② 스마트 테마 엔진 (Advanced Theme System)
+* **FOUC(Flash of Unstyled Content) 방어:** 전역 실행 순서가 가장 빠른 `theme-init.js`를 통해 DOM이 그려지기 전 최우선으로 테마를 결정하여 화면 깜빡임을 차단합니다.
+* **독립적 테마 스코프:** 시스템 설정이 아닌 확장 프로그램 내부의 `data-theme` 속성에 의존하여 코드포스 자체 다크 모드와 충돌하지 않도록 독립적으로 동작합니다.
+
+### ③ 데이터 무결성 및 보안
+* **15분 세이프가드 캐싱:** 유저 풀이 정보(`user.status`) 호출 결과를 타임스탬프와 함께 로컬에 저장합니다. 15분 이내 재방문 시 API 호출을 생략하여 코드포스 서버의 429(Too Many Requests) 에러를 원천 차단합니다.
+* **XSS 새니타이저:** 사용자 입력 검색어를 UI(알약)로 변환하기 전 특수문자 이스케이프 처리를 수행하여 보안 취약점을 방어합니다.
+
+---
+
+## ⚠️ 3. 충돌 방어 로직 (Self-Verification & Defenses)
+
+설계 단계에서 검토된 10가지 주요 충돌 시나리오에 대한 대응책입니다.
+
+| 충돌 시나리오 | 원인 및 위험 요소 | 아키텍처적 대응 및 방어 전략 |
 | :--- | :--- | :--- |
-| **100점 단위 티어 매핑** | `src/core/tierCalculator` | 순수 논리 함수로 분리하여 Problem, Profile 등 모든 페이지에서 import 하여 재사용. |
-| **API 15분 로컬 캐싱** | `src/api/fetcher` | 통신 전담 모듈로 격리. 에러 핸들링(429, 500) 및 Promise 반환 로직 일원화. |
-| **다크모드 토글 스위치** | `src/components/themeToggle` | UI 렌더링 및 이벤트 리스너 전담 컴포넌트로 분리. |
-| **깜빡임(FOUC) 방지** | `theme-init.js` | 모듈 번들링에서 제외하여 HTML `<head>` 로드 시 최우선 실행되도록 격리. |
-| **검색창 UI 및 입력 감지** | `src/components/searchBar` | 디바운스(Debounce) 및 XSS 방어(Sanitizer) 로직을 내장하여 안전한 텍스트만 추출. |
-| **알약(Pill) 생성 및 삭제** | `src/components/pillContainer` | 이벤트 위임(Event Delegation) 패턴을 적용하여 메모리 누수 원천 차단. |
-| **검색어 파싱 (solved.ac 문법)**| `src/core/queryParser` | AST 파싱 로직 분리. DOM과 무관하게 문자열만 분석하여 평가 함수를 반환하도록 순수 함수화. |
-| **DOM 렌더링 최적화 (Batch)** | `src/pages/problemset` | `StateManager`를 구독하여 상태 변경 시 메모리 인덱싱 기반으로 `display: none` 클래스 일괄 적용. |
-| **AJAX 갱신 감지** | `src/utils/domObserver` | 싱글톤 패턴으로 단 1개의 감시자만 가동하며, 변경 발생 시 페이지 컨트롤러에 브로드캐스트. |
-| **태그 스포일러 방지 토글** | `src/components/spoilerToggle`| 개별 문제 페이지 전용 컴포넌트로 격리. 기존 태그 수집 및 블라인드 처리 전담. |
+| **순서 의존성 에러** | 스크립트 실행 시 필요한 모듈이 로드되지 않음. | `manifest.json`에서 유틸 -> 코어 -> 컴포넌트 순으로 로딩 순서를 하드코딩함. |
+| **전역 네임스페이스 오염** | 타 확장 프로그램과의 함수명 충돌. | 모든 기능을 `window.BOJ_CF` 전역 객체 하위로 캡슐화하여 격리. |
+| **상태 동기화 오류** | 검색어 상태와 화면 UI의 불일치. | 중앙 집중식 `StateManager`(Pub/Sub 모델)를 통해 단방향 데이터 흐름을 강제함. |
+| **AJAX 렌더링 소멸** | 페이지네이션/정렬 시 주입된 아이콘 증발. | 싱글톤 `DOMObserver`가 테이블 변화를 감지하여 렌더링 함수를 자동 재실행함. |
+| **CSS 스타일 출혈** | 레거시 CSS가 커스텀 UI를 무너뜨림. | ID 기반 네임스페이스(#boj-cf-root)와 구체적인 CSS 경로를 사용하여 명시도 우위를 확보함. |
+| **이벤트 리스너 누수** | 알약 생성/삭제 시 메모리 과부하. | 부모 컨테이너에 단 1개의 리스너만 다는 **이벤트 위임 패턴**으로 메모리 관리 최적화. |
 
 ---
 
-## 2. 파일 구조 대개편 (File Structure Transformation)
+## 🛠️ 4. 설치 및 개발 가이드
 
-기존의 비대해진 파일들을 전면 삭제(해체)하고, 역할별로 명확히 분리된 새 디렉토리 구조를 도입합니다.
-
-### 🗑️ 삭제되는 레거시 파일들 (Deleted)
-역할이 비대해져 유지보수가 불가능했던 기존 스크립트와 스타일시트입니다.
-- `scripts/utils.js` (기능이 너무 많이 섞인 유틸 파일)
-- `scripts/problemset.js` (검색, DOM 조작, 옵저버가 혼재된 스파게티 파일)
-- `scripts/problem.js` (단일 스크립트)
-- `styles/problemset.css` (변수와 덮어쓰기가 혼재된 CSS)
-
-### 🆕 새롭게 추가되는 구조 및 파일들 (Added)
-웹팩(Webpack)이나 ES Modules 환경에서 조립될 수 있도록 역할이 완벽히 쪼개진 모듈들입니다.
-
-- **`src/core/` (핵심 비즈니스 로직)**
-  - `tierCalculator.js`
-  - `queryParser.js`
-  - `stateManager.js` (필터 상태, 테마 상태 등을 관리하는 전역 저장소)
-- **`src/api/` (네트워크)**
-  - `fetcher.js` (캐싱 및 통신)
-- **`src/components/` (재사용 가능한 UI 조각)**
-  - `searchBar.js`
-  - `pillContainer.js`
-  - `themeToggle.js`
-  - `spoilerToggle.js`
-- **`src/pages/` (페이지별 뷰 컨트롤러)**
-  - `problemset.js` (Problemset 페이지 마운트 및 렌더링 총괄)
-  - `problem.js` (개별 문제 페이지 마운트)
-  - `profile.js` (유저 프로필 페이지 마운트)
-- **`src/utils/` (도우미 함수)**
-  - `domObserver.js` (DOM 감시)
-  - `debounce.js` (입력 지연)
-  - `sanitizer.js` (XSS 방어)
-- **`styles/` (스타일시트 분리)**
-  - `variables.css` (테마, 색상 등 CSS 변수 선언)
-  - `components.css` (우리가 주입하는 UI의 고유 스타일)
-  - `overrides.css` (코드포스 레거시 레이아웃 강제 덮어쓰기 전용)
-- **`theme-init.js`** (루트 디렉토리에 위치, 화면 렌더링 전 최우선 실행)
-
-### 🔄 업데이트 되는 파일 (Updated)
-- **`manifest.json`**
-  - 기존 단일 스크립트 참조 방식에서, 새롭게 쪼개진 모듈들의 로딩 순서를 엄격하게 정의합니다.
-  - **스크립트 로딩 순서:** `theme-init.js` -> `utils/` -> `core/` -> `api/` -> `components/` -> `pages/` 순으로 의존성 에러가 나지 않도록 재배치합니다.
-  - **CSS 로딩 순서:** `variables.css` -> `components.css` -> `overrides.css` 순으로 적용하여 명시도 충돌을 방지합니다.
+1.  **설치:** `chrome://extensions` 접속 -> '개발자 모드' 활성화 -> '압축해제된 확장 프로그램을 로드' -> 프로젝트 루트 폴더 선택.
+2.  **기능 확장:** 새로운 페이지 컨트롤러가 필요할 경우 `src/pages/`에 모듈을 추가하고 `main.js`의 라우팅 로직에 연결하십시오.
+3.  **성능 유지:** 대량의 데이터를 다룰 때는 반드시 `src/utils/debounce.js`를 활용하여 연산 폭주를 방지하십시오.
 
 ---
 
-## 3. 리팩토링 기대 효과 (Architectural Benefits)
-
-1. **사이드 이펙트(Side-effect) 완전 차단:** 검색바 UI를 수정하다가 AJAX 옵저버가 고장나는 등의 연쇄 버그가 발생하지 않습니다. 컴포넌트가 완전히 격리되어 있기 때문입니다.
-2. **무한 확장성 보장:** 향후 '랜덤 디펜스' 기능이 추가된다면, 기존 코드를 건드릴 필요 없이 `src/components/randomDefense.js`를 하나 만들어서 `problemset.js`에 끼워 넣기만 하면 됩니다.
-3. **렌더링 성능 극대화:** DOM 조작 로직이 `pages` 디렉토리 하위의 뷰 컨트롤러에 집중되고, `stateManager`가 상태 변경을 일괄 브로드캐스팅하여 브라우저의 화면 갱신 부하(Reflow)를 최소화합니다.
+## 📅 5. 버전 관리 및 마이그레이션 (v3.0)
+* **[✓]** 레거시 `scripts/` 단일 폴더 구조 전면 폐기 및 모듈화 완료.
+* **[✓]** 인메모리 인덱싱 기반 고성능 검색 파이프라인 구축.
+* **[✓]** `MutationObserver`를 활용한 비동기 데이터 렌더링 방어 시스템 정착.
+* **[✓]** 전역 테마 토글 및 상태 유지 로직 최적화.
