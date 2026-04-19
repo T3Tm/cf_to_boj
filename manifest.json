@@ -1,37 +1,40 @@
 {
   "manifest_version": 3,
-  "name": "BOJ Style Codeforces",
-  "version": "1.9",
+  "name": "Codeforces to Baekjoon",
+  "version": "3.0",
+  "description": "Codeforces 백준 스타일 통합 렌더링 및 검색 엔진",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://codeforces.com/api/*"
+  ],
   "content_scripts": [
     {
-      "matches": ["*://codeforces.com/*", "*://*.codeforces.com/*"],
+      "matches": ["*://codeforces.com/*"],
       "css": [
-        "styles/common.css",
-        "styles/problem.css",
-        "styles/submit.css",
-        "styles/status.css",
-        "styles/contest.css",
-        "styles/problemset.css",
-        "styles/profile.css"
+        "styles/variables.css",
+        "styles/components.css",
+        "styles/overrides.css"
       ],
       "js": [
-        "scripts/utils.js",
-        "scripts/ui.js",
-        "scripts/problem.js",
-        "scripts/submit.js",
-        "scripts/status.js",
-        "scripts/contest.js",
-        "scripts/problemset.js",
-        "scripts/profile.js",
-        "scripts/main.js"
-      ],
-      "run_at": "document_idle"
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["icons/*.svg"],
-      "matches": ["*://*.codeforces.com/*"]
+        "theme-init.js",
+        "src/utils/domObserver.js",
+        "src/utils/debounce.js",
+        "src/utils/sanitizer.js",
+        "src/core/tierCalculator.js",
+        "src/core/stateManager.js",
+        "src/core/queryParser.js",
+        "src/api/fetcher.js",
+        "src/components/themeToggle.js",
+        "src/components/pillContainer.js",
+        "src/components/searchBar.js",
+        "src/components/spoilerToggle.js",
+        "src/pages/problemset.js",
+        "src/pages/problem.js",
+        "src/pages/profile.js",
+        "main.js"
+      ]
     }
   ]
 }

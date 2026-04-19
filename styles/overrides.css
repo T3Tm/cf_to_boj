@@ -1,0 +1,15 @@
+/* 전역 다크모드 대응 */
+:root[data-theme="dark"] body, :root[data-theme="dark"] #pageContent {
+    background-color: #121212 !important; color: var(--boj-text) !important;
+}
+:root[data-theme="dark"] .roundbox, :root[data-theme="dark"] .datatable {
+    background-color: #1e1e1e !important; border-color: #444 !important;
+}
+
+/* 테이블 정리 */
+.problemset-mode .datatable table { width: 100% !important; border-collapse: collapse !important; }
+.problemset-mode .datatable tr:nth-child(even) { background: rgba(0,0,0,0.03); }
+:root[data-theme="dark"] .problemset-mode .datatable tr:nth-child(even) { background: rgba(255,255,255,0.03); }
+
+/* 기존 요소 숨김 */
+#boj-theme-toggle { margin-right: 10px; cursor: pointer; }

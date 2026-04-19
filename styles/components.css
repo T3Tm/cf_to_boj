@@ -1,0 +1,40 @@
+.boj-search-container {
+    background-color: var(--boj-bg);
+    border: 1px solid var(--boj-border);
+    border-radius: 4px; padding: 15px; margin-bottom: 20px;
+}
+.boj-search-input-wrapper { display: flex; gap: 10px; }
+#boj-search-input {
+    flex: 1; padding: 10px; border-radius: 4px;
+    border: 1px solid var(--boj-border); background: var(--boj-input-bg); color: var(--boj-text);
+}
+#boj-search-btn {
+    padding: 0 20px; background: #0076c0; color: #fff; border: none; border-radius: 4px; cursor: pointer;
+}
+.boj-selected-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.boj-pill {
+    display: inline-flex; align-items: center; background: var(--boj-pill-bg);
+    color: var(--boj-pill-text); padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 13px;
+}
+.boj-pill-remove { background: none; border: none; color: inherit; cursor: pointer; margin-left: 5px; }
+.boj-tier-icon { width: 14px; height: 18px; vertical-align: -3px; margin-right: 6px; }
+
+
+
+/* 프로필 레이아웃 */
+.boj-profile-container { display: flex; gap: 30px; margin-top: 20px; }
+.boj-profile-sidebar { width: 280px; }
+.boj-profile-main { flex: 1; }
+.boj-avatar { width: 100%; border-radius: 8px; border: 1px solid var(--boj-border); }
+.boj-content-section { background: var(--boj-bg); border: 1px solid var(--boj-border); padding: 20px; border-radius: 4px; margin-bottom: 20px; }
+.boj-content-section h2 { margin-top: 0; font-size: 18px; border-bottom: 2px solid var(--boj-border); padding-bottom: 10px; }
+
+/* 문제 블록 */
+.boj-problem-list { display: flex; flex-wrap: wrap; gap: 5px; }
+.boj-problem-block { 
+    padding: 2px 8px; border-radius: 3px; font-size: 13px; font-weight: bold; text-decoration: none !important;
+}
+.boj-problem-block.solved { background: #e7f4ef; color: #009874; }
+.boj-problem-block.tried { background: #feebe7; color: #dd4124; }
+:root[data-theme="dark"] .boj-problem-block.solved { background: #1a3d32; color: #3cd0a5; }
+:root[data-theme="dark"] .boj-problem-block.tried { background: #4a211b; color: #ff7663; }
