@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Codeforces to Baekjoon",
-  "version": "3.0",
-  "description": "Codeforces 백준 스타일 통합 렌더링 및 검색 엔진",
+  "version": "3.1",
+  "description": "Codeforces 백준 스타일 통합 렌더링 및 검색 엔진 (v3.1 Modular)",
   "permissions": [
     "storage"
   ],
@@ -30,11 +30,18 @@
         "src/components/pillContainer.js",
         "src/components/searchBar.js",
         "src/components/spoilerToggle.js",
-        "src/pages/problemset.js",
         "src/pages/problem.js",
+        "src/pages/problemset.js",
         "src/pages/profile.js",
         "main.js"
-      ]
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*.svg", "icons/*.png"],
+      "matches": ["*://codeforces.com/*"]
     }
   ]
 }
