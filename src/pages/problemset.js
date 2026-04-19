@@ -14,7 +14,7 @@ window.BOJ_CF.Pages.Problemset = (function() {
     };
 
     const buildVirtualTable = (problems) => {
-        const max = window.BOJ_CF.Config.MAX_RENDER_COUNT;
+        const max = window.BOJ_CF.Config.MAX_RENDER_COUNT; // Config에서 동적으로 가져옴
         const totalPages = Math.ceil(problems.length / max) || 1;
         const startIndex = (currentPage - 1) * max;
         const currentProblems = sortProblems(problems).slice(startIndex, startIndex + max);
@@ -145,6 +145,15 @@ window.BOJ_CF.Pages.Problemset = (function() {
 
             // 기존 이벤트 구독 유지 (단, handleFilters 내에서 원본 테이블 복구 로직은 삭제해도 무방함)
             window.BOJ_CF.StateManager.subscribe(handleFilters);
+            const pageSizeSelect = document.getElementById('boj-page-size-select');
+            if (pageSizeSelect) {
+                pageSizeSelect.value = window.BOJ_CF.Config.MAX_RENDER_COUNT; // 현재 설정값 동기화
+                pageSizeSelect.addEventListener('change', (e) => {
+                    window.BOJ_CF.Config.MAX_RENDER_COUNT = parseInt(e.target.value);
+                    currentPage = 1; // 1페이지로 리셋
+                    handleFilters(window.BOJ_CF.StateManager.getState()); // 테이블 재렌더링
+                });
+            }
         }
     };
 })();

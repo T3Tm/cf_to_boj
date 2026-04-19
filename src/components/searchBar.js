@@ -4,14 +4,25 @@ window.BOJ_CF.Components.SearchBar = (function() {
             if (document.querySelector('.boj-search-container')) return;
             const div = document.createElement('div');
             div.className = 'boj-search-container';
-            div.innerHTML = `<div class="boj-search-input-wrapper"><input type="text" id="boj-search-input" autocomplete="off" placeholder="검색어, 태그(tag:brute_force), 레이팅(*1500), 안푼문제(~@me) 입력 후 Enter"><button id="boj-search-btn">검색</button></div>`;
+            div.innerHTML = `
+                            <div class="boj-search-input-wrapper">
+                                <input type="text" id="boj-search-input" autocomplete="off" placeholder="예: #dp | r:1500..2000 (solved.ac 문법 지원)">
+                                <select id="boj-page-size-select" style="padding: 5px; border-radius: 4px; border: 1px solid var(--boj-border); background: var(--boj-bg); color: var(--boj-text);">
+                                    <option value="20">20개씩</option>
+                                    <option value="50">50개씩</option>
+                                    <option value="100">100개씩</option>
+                                </select>
+                                <button id="boj-search-btn">검색</button>
+                            </div>
+                        `;
             container.insertBefore(div, container.firstChild);
 
             const input = document.getElementById('boj-search-input');
+            // handleInput 함수 수정 (토큰화 로직 제거, 통문장 알약 생성)
             const handleInput = () => {
                 let val = input.value.trim();
                 if (val) {
-                    val.split(/\s+/).forEach(token => window.BOJ_CF.StateManager.addFilter(token));
+                    window.BOJ_CF.StateManager.addFilter(val); // 쪼개지 않고 전체를 하나의 필터로 전달
                     input.value = ''; 
                 }
             };
