@@ -7,7 +7,6 @@ window.BOJ_CF.DOMObserver = (function() {
     const subscribers = [];
 
     const notifySubscribers = (mutations) => {
-        // 유의미한 노드 추가가 있을 때만 알림
         const hasAddedNodes = mutations.some(m => m.addedNodes.length > 0);
         if (hasAddedNodes) {
             subscribers.forEach(callback => callback());
@@ -16,7 +15,7 @@ window.BOJ_CF.DOMObserver = (function() {
 
     return {
         init: (targetSelector) => {
-            if (observer) return; // 이미 실행 중이면 무시
+            if (observer) return; // 중복 실행 방지
             const target = document.querySelector(targetSelector);
             if (!target) return;
 
@@ -33,6 +32,7 @@ window.BOJ_CF.DOMObserver = (function() {
                 observer.disconnect();
                 observer = null;
             }
+            subscribers.length = 0; // 구독자 초기화 (메모리 누수 방지)
         }
     };
 })();
