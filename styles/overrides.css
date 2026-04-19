@@ -5,11 +5,58 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
 #pageContent { background: var(--boj-bg); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 30px; margin: 20px auto; width: 100%; max-width: var(--boj-max-width); float: none !important; box-sizing: border-box; }
 
 /* 헤더 GNB 플랫화 (사이드 래퍼 크기 동기화) */
-#header { max-width: var(--boj-max-width); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
-.menu-box { border-radius: 0 !important; border: none !important; border-bottom: 1px solid var(--boj-border) !important; background: transparent !important; padding: 0 !important; flex: 1; }
-.menu-box .menu-list { display: flex; list-style: none; padding: 0; margin: 0; }
-.menu-box .menu-list li a { padding: 15px 20px !important; font-size: 15px !important; font-weight: bold !important; color: var(--boj-text) !important; text-decoration: none !important; border-radius: 4px; transition: 0.2s; }
-.menu-box .menu-list li a:hover { background-color: var(--boj-hover) !important; }
+/* =========================================
+   새로 구축된 백준 스타일 헤더 (GNB)
+   ========================================= */
+#header { 
+    max-width: var(--boj-max-width); 
+    margin: 0 auto; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 15px 10px;
+    border-bottom: 1px solid var(--boj-border);
+    background: transparent !important;
+}
+
+/* 중앙 메뉴 리스트 */
+.boj-header-center ul.boj-menu-list { 
+    display: flex; 
+    list-style: none; 
+    padding: 0; 
+    margin: 0; 
+    gap: 8px;
+}
+.boj-menu-list li a { 
+    padding: 10px 16px; 
+    font-size: 16px; 
+    font-weight: 600; 
+    color: var(--boj-text) !important; 
+    text-decoration: none !important; 
+    border-radius: 6px; 
+    transition: background 0.2s; 
+}
+.boj-menu-list li a:hover { 
+    background-color: var(--boj-table-stripe) !important; 
+}
+
+/* 우측 유저 및 토글 영역 */
+.boj-header-right { 
+    display: flex; 
+    align-items: center; 
+    font-size: 14px; 
+    color: var(--boj-text); 
+}
+.boj-header-user { 
+    font-weight: bold; 
+    margin-left: 10px; 
+    color: var(--boj-text) !important;
+    text-decoration: none !important;
+}
+.boj-header-user:hover { text-decoration: underline !important; }
+
+/* 기존 코드포스 메뉴 박스 완전 억제 */
+.menu-box, .lang-chooser { display: none !important; }
 
 /* 오리지널 테이블 다이어트 */
 .datatable table th { border-top: 2px solid var(--boj-primary) !important; border-bottom: 1px solid var(--boj-border) !important; padding: 12px !important; background: transparent !important; }

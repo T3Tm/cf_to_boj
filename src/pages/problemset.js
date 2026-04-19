@@ -16,15 +16,16 @@ window.BOJ_CF.Pages.Problemset = (function() {
         const tableHtml = `
             <table class="datatable boj-virtual-datatable" style="width:100%; border-collapse:collapse;">
                 <thead>
-                    <tr><th>문제</th><th>제목</th><th>난이도</th><th>✅</th></tr>
+                    <tr><th>문제</th><th>제목</th><th>맞힌 사람</th><th>난이도</th><th>✅</th></tr>
                 </thead>
                 <tbody>
-                    ${problems.length === 0 ? `<tr><td colspan="4" style="text-align:center; padding:30px;">검색 결과가 없습니다.</td></tr>` : ''}
+                    ${problems.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:40px; color:#888;">검색 결과가 없습니다.</td></tr>` : ''}
                     ${sortProblems(problems).slice(0, window.BOJ_CF.Config.MAX_RENDER_COUNT).map(p => {
                         const icon = chrome.runtime.getURL(window.BOJ_CF.TierCalculator.getProblemTierIcon(p.rating));
                         return `<tr>
-                            <td><a href="/problemset/problem/${p.contestId}/${p.index}">${p.contestId}${p.index}</a></td>
+                            <td><a href="/problemset/problem/${p.contestId}/${p.index}" style="color:var(--boj-primary); font-weight:bold;">${p.contestId}${p.index}</a></td>
                             <td><a href="/problemset/problem/${p.contestId}/${p.index}">${p.name}</a></td>
+                            <td style="color:var(--boj-primary); font-weight:bold; font-size: 13px;"><img src="//codeforces.com/codeforces.org/s/87100/images/icons/user.png" style="vertical-align:-2px; width:12px; opacity:0.7;"> ${p.solvedCount.toLocaleString()}</td>
                             <td><img src="${icon}" class="boj-tier-icon" title="${p.rating || '?'}"></td>
                             <td>${p.isSolved ? '<span style="color:#009874; font-weight:bold;">✔</span>' : ''}</td>
                         </tr>`;
@@ -63,10 +64,17 @@ window.BOJ_CF.Pages.Problemset = (function() {
         init: async function() {
             const pc = document.querySelector('#pageContent');
             if (!pc) return;
+
+            // [추가됨] 페이지 진입 즉시 원본 테이블과 페이지네이션 영구 숨김
+            const origTable = document.querySelector('.datatable');
+            const paginations = document.querySelectorAll('.pagination');
+            if (origTable) origTable.style.display = 'none';
+            paginations.forEach(p => p.style.display = 'none');
+
             window.BOJ_CF.Components.SearchBar.init(pc);
             window.BOJ_CF.Components.PillContainer.init();
 
-            const handleEl = document.querySelector('.lang-chooser a[href^="/profile/"]');
+            const handleEl = document.querySelector('.boj-header-user'); // 변경된 헤더 클래스 참조
             const handle = handleEl ? handleEl.innerText.trim() : null;
             
             const [allProbs, userStatus] = await Promise.all([
@@ -74,11 +82,18 @@ window.BOJ_CF.Pages.Problemset = (function() {
                 handle ? window.BOJ_CF.Fetcher.fetchUserStatus(handle) : Promise.resolve(null)
             ]);
 
-            if (allProbs && allProbs.problems) {
+            if (allProbs && allProbs.problems && allProbs.problemStatistics) {
+                // [추가됨] solvedCount 매핑용 Dictionary(Zipping)
+                const solvedCountMap = {};
+                allProbs.problemStatistics.forEach(stat => {
+                    solvedCountMap[`${stat.contestId}${stat.index}`] = stat.solvedCount;
+                });
+
                 const solvedSet = new Set();
                 if (userStatus && userStatus.result) {
                     userStatus.result.forEach(sub => { if (sub.verdict === 'OK') solvedSet.add(`${sub.problem.contestId}${sub.problem.index}`); });
                 }
+                
                 globalDB = allProbs.problems.map(p => ({
                     id: `${p.contestId}${p.index}`,
                     name: p.name,
@@ -86,27 +101,17 @@ window.BOJ_CF.Pages.Problemset = (function() {
                     tags: p.tags,
                     contestId: p.contestId,
                     index: p.index,
-                    isSolved: solvedSet.has(`${p.contestId}${p.index}`)
+                    isSolved: solvedSet.has(`${p.contestId}${p.index}`),
+                    solvedCount: solvedCountMap[`${p.contestId}${p.index}`] || 0 // [추가됨] 맞힌 사람 수 결합
                 }));
             }
 
-            // 오리지널 테이블 티어 아이콘 및 헤더 변경
-            const origTable = document.querySelector('.datatable table');
-            if (origTable) {
-                const headRow = origTable.querySelector('tr:first-child');
-                if(headRow) headRow.innerHTML = `<th>문제</th><th>제목</th><th><div title="Difficulty" style="cursor:help;">난이도</div></th><th>✅</th>`;
-                origTable.querySelectorAll('tr:not(:first-child)').forEach(row => {
-                    const idLink = row.querySelector('td:first-child a');
-                    const ratingSpan = row.querySelector('span[title="Difficulty"]');
-                    const nameCell = row.querySelector('td:nth-child(2)');
-                    if (idLink && nameCell) {
-                        const iconUrl = chrome.runtime.getURL(window.BOJ_CF.TierCalculator.getProblemTierIcon(ratingSpan ? ratingSpan.innerText.trim() : '0'));
-                        // 아이콘을 번호 대신 이름 옆에 배치
-                        if(!nameCell.querySelector('img')) nameCell.innerHTML = `<img src="${iconUrl}" class="boj-tier-icon"> ` + nameCell.innerHTML;
-                    }
-                });
-            }
+            // [추가됨] 필터 여부와 무관하게 초기 가상 테이블 강제 렌더링
+            buildVirtualTable(globalDB);
+            const vt = document.getElementById('boj-virtual-table');
+            if (vt) vt.style.display = 'block';
 
+            // 기존 이벤트 구독 유지 (단, handleFilters 내에서 원본 테이블 복구 로직은 삭제해도 무방함)
             window.BOJ_CF.StateManager.subscribe(handleFilters);
         }
     };
