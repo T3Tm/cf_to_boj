@@ -85,37 +85,178 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
 
 
 /* =========================================
-   BOJ 스타일 문제 페이지 퍼펙트 클론 (HTML & Bootstrap 동기화)
+   BOJ 스타일 문제 페이지 퍼펙트 클론 (v3.2.6)
    ========================================= */
 
-/* 1. 탭 메뉴 (nav-pills) */
-.nav-pills.problem-menu { display: flex; padding-left: 0; margin-bottom: 30px; list-style: none; border-bottom: 1px solid #ddd; }
-.nav-pills.problem-menu > li > a { position: relative; display: block; padding: 10px 15px; border-radius: 4px 4px 0 0; text-decoration: none; color: var(--boj-primary); font-weight: bold; }
-.nav-pills.problem-menu > li.active > a { color: #fff; background-color: var(--boj-primary); }
+/* 1. 탭 메뉴 (nav-pills) - 백준 상단 메뉴 스타일 */
+.nav-pills.problem-menu { 
+    display: flex; 
+    padding-left: 0; 
+    margin-bottom: 25px; 
+    list-style: none; 
+    border-bottom: 1px solid #ddd; 
+}
+.nav-pills.problem-menu > li { margin-bottom: -1px; }
+.nav-pills.problem-menu > li > a { 
+    position: relative; 
+    display: block; 
+    padding: 10px 15px; 
+    border-radius: 4px 4px 0 0; 
+    text-decoration: none; 
+    color: var(--boj-primary); 
+    font-weight: 500; 
+    font-size: 14px;
+    background: transparent;
+}
+.nav-pills.problem-menu > li.active > a { 
+    color: #555; 
+    background-color: #fff; 
+    border: 1px solid #ddd;
+    border-bottom-color: transparent;
+}
+.nav-pills.problem-menu > li > a:hover {
+    background-color: #eee;
+    border-color: #eee #eee #ddd;
+}
 
-/* 2. 본문 폰트 셋업 */
-.problem-statement { font-family: 'Noto Sans KR', sans-serif !important; font-size: 16px; color: var(--boj-text); margin-top: 15px; }
+/* 2. 제목 및 정보 헤더 (page-header) */
+.page-header { 
+    padding-bottom: 9px; 
+    margin: 20px 0 30px; 
+    border-bottom: 1px solid #eee; 
+}
+.page-header h1 { 
+    font-size: 36px; 
+    margin-top: 20px; 
+    margin-bottom: 10px; 
+    font-weight: 500; 
+    color: #333;
+    letter-spacing: -1px;
+}
 
-/* 3. 제목 및 정보 테이블 (page-header, table) */
-.page-header { padding-bottom: 9px; margin: 20px 0 20px; border-bottom: 1px solid #eee; }
-.page-header h1 { font-size: 36px; margin-top: 20px; margin-bottom: 10px; font-weight: 500; }
-.table-responsive { min-height: .01%; overflow-x: auto; margin-bottom: 40px; }
-.table { width: 100%; max-width: 100%; border-collapse: collapse; text-align: center; background-color: transparent; }
-.table th, .table td { padding: 8px; line-height: 1.42857143; vertical-align: top; border-top: 1px solid #ddd; font-size: 15px; }
-.table thead th { vertical-align: bottom; border-bottom: 2px solid #ddd; text-align: center; }
+/* 3. 정보 테이블 (problem-info) */
+.table-responsive { 
+    min-height: .01%; 
+    overflow-x: auto; 
+    margin-bottom: 40px; 
+}
+.table#problem-info { 
+    width: 100%; 
+    max-width: 100%; 
+    border-collapse: collapse; 
+    text-align: center; 
+    background-color: transparent; 
+}
+.table#problem-info th { 
+    padding: 8px; 
+    line-height: 1.42; 
+    vertical-align: bottom; 
+    border-top: none;
+    border-bottom: 2px solid #ddd; 
+    font-size: 15px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+}
+.table#problem-info td { 
+    padding: 8px; 
+    line-height: 1.42; 
+    vertical-align: top; 
+    border-top: 1px solid #ddd; 
+    font-size: 15px;
+    color: #333;
+}
 
-/* 4. 섹션 디자인 (headline, problem-text) */
+/* 4. 본문 섹션 디자인 (headline, problem-text) */
 .problem-section { margin-bottom: 40px; }
-.headline { border-bottom: 1px solid #ccc; margin-bottom: 15px; padding-bottom: 5px; }
-.headline h2 { font-size: 24px; margin: 0; font-weight: 500; display: inline-block; }
-.problem-text { font-size: 16px; line-height: 1.7; word-break: break-all; }
+.headline { 
+    border-bottom: 1px solid #ddd; 
+    margin-bottom: 15px; 
+    padding-bottom: 8px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+.headline h2 { 
+    font-size: 24px; 
+    margin: 0; 
+    font-weight: 500; 
+    color: #333; 
+}
+.problem-text { 
+    font-size: 16px; 
+    line-height: 1.8; 
+    word-break: break-all; 
+    color: #333;
+    font-family: 'Pretendard', -apple-system, sans-serif;
+}
+.problem-text p { margin: 0 0 10px; }
 
-/* 5. 예제 박스 (col-md-6 2분할, sampledata) */
+/* 5. 예제 박스 (BOJ Perfect Clone) */
 .boj-sample-row { display: flex; flex-wrap: wrap; margin-right: -15px; margin-left: -15px; }
-.col-md-6 { width: 50%; float: left; padding-right: 15px; padding-left: 15px; box-sizing: border-box; }
-.sampledata { display: block; padding: 9.5px; margin: 0 0 10px; font-size: 14px; line-height: 1.42857143; color: #333; word-break: break-all; word-wrap: break-word; background-color: #f5f5f5; border: 1px solid #ccc; border-radius: 4px; font-family: Menlo, Monaco, Consolas, "Courier New", monospace; white-space: pre-wrap; }
+.col-md-6 { width: 50%; padding-right: 15px; padding-left: 15px; box-sizing: border-box; }
 
-/* 6. 알고리즘 분류 뱃지 (spoiler-list) */
-.spoiler-list { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 10px; }
-.spoiler-link { background: #f8f9fa; border: 1px solid #e9ecef; padding: 6px 14px; border-radius: 20px; color: #495057; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s; }
-.spoiler-link:hover { background: #e2e6ea; border-color: #dae0e5; text-decoration: none; color: #212529; }
+.sampledata { 
+    display: block; 
+    padding: 10px; 
+    margin: 0 0 20px; 
+    font-size: 14px; 
+    line-height: 1.6; 
+    color: #333; 
+    word-break: break-all; 
+    word-wrap: break-word; 
+    background-color: #f1f1f1; 
+    border: 1px solid #e1e1e1; 
+    border-radius: 4px; 
+    font-family: 'Menlo', 'Monaco', 'Consolas', "Courier New", monospace; 
+    white-space: pre-wrap; 
+}
+
+/* 6. 복사 버튼 (BOJ Style) */
+.btn-copy-sample { 
+    padding: 2px 10px; 
+    font-size: 12px; 
+    font-weight: 400;
+    cursor: pointer; 
+    background: #fff; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    color: #0076c0; 
+    transition: all 0.2s ease;
+}
+.btn-copy-sample:hover { 
+    background: #f8f9fa; 
+    border-color: #adadad; 
+}
+
+/* 7. 알고리즘 분류 */
+#problem_tags .spoiler { 
+    padding: 15px;
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+.spoiler-list { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.spoiler-link { 
+    background: #f8f9fa; 
+    border: 1px solid #e9ecef; 
+    padding: 4px 12px; 
+    border-radius: 4px; 
+    color: #0076c0; 
+    text-decoration: none; 
+    font-size: 13px; 
+    transition: all 0.2s; 
+}
+.spoiler-link:hover { background: #e9ecef; border-color: #0076c0; }
+
+/* 다크모드 대응 고도화 */
+:root[data-theme="dark"] .page-header h1, 
+:root[data-theme="dark"] .headline h2, 
+:root[data-theme="dark"] .problem-text,
+:root[data-theme="dark"] .table#problem-info th,
+:root[data-theme="dark"] .table#problem-info td { color: #e0e0e0 !important; }
+
+:root[data-theme="dark"] .sampledata { background-color: #2d2d2d !important; border-color: #444 !important; color: #ccc !important; }
+:root[data-theme="dark"] .btn-copy-sample { background: #333 !important; border-color: #555 !important; color: #4da6ff !important; }
+:root[data-theme="dark"] .headline, :root[data-theme="dark"] .page-header, :root[data-theme="dark"] .nav-pills.problem-menu { border-color: #444 !important; }
+:root[data-theme="dark"] .nav-pills.problem-menu > li.active > a { background-color: #1e1e1e !important; color: #4da6ff !important; border-color: #444 !important; border-bottom-color: transparent !important; }

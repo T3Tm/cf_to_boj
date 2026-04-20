@@ -1,13 +1,31 @@
 /**
- * src/pages/problem.js
- * 개별 문제 페이지 컨트롤러
+ * src/pages/problem.js (v3.2.8)
+ * 개별 문제 페이지 컨트롤러 (중앙 정렬, 백준 스타일 토글 버튼 적용)
  */
-window.BOJ_CF.Pages = window.BOJ_CF.Pages || {};
 window.BOJ_CF.Pages.Problem = (function() {
     return {
-        init: function() {
+        init: async function() {
             const ps = document.querySelector('.problem-statement');
             if (!ps || document.querySelector('.page-header')) return;
+
+            // 0. 데이터 및 사용자 상태 확인
+            const handle = document.querySelector('.boj-header-user')?.innerText.trim();
+            const [allProbs, userStatusRes] = await Promise.all([
+                window.BOJ_CF.Fetcher.fetchAllProblems(),
+                handle ? window.BOJ_CF.Fetcher.fetchUserStatus(handle) : Promise.resolve(null)
+            ]);
+
+            const pathParts = window.location.pathname.split('/');
+            const contestId = pathParts[3];
+            const problemIndex = pathParts[4];
+            
+            const problemStat = allProbs?.problemStatistics?.find(s => s.contestId == contestId && s.index == problemIndex);
+            const totalSolved = problemStat ? problemStat.solvedCount : '-';
+
+            const userStatus = userStatusRes?.result || [];
+            const mySubs = userStatus.filter(s => s.problem.contestId == contestId && s.problem.index == problemIndex);
+            const isSolved = mySubs.some(s => s.verdict === 'OK');
+            const isAttempted = mySubs.length > 0;
 
             // 1. 탭 메뉴 (nav-pills)
             const hiddenLinks = Array.from(document.querySelectorAll('.second-level-menu a'));
@@ -23,7 +41,7 @@ window.BOJ_CF.Pages.Problem = (function() {
             `;
             ps.parentNode.insertBefore(tabMenu, ps);
 
-            // 2. 헤더 및 정보 테이블 (page-header, table)
+            // 2. 헤더 및 정보 테이블 (중앙 정렬 텍스트)
             const header = ps.querySelector('.header');
             if (header) {
                 const rawTitle = header.querySelector('.title')?.innerText || '';
@@ -34,15 +52,19 @@ window.BOJ_CF.Pages.Problem = (function() {
                 const timeLimit = header.querySelector('.time-limit')?.lastChild?.textContent || '2 초';
                 const memLimit = header.querySelector('.memory-limit')?.lastChild?.textContent || '512 MB';
 
+                let statusBadge = '';
+                if (isSolved) statusBadge = '<span class="boj-label label-success" style="margin-left:10px; font-size:14px; vertical-align:middle; padding:4px 8px; border-radius:4px; background:#009874; color:#fff;">성공</span>';
+                else if (isAttempted) statusBadge = '<span class="boj-label label-danger" style="margin-left:10px; font-size:14px; vertical-align:middle; padding:4px 8px; border-radius:4px; background:#dd4124; color:#fff;">실패</span>';
+
                 const infoWrapper = document.createElement('div');
                 infoWrapper.innerHTML = `
                     <div class="page-header">
-                        <h1><span class="printable">${probId}번 - </span><span id="problem_title">${probName}</span></h1>
+                        <h1 style="text-align: left;"><span class="printable">${probId}번 - </span><span id="problem_title">${probName}</span>${statusBadge}</h1>
                     </div>
                     <div class="table-responsive">
                         <table class="table" id="problem-info">
-                            <thead><tr><th style="width:25%;">시간 제한</th><th style="width:25%;">메모리 제한</th><th style="width:25%;">제출</th><th style="width:25%;">정답</th></tr></thead>
-                            <tbody><tr><td>${timeLimit}</td><td>${memLimit}</td><td>-</td><td>-</td></tr></tbody>
+                            <thead><tr><th style="width:25%; text-align: center;">시간 제한</th><th style="width:25%; text-align: center;">메모리 제한</th><th style="width:25%; text-align: center;">제출</th><th style="width:25%; text-align: center;">정답</th></tr></thead>
+                            <tbody><tr><td style="text-align: center;">${timeLimit}</td><td style="text-align: center;">${memLimit}</td><td style="text-align: center;">-</td><td style="text-align: center;">${totalSolved}</td></tr></tbody>
                         </table>
                     </div>
                 `;
@@ -50,29 +72,37 @@ window.BOJ_CF.Pages.Problem = (function() {
                 header.style.display = 'none';
             }
 
-            // [유틸] 섹션을 BOJ Headline + problem-text 구조로 변환
+            // 모든 '>' 또는 '»' 기호 정밀 제거
+            const removeArrows = () => {
+                const elements = document.querySelectorAll('.breadcrumb, .side-navigation__item, .lang-chooser');
+                elements.forEach(el => {
+                    el.childNodes.forEach(node => {
+                        if (node.nodeType === 3) {
+                            node.textContent = node.textContent.replace(/[»>]/g, '').trim();
+                        }
+                    });
+                });
+            };
+            removeArrows();
+
+            // [유틸] 섹션 포맷팅
             const formatSection = (selector, titleKOR) => {
                 const el = ps.querySelector(selector);
                 if (el) {
-                    el.querySelector('.section-title').style.display = 'none'; // 기존 타이틀 숨김
-                    
+                    el.querySelector('.section-title').style.display = 'none';
                     const headline = document.createElement('div');
                     headline.className = 'headline';
                     headline.innerHTML = `<h2>${titleKOR}</h2>`;
                     el.insertBefore(headline, el.firstChild);
-                    
-                    el.className = 'problem-section'; // 백준 클래스 부여
-                    
+                    el.className = 'problem-section';
                     const contentWrapper = document.createElement('div');
                     contentWrapper.className = 'problem-text';
-                    while (el.childNodes.length > 2) {
-                        contentWrapper.appendChild(el.childNodes[2]);
-                    }
+                    while (el.childNodes.length > 2) contentWrapper.appendChild(el.childNodes[2]);
                     el.appendChild(contentWrapper);
                 }
             };
 
-            // 3. 본문 (Description) 추출 및 래핑
+            // 3. 본문 추출
             const inputSpec = ps.querySelector('.input-specification');
             const descWrapper = document.createElement('section');
             descWrapper.id = 'description';
@@ -81,7 +111,6 @@ window.BOJ_CF.Pages.Problem = (function() {
             
             let currNode = header ? header.nextSibling : ps.firstChild;
             const descText = descWrapper.querySelector('.problem-text');
-            
             while (currNode && currNode !== inputSpec) {
                 const next = currNode.nextSibling;
                 if (currNode.tagName && !currNode.classList.contains('page-header') && !currNode.classList.contains('table-responsive')) {
@@ -95,33 +124,36 @@ window.BOJ_CF.Pages.Problem = (function() {
             formatSection('.output-specification', '출력');
             formatSection('.note', '힌트');
 
-            // 4. 예제 2분할 레이아웃 (col-md-6)
+            // 4. 예제 (복사 버튼)
             const sampleTests = ps.querySelector('.sample-tests');
             if (sampleTests) {
                 sampleTests.querySelector('.section-title').style.display = 'none';
-
                 const sampleWrapper = document.createElement('div');
                 sampleWrapper.className = 'row sample-wrapper';
-                
                 const inputs = sampleTests.querySelectorAll('.input');
                 const outputs = sampleTests.querySelectorAll('.output');
                 
                 for (let i = 0; i < inputs.length; i++) {
-                    const inText = inputs[i].querySelector('pre').innerHTML;
-                    const outText = outputs[i] ? outputs[i].querySelector('pre').innerHTML : '';
-                    
+                    const inText = inputs[i].querySelector('pre').innerText;
+                    const outText = outputs[i] ? outputs[i].querySelector('pre').innerText : '';
                     const row = document.createElement('div');
                     row.className = 'row boj-sample-row';
                     row.innerHTML = `
                         <div class="col-md-6">
                             <section id="sampleinput${i+1}" class="problem-section">
-                                <div class="headline"><h2>예제 입력 ${i+1}</h2></div>
+                                <div class="headline" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <h2 style="margin:0;">예제 입력 ${i+1}</h2>
+                                    <button class="btn-copy-sample" data-clipboard-target="#sample-input-${i+1}">복사</button>
+                                </div>
                                 <pre class="sampledata" id="sample-input-${i+1}">${inText}</pre>
                             </section>
                         </div>
                         <div class="col-md-6">
                             <section id="sampleoutput${i+1}" class="problem-section">
-                                <div class="headline"><h2>예제 출력 ${i+1}</h2></div>
+                                <div class="headline" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <h2 style="margin:0;">예제 출력 ${i+1}</h2>
+                                    <button class="btn-copy-sample" data-clipboard-target="#sample-output-${i+1}">복사</button>
+                                </div>
                                 <pre class="sampledata" id="sample-output-${i+1}">${outText}</pre>
                             </section>
                         </div>
@@ -129,24 +161,42 @@ window.BOJ_CF.Pages.Problem = (function() {
                     sampleWrapper.appendChild(row);
                 }
                 sampleTests.parentNode.replaceChild(sampleWrapper, sampleTests);
+
+                ps.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('btn-copy-sample')) {
+                        const targetSelector = e.target.getAttribute('data-clipboard-target');
+                        const targetNode = ps.querySelector(targetSelector);
+                        if (targetNode) navigator.clipboard.writeText(targetNode.innerText);
+                    }
+                });
             }
 
-            // 5. 알고리즘 분류 (태그)
+            // 5. 알고리즘 분류 (백준 스타일 보기/가리기 버튼 - 호버 효과 제거)
             const tags = Array.from(document.querySelectorAll('.tag-box')).map(t => t.innerText.trim());
             if (tags.length > 0) {
                 const tagSection = document.createElement('div');
                 tagSection.className = 'col-md-12';
                 tagSection.innerHTML = `
-                    <section id="problem_tags" class="problem-section">
-                        <div class="headline"><h2>알고리즘 분류</h2></div>
-                        <div class="spoiler">
-                            <ul class="spoiler-list">
-                                ${tags.map(t => `<li><a href="#" class="spoiler-link">${t}</a></li>`).join('')}
-                            </ul>
+                    <section id="problem_tags" class="problem-section" style="margin-top: 20px;">
+                        <div class="headline" style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+                            <h2 style="font-size: 20px;">알고리즘 분류</h2>
+                            <span id="boj-btn-show-tags" style="font-size: 13px; color: #0076c0; cursor: pointer; user-select: none;">${isSolved ? '가리기' : '보기'}</span>
+                        </div>
+                        <div id="boj-tag-container" style="display: ${isSolved ? 'block' : 'none'}; padding-top: 10px;">
+                            <div class="boj-selected-pills" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                ${tags.map(t => `<span class="boj-pill" style="cursor:default;">${t}</span>`).join('')}
+                            </div>
                         </div>
                     </section>
                 `;
                 ps.appendChild(tagSection);
+
+                document.getElementById('boj-btn-show-tags').addEventListener('click', function() {
+                    const container = document.getElementById('boj-tag-container');
+                    const isVisible = container.style.display === 'block';
+                    container.style.display = isVisible ? 'none' : 'block';
+                    this.innerText = isVisible ? '보기' : '가리기';
+                });
             }
         }
     };
