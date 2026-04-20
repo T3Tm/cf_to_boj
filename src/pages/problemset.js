@@ -3,13 +3,21 @@ window.BOJ_CF.Pages.Problemset = (function() {
     let globalDB = [];
     let currentPage = 1; // [추가됨] 페이지네이션 현재 상태 변수
 
-    // 정렬 미들웨어: 난이도 오름차순 (없는 문제는 맨 뒤로)
+    // 컨트롤러 최상단 영역 (let globalDB = []; 등과 함께 선언)
+    let sortMode = 'rating'; // 'rating' 또는 'solvedCount'
+    let sortAsc = true; 
+
+    // 정렬 함수 교체
     const sortProblems = (problems) => {
         return problems.sort((a, b) => {
-            const rA = a.rating || Infinity;
-            const rB = b.rating || Infinity;
-            if (rA !== rB) return rA - rB;
-            return b.contestId - a.contestId; // 레이팅 같으면 최신 문제 순
+            if (sortMode === 'solvedCount') {
+                return sortAsc ? a.solvedCount - b.solvedCount : b.solvedCount - a.solvedCount;
+            } else {
+                const rA = a.rating || Infinity;
+                const rB = b.rating || Infinity;
+                if (rA !== rB) return sortAsc ? rA - rB : rB - rA;
+                return b.contestId - a.contestId; // 동일 난이도면 최신 문제순
+            }
         });
     };
 
@@ -34,7 +42,13 @@ window.BOJ_CF.Pages.Problemset = (function() {
         const tableHtml = `
             <table class="datatable boj-virtual-datatable" style="width:100%; border-collapse:collapse;">
                 <thead>
-                    <tr><th>문제</th><th>제목</th><th>맞힌 사람</th><th>난이도</th><th>✅</th></tr>
+                    <tr>
+                        <th>문제</th>
+                        <th>제목</th>
+                        <th data-sort="solvedCount" style="cursor:pointer;" title="클릭하여 정답자 순 정렬">맞힌 사람 ↕</th>
+                        <th data-sort="rating" style="cursor:pointer;" title="클릭하여 난이도 순 정렬">난이도 ↕</th>
+                        <th>✅</th>
+                    </tr>
                 </thead>
                 <tbody>
                     ${problems.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:40px; color:#888;">검색 결과가 없습니다.</td></tr>` : ''}
@@ -60,10 +74,24 @@ window.BOJ_CF.Pages.Problemset = (function() {
             
             // [중요] 이벤트 위임: vt가 처음 생성될 때 한 번만 클릭 감지
             vt.addEventListener('click', (e) => {
+                // 페이지네이션 클릭 처리
                 if (e.target.classList.contains('boj-page-btn')) {
                     currentPage = parseInt(e.target.getAttribute('data-page'));
                     buildVirtualTable(problems);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                // [디테일] 정렬 헤더 클릭 처리
+                const th = e.target.closest('th[data-sort]');
+                if (th) {
+                    const type = th.getAttribute('data-sort');
+                    if (sortMode === type) {
+                        sortAsc = !sortAsc; // 정렬 방향 반전
+                    } else {
+                        sortMode = type;
+                        sortAsc = type === 'rating' ? true : false; // 정답자 수는 기본 내림차순(많은순)
+                    }
+                    currentPage = 1;
+                    buildVirtualTable(problems);
                 }
             });
         }
@@ -111,14 +139,14 @@ window.BOJ_CF.Pages.Problemset = (function() {
             const handleEl = document.querySelector('.boj-header-user'); // 변경된 헤더 클래스 참조
             const handle = handleEl ? handleEl.innerText.trim() : null;
             
-            const [allProbs, userStatus] = await Promise.all([
-                window.BOJ_CF.Fetcher.fetchAllProblems(),
-                handle ? window.BOJ_CF.Fetcher.fetchUserStatus(handle) : Promise.resolve(null)
-            ]);
-
+            const allProbs = await window.BOJ_CF.Fetcher.fetchAllProblems();
             if (!allProbs) {
-                pc.innerHTML = `<div class="boj-error-card">코드포스 API 응답이 없습니다. 잠시 후 새로고침 해주세요.</div>`;
+                pc.innerHTML = `<div class="boj-error-card" style="padding:40px; text-align:center; color:red; font-weight:bold; background:var(--boj-bg);">코드포스 API 응답이 없습니다. (서버 지연)<br>잠시 후 새로고침 해주세요.</div>`;
                 return;
+            }
+            let userStatus = null;
+            if (handle) {
+                userStatus = await window.BOJ_CF.Fetcher.fetchUserStatus(handle); // allProbs 완료 후 호출
             }
 
             if (allProbs && allProbs.problems && allProbs.problemStatistics) {

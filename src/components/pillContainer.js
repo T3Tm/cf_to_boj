@@ -3,37 +3,42 @@
  * 알약 렌더링 및 이벤트 위임 삭제
  */
 window.BOJ_CF.Components.PillContainer = (function() {
-    let container = null;
+    let initialized = false;
+
     const render = (state) => {
-        // [수정된 부분] 컨테이너가 변수에만 있고 실제 DOM에서는 유실되었는지 이중 확인
-        if (!containerElement || !document.getElementById('boj-selected-pills')) return;
+        // [방어] 변수 참조 대신 실시간 쿼리로 DOM 꼬임 방지
+        const container = document.getElementById('boj-selected-pills');
+        if (!container) return; 
         
-        containerElement.innerHTML = ''; // 기존 알약 지우기
-        
+        container.innerHTML = ''; 
         state.activeFilters.forEach(filter => {
             const pill = document.createElement('div');
             pill.className = 'boj-pill';
-            // 이벤트 위임을 위해 클래스와 data-val 속성 부여
             pill.innerHTML = `<span>${filter}</span><button class="boj-pill-remove" data-val="${filter}">✕</button>`;
-            containerElement.appendChild(pill);
+            container.appendChild(pill);
         });
     };
+
     return {
-        // init 함수 내부 (최초 1회만 이벤트 등록)
         init: function() {
             const searchContainer = document.querySelector('.boj-search-container');
             if (!searchContainer || document.getElementById('boj-selected-pills')) return;
-            containerElement = document.createElement('div');
-            containerElement.id = 'boj-selected-pills';
-            containerElement.className = 'boj-selected-pills';
-            searchContainer.appendChild(containerElement);
 
-            // 이벤트 위임: 컨테이너에 딱 한 번만 등록
-            containerElement.addEventListener('click', (e) => {
-                const removeBtn = e.target.closest('.boj-pill-remove');
-                if (removeBtn) window.BOJ_CF.StateManager.removeFilter(removeBtn.getAttribute('data-val'));
-            });
-            window.BOJ_CF.StateManager.subscribe(this.render);
+            const container = document.createElement('div');
+            container.id = 'boj-selected-pills';
+            container.className = 'boj-selected-pills';
+            searchContainer.appendChild(container);
+
+            if (!initialized) {
+                // [방어] 전역 이벤트 위임 (삭제 버튼)
+                document.body.addEventListener('click', (e) => {
+                    if (e.target && e.target.classList.contains('boj-pill-remove')) {
+                        window.BOJ_CF.StateManager.removeFilter(e.target.getAttribute('data-val'));
+                    }
+                });
+                window.BOJ_CF.StateManager.subscribe(render);
+                initialized = true;
+            }
         }
     };
 })();

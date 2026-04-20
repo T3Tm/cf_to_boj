@@ -4,16 +4,18 @@
  */
 window.BOJ_CF.Components = window.BOJ_CF.Components || {};
 window.BOJ_CF.Components.ThemeToggle = (function() {
+    let initialized = false; // 중복 바인딩 방지
     return {
         init: function() {
-            const btn = document.getElementById('boj-theme-toggle');
-            // [수정된 부분] 버튼이 화면에 실제로 존재할 때만 이벤트를 달아주도록 조건문 추가
-            if (btn) {
-                btn.onclick = () => {
+            if (initialized) return;
+            // [방어] 전역 이벤트 위임(Event Delegation)
+            document.body.addEventListener('click', (e) => {
+                if (e.target && e.target.id === 'boj-theme-toggle') {
                     const next = window.BOJ_CF.StateManager.getState().theme === 'dark' ? 'light' : 'dark';
                     window.BOJ_CF.StateManager.setTheme(next);
-                };
-            }
+                }
+            });
+            initialized = true;
         }
     };
 })();

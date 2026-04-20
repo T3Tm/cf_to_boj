@@ -29,7 +29,9 @@ window.BOJ_CF.QueryParser = (function() {
             const match = p.tags.some(t => t.toLowerCase().includes(tag));
             return isNot ? !match : match;
         }
-        return isNot ? !p.name.toLowerCase().includes(actualToken) : p.name.toLowerCase().includes(actualToken);
+        const match = p.name.toLowerCase().includes(actualToken) || 
+                      p.tags.some(t => t.toLowerCase().includes(actualToken.replace(/_/g, ' ')));
+        return isNot ? !match : match;
     };
 
     return {

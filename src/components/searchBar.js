@@ -21,33 +21,29 @@ window.BOJ_CF.Components.SearchBar = (function() {
             // 2. DOM에 먼저 삽입 (이 줄이 무조건 이벤트 바인딩보다 먼저 와야 함)
             containerElement.insertBefore(searchUI, containerElement.firstChild);
 
-           // 3. [수정된 부분] 전역 탐색(document) 대신, 지역 탐색(searchUI)으로 요소 찾기
-            const input = searchUI.querySelector('#boj-search-input');
-            const btn = searchUI.querySelector('#boj-search-btn');
-
-            const handleInput = () => {
-                let val = input.value.trim();
-                if (val.length > 0) {
-                    window.BOJ_CF.StateManager.addFilter(val);
-                    input.value = ''; 
-                }
-            };
-
-            input.addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') handleInput();
-            });
-
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && input.value === '') {
-                    const state = window.BOJ_CF.StateManager.getState();
-                    if (state.activeFilters.length > 0) {
-                        window.BOJ_CF.StateManager.removeFilter(state.activeFilters[state.activeFilters.length - 1]);
+           // HTML 삽입 후 실행되는 전역 이벤트 위임
+            document.body.addEventListener('click', (e) => {
+                if (e.target && e.target.id === 'boj-search-btn') {
+                    const input = document.getElementById('boj-search-input');
+                    let val = input ? input.value.trim() : '';
+                    if (val.length > 0) {
+                        window.BOJ_CF.StateManager.addFilter(val);
+                        if(input) input.value = '';
                     }
                 }
             });
 
-            // 검색 버튼 클릭 이벤트 정상 복구
-            btn.addEventListener('click', handleInput);
+            document.body.addEventListener('keyup', (e) => {
+                if (e.target && e.target.id === 'boj-search-input') {
+                    if (e.key === 'Enter') {
+                        let val = e.target.value.trim();
+                        if (val.length > 0) {
+                            window.BOJ_CF.StateManager.addFilter(val);
+                            e.target.value = '';
+                        }
+                    }
+                }
+            });
         }
     };
 })();
