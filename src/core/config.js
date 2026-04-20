@@ -1,5 +1,5 @@
 window.BOJ_CF.Config = {
-    MAX_RENDER_COUNT: 20, // 100에서 20으로 수정됨
+    MAX_RENDER_COUNT: 20, // 기본 20개 출력
     API_CACHE_DURATION_MINS: 15,
     DB_CACHE_DURATION_HOURS: 24
 };

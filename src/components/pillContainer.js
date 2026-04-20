@@ -19,16 +19,21 @@ window.BOJ_CF.Components.PillContainer = (function() {
         });
     };
     return {
+        // init 함수 내부 (최초 1회만 이벤트 등록)
         init: function() {
             const searchContainer = document.querySelector('.boj-search-container');
             if (!searchContainer || document.getElementById('boj-selected-pills')) return;
-            container = document.createElement('div');
-            container.id = 'boj-selected-pills'; container.className = 'boj-selected-pills';
-            searchContainer.appendChild(container);
-            container.addEventListener('click', (e) => {
-                if (e.target.classList.contains('boj-pill-remove')) window.BOJ_CF.StateManager.removeFilter(e.target.getAttribute('data-val'));
+            containerElement = document.createElement('div');
+            containerElement.id = 'boj-selected-pills';
+            containerElement.className = 'boj-selected-pills';
+            searchContainer.appendChild(containerElement);
+
+            // 이벤트 위임: 컨테이너에 딱 한 번만 등록
+            containerElement.addEventListener('click', (e) => {
+                const removeBtn = e.target.closest('.boj-pill-remove');
+                if (removeBtn) window.BOJ_CF.StateManager.removeFilter(removeBtn.getAttribute('data-val'));
             });
-            window.BOJ_CF.StateManager.subscribe(render);
+            window.BOJ_CF.StateManager.subscribe(this.render);
         }
     };
 })();

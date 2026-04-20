@@ -3,11 +3,16 @@
  * API 통신 및 15분 로컬 캐싱 레이어
  */
 window.BOJ_CF.Fetcher = (function() {
+    // getCached 함수 내부 (try-catch 및 삭제 로직 추가)
     const getCached = (key, duration) => {
-        const cached = localStorage.getItem(key);
-        if (cached) {
-            const parsed = JSON.parse(cached);
+        try {
+            const cached = localStorage.getItem(key);
+            if (!cached) return null;
+            const parsed = JSON.parse(cached); // 오염된 JSON 방어
             if (Date.now() - parsed.timestamp < duration) return parsed.data;
+            localStorage.removeItem(key); // 만료된 캐시 즉시 제거
+        } catch (e) {
+            localStorage.removeItem(key); // 에러 발생 시 캐시 삭제로 자가 치유
         }
         return null;
     };

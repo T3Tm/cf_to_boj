@@ -6,12 +6,14 @@ window.BOJ_CF.Components = window.BOJ_CF.Components || {};
 window.BOJ_CF.Components.ThemeToggle = (function() {
     return {
         init: function() {
-            const langChooser = document.querySelector('.lang-chooser');
-            if (!langChooser || document.getElementById('boj-theme-toggle')) return;
-            const btn = document.createElement('button');
-            btn.id = 'boj-theme-toggle'; btn.innerHTML = '🌓 테마 전환';
-            btn.onclick = () => window.BOJ_CF.StateManager.setTheme(window.BOJ_CF.StateManager.getState().theme === 'dark' ? 'light' : 'dark');
-            langChooser.insertBefore(btn, langChooser.firstChild);
+            // main.js가 만든 버튼을 찾아서 이벤트만 연결
+            const btn = document.getElementById('boj-theme-toggle');
+            if (btn) {
+                btn.onclick = () => {
+                    const next = window.BOJ_CF.StateManager.getState().theme === 'dark' ? 'light' : 'dark';
+                    window.BOJ_CF.StateManager.setTheme(next);
+                };
+            }
         }
     };
 })();

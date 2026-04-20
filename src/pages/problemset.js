@@ -57,17 +57,17 @@ window.BOJ_CF.Pages.Problemset = (function() {
         if (!vt) {
             vt = document.createElement('div'); vt.id = 'boj-virtual-table';
             document.querySelector('.boj-search-container').insertAdjacentElement('afterend', vt);
+            
+            // [중요] 이벤트 위임: vt가 처음 생성될 때 한 번만 클릭 감지
+            vt.addEventListener('click', (e) => {
+                if (e.target.classList.contains('boj-page-btn')) {
+                    currentPage = parseInt(e.target.getAttribute('data-page'));
+                    buildVirtualTable(problems);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
         }
         vt.innerHTML = tableHtml;
-
-        // [추가됨] 페이지 버튼 클릭 이벤트 위임
-        vt.querySelectorAll('.boj-page-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                currentPage = parseInt(e.target.getAttribute('data-page'));
-                buildVirtualTable(problems); // 변경된 페이지로 테이블 재렌더링
-                window.scrollTo({ top: 0, behavior: 'smooth' }); // 화면 맨 위로 부드럽게 스크롤
-            });
-        });
     };
 
     const handleFilters = (state) => {
@@ -125,6 +125,11 @@ window.BOJ_CF.Pages.Problemset = (function() {
                 window.BOJ_CF.Fetcher.fetchAllProblems(),
                 handle ? window.BOJ_CF.Fetcher.fetchUserStatus(handle) : Promise.resolve(null)
             ]);
+
+            if (!allProbs) {
+                pc.innerHTML = `<div class="boj-error-card">코드포스 API 응답이 없습니다. 잠시 후 새로고침 해주세요.</div>`;
+                return;
+            }
 
             if (allProbs && allProbs.problems && allProbs.problemStatistics) {
                 // [추가됨] solvedCount 매핑용 Dictionary(Zipping)
