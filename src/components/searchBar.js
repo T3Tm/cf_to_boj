@@ -2,9 +2,9 @@ window.BOJ_CF.Components.SearchBar = (function() {
     return {
         init: function(container) {
             if (document.querySelector('.boj-search-container')) return;
-            const div = document.createElement('div');
-            div.className = 'boj-search-container';
-            div.innerHTML = `
+            const searchUI = document.createElement('div');
+            searchUI.className = 'boj-search-container';
+            searchUI.innerHTML = `
                             <div class="boj-search-input-wrapper">
                                 <input type="text" id="boj-search-input" autocomplete="off" placeholder="예: #dp | r:1500..2000 (solved.ac 문법 지원)">
                                 <select id="boj-page-size-select" style="padding: 5px; border-radius: 4px; border: 1px solid var(--boj-border); background: var(--boj-bg); color: var(--boj-text);">
@@ -15,7 +15,7 @@ window.BOJ_CF.Components.SearchBar = (function() {
                                 <button id="boj-search-btn">검색</button>
                             </div>
                         `;
-            container.insertBefore(div, container.firstChild);
+            container.insertBefore(searchUI, container.firstChild);
 
             const input = document.getElementById('boj-search-input');
             // handleInput 함수 수정 (토큰화 로직 제거, 통문장 알약 생성)

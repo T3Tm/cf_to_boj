@@ -105,6 +105,16 @@ window.BOJ_CF.Pages.Problemset = (function() {
 
             window.BOJ_CF.Components.SearchBar.init(pc);
             window.BOJ_CF.Components.PillContainer.init();
+            // [추가] 보기 개수 토글 이벤트 리스너
+            const pageSizeSelect = document.getElementById('boj-page-size-select');
+            if (pageSizeSelect) {
+                pageSizeSelect.value = window.BOJ_CF.Config.MAX_RENDER_COUNT;
+                pageSizeSelect.addEventListener('change', (e) => {
+                    window.BOJ_CF.Config.MAX_RENDER_COUNT = parseInt(e.target.value);
+                    currentPage = 1; // 1페이지로 리셋
+                    handleFilters(window.BOJ_CF.StateManager.getState()); // 화면 갱신
+                });
+            }
 
             const handleEl = document.querySelector('.boj-header-user'); // 변경된 헤더 클래스 참조
             const handle = handleEl ? handleEl.innerText.trim() : null;
@@ -142,18 +152,6 @@ window.BOJ_CF.Pages.Problemset = (function() {
             buildVirtualTable(globalDB);
             const vt = document.getElementById('boj-virtual-table');
             if (vt) vt.style.display = 'block';
-
-            // 기존 이벤트 구독 유지 (단, handleFilters 내에서 원본 테이블 복구 로직은 삭제해도 무방함)
-            window.BOJ_CF.StateManager.subscribe(handleFilters);
-            const pageSizeSelect = document.getElementById('boj-page-size-select');
-            if (pageSizeSelect) {
-                pageSizeSelect.value = window.BOJ_CF.Config.MAX_RENDER_COUNT; // 현재 설정값 동기화
-                pageSizeSelect.addEventListener('change', (e) => {
-                    window.BOJ_CF.Config.MAX_RENDER_COUNT = parseInt(e.target.value);
-                    currentPage = 1; // 1페이지로 리셋
-                    handleFilters(window.BOJ_CF.StateManager.getState()); // 테이블 재렌더링
-                });
-            }
         }
     };
 })();
