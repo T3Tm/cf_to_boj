@@ -103,12 +103,14 @@ window.BOJ_CF.Pages.Problemset = (function() {
             if (origTable) origTable.style.display = 'none';
             paginations.forEach(p => p.style.display = 'none');
 
+           // 검색창과 알약 컨테이너가 DOM에 완전히 그려진 이후에 실행
             window.BOJ_CF.Components.SearchBar.init(pc);
             window.BOJ_CF.Components.PillContainer.init();
-            // [추가] 보기 개수 토글 이벤트 리스너
+
+            // [수정된 부분] DOM에 그려진 이후 요소를 찾아 이벤트 매핑
             const pageSizeSelect = document.getElementById('boj-page-size-select');
             if (pageSizeSelect) {
-                pageSizeSelect.value = window.BOJ_CF.Config.MAX_RENDER_COUNT;
+                pageSizeSelect.value = window.BOJ_CF.Config.MAX_RENDER_COUNT; // 현재 설정값 동기화
                 pageSizeSelect.addEventListener('change', (e) => {
                     window.BOJ_CF.Config.MAX_RENDER_COUNT = parseInt(e.target.value);
                     currentPage = 1; // 1페이지로 리셋

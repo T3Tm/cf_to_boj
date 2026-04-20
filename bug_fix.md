@@ -1,59 +1,49 @@
-# 🏆 Codeforces to Baekjoon (v3.14 Event Hotfix & BOJ Details)
+# 🏆 Codeforces to Baekjoon (v3.15 Event Lifecycle & Theme Master)
 
-본 명세서는 쿼리 검색 후 검색 버튼이나 알약(Pill) 삭제 등 특정 클릭 이벤트가 동작하지 않는 '이벤트 바인딩 유실' 현상을 해결하고, `problemset` 페이지를 백준(solved.ac)과 더욱 똑같이 만들기 위한 디테일 고도화 방안을 정의합니다.
-
----
-
-## 🚨 1. 치명적 버그 원인 분석 (3-Pass Debugging)
-
-### ① 1차 검증: 검색 후 클릭 이벤트가 왜 죽었는가?
-* **원인:** v3.12에서 통합 검색창의 HTML 구조를 통째로 덮어쓰는(`innerHTML`) 방식으로 셀렉트 박스(표시 개수)를 추가했습니다. 자바스크립트에서 DOM 요소의 `innerHTML`을 덮어쓰면, 그 내부에 있던 기존 요소들은 파괴되고 새로운 요소로 렌더링됩니다. 이때 **이전에 연결해두었던 이벤트 리스너(클릭, 엔터 키 감지 등)가 모두 끊어지는(Unbound) 현상**이 발생합니다.
-* **해결 설계:** 이벤트 리스너를 연결하는 시점을 조정해야 합니다. 검색창 HTML 구조를 DOM에 삽입(`insertBefore` 또는 `innerHTML`)하는 작업이 **완전히 끝난 직후**에 `getElementById`로 요소를 다시 찾아서 이벤트를 매핑(Mapping)해야 합니다.
-
-### ② 2차 검증: 알약(Pill) 삭제 버튼은 왜 가끔 안 눌리는가?
-* **원인:** 알약 컨테이너(`pillContainer.js`)는 이벤트 위임(Event Delegation) 방식을 사용하고 있으나, 렌더링 시점에 부모 컨테이너(`boj-selected-pills`) 자체를 찾지 못하거나, 가상 테이블을 렌더링하면서 DOM 트리가 꼬였을 가능성이 있습니다.
-* **해결 설계:** 알약을 그리는 `render` 함수 내부에서 기존 알약을 비울 때 단순히 `innerHTML = ''`만 하지 말고, 부모 컨테이너가 DOM에 확실히 존재하는지 방어 로직을 추가해야 합니다.
+본 명세서는 v3.10의 헤더 재건축 및 v3.12의 검색창 개편 이후 발생한 **'테마 전환 버튼 먹통'**, **'검색 버튼 클릭 무반응'**, **'알약(Pill) 삭제 불가'** 현상의 근본 원인인 DOM 생명주기(Lifecycle) 충돌을 완벽히 교정하는 최종 핫픽스 지침서입니다.
 
 ---
 
-## 🚀 2. BOJ (백준/solved.ac) 디테일 이식 방안 (Next Steps)
+## 🚨 1. 치명적 버그 원인 분석 및 5회 교차 검증 (Deep Debugging)
 
-`problemset` 페이지를 더욱 완벽한 백준 스타일로 만들기 위해 향후 적용할 수 있는 디테일 고도화 기획입니다. (현재 버전에서 즉시 적용할 필수 사항은 아니며, 단계적인 업데이트를 권장합니다.)
+### ① 테마 전환 버튼이 먹통인 진짜 이유 (The Theme Button)
+* **원인 파악:** v3.10에서 우리는 `main.js`를 통해 헤더(`.boj-header-right`)에 테마 전환 버튼의 HTML(`<button id="boj-theme-toggle">...`)을 문자열로 때려 넣었습니다. 그리고 그 직후에 `ThemeToggle.init()`을 호출했습니다. 
+* **충돌 지점:** `themeToggle.js`의 `init()` 함수 내부를 보면, 옛날 버전의 잔재인 **"`.lang-chooser`를 찾아서 그 안에 새로운 버튼 요소를 `createElement`로 만들어 넣어라"** 라는 로직이 그대로 남아있었습니다. 즉, `main.js`가 만들어준 버튼과, `themeToggle.js`가 찾으려는 요소가 완전히 엇갈려, 이벤트 리스너(onclick)가 허공에 등록되고 있었던 것입니다.
+* **해결 설계:** `themeToggle.js`의 역할을 완전히 수정합니다. "버튼을 새로 만드는 것"이 아니라, `main.js`가 이미 화면에 그려놓은 `document.getElementById('boj-theme-toggle')` 요소를 **찾아서(Query) 클릭 이벤트만 매핑(Mapping)** 해주는 역할로 축소해야 합니다.
 
-### 디테일 1: "맞은 사람" 정렬 토글 기능
-* **BOJ 특징:** 백준에서는 문제 목록에서 '맞은 사람' 글자를 클릭하면, 가장 많이 푼 문제(국민 문제)부터 오름차순/내림차순으로 정렬할 수 있어 입문자들이 순서대로 풀기 매우 좋습니다.
-* **적용 설계:** 가상 테이블(`virtualTable`)을 생성할 때, 테이블 헤더의 `<th>맞힌 사람</th>` 부분에 클릭 이벤트를 달아줍니다. 클릭할 때마다 상태 관리자(`StateManager`)나 `problemset.js`의 로컬 변수(예: `sortType = 'solvedCount'`)를 변경하여, `globalDB`를 레이팅이 아닌 정답자 수 기준으로 재정렬한 뒤 화면을 다시 그리도록(Re-render) 기능을 추가할 수 있습니다.
-
-### 디테일 2: 내가 푼 문제의 시각적 강조 (Row Highlighting)
-* **BOJ 특징:** 백준은 내가 맞은 문제는 표의 배경색 자체가 연한 초록색으로 칠해져 있어, 수많은 문제 속에서 나의 성취도를 한눈에 파악할 수 있습니다.
-* **적용 설계:** 가상 테이블을 그리는 `map` 함수 내부에서, `p.isSolved === true` 일 경우 해당 `<tr>` 태그의 클래스에 `boj-solved-row`를 추가합니다. 그리고 `styles/components.css`에서 해당 클래스의 `background-color`를 연한 초록색(예: `#e7f4ef`)으로 덮어씌워 주면, 텍스트(✅)뿐만 아니라 행 전체가 초록색으로 물들게 됩니다.
-
-### 디테일 3: 난이도 숨기기 (Spoiler Block) 전역화
-* **BOJ 특징:** solved.ac 기능 중 "문제 목록에서 난이도 숨기기" 기능이 있습니다. 스포일러를 원치 않는 고수들을 위한 기능입니다.
-* **적용 설계:** `themeToggle.js` 옆에 작은 눈 모양 아이콘(토글)을 하나 더 만듭니다. 이를 클릭하면 글로벌 CSS 속성으로 `.boj-tier-icon`의 `opacity`를 0으로 만들거나, `filter: blur(5px)`를 먹여 모든 문제 목록의 티어가 블러 처리되도록(마우스를 올렸을 때만 보이도록) 기능을 확장할 수 있습니다.
+### ② 검색창 클릭 이벤트와 알약 삭제가 죽어버린 이유 (The Search & Pills)
+* **원인 파악:** `searchBar.js` 역시 `innerHTML`로 뼈대를 주입합니다. 이때 자바스크립트 엔진은 HTML 문자열을 파싱하여 새로운 DOM 객체들을 만듭니다. 만약 `innerHTML` 주입 로직 **이전에** 요소를 찾거나(`getElementById`), 이벤트 위임을 부착했다면, 렌더링 이후 그 요소들은 옛날 메모리 주소를 바라보는 **좀비 객체(Stale Reference)**가 되어버립니다.
+* **해결 설계 (순서 강제):** 1. `searchBar.js`: 반드시 `insertBefore` 등을 통해 DOM에 HTML을 완전히 삽입(Mount)한 **직후(마지막 줄)에** 요소를 쿼리하여 이벤트를 달아주어야 합니다.
+  2. `pillContainer.js`: 컨테이너가 렌더링될 때마다 매번 이벤트를 다는 것이 아니라, 최초 1회 빈 컨테이너(`div#boj-selected-pills`)를 생성하여 화면에 붙인 직후에 딱 한 번만 이벤트 위임(Event Delegation)을 걸어두어야 합니다. 이후에는 안의 알약(`span`, `button`)만 넣었다 뺐다 해야 이벤트가 유지됩니다.
 
 ---
 
-## 🛠️ 3. 아키텍처 핫픽스 조치 지침 (Implementation Guide)
+## 🛠️ 2. 아키텍처 개편 및 조치 지침 (Implementation Guide)
 
-개발자님께서는 아래 지침에 따라 끊어진 이벤트를 다시 연결해 주십시오.
+개발자님께서는 코드를 직접 수정하실 때 아래의 흐름을 엄격하게 따라 주십시오.
 
-### 지침 1: `src/components/searchBar.js` 이벤트 바인딩 순서 교정
-1. `init` 함수 내부를 확인하십시오.
-2. `searchUI.innerHTML = ...` 을 통해 HTML 뼈대를 주입하는 로직이 가장 먼저 와야 합니다.
-3. 그 다음 `containerElement.insertBefore(...)`로 화면에 실제로 요소를 박아 넣으십시오.
-4. **반드시 위 2번과 3번 작업이 끝난 이후(아래 줄)에**, `document.getElementById('boj-search-input')`과 `document.getElementById('boj-search-btn')`을 찾아 변수에 할당하십시오.
-5. 그리고 해당 변수들에 `addEventListener`를 부착하여 클릭과 엔터 키 이벤트를 연결하십시오. (순서가 틀리면 요소를 찾지 못해 이벤트가 죽습니다.)
+### Step 1. `src/components/themeToggle.js` (테마 이벤트 복구)
+1. `init` 함수 내부의 로직을 전면 수정합니다.
+2. 기존의 `document.querySelector('.lang-chooser')`나 `document.createElement('button')` 같은 로직을 모두 삭제하십시오.
+3. 대신, `document.getElementById('boj-theme-toggle')`를 통해 메인 헤더에 존재하는 버튼을 찾으십시오.
+4. 버튼이 존재한다면, 해당 버튼의 `onclick` 속성에 테마를 스위칭하는 로직(상태 관리자의 `theme` 값을 읽어와 반대로 `setTheme` 호출)을 할당하십시오.
 
-### 지침 2: `src/pages/problemset.js` 셀렉트 박스 이벤트 부착 시점 확인
-1. 페이지 사이즈를 조절하는 `<select id="boj-page-size-select">`에 대한 이벤트 리스너도 마찬가지입니다.
-2. `searchBar.js`의 `init()`이 완전히 끝나서 셀렉트 박스가 화면에 그려진 이후 시점(예: `problemset.js`의 `init` 함수 하단부)에 `getElementById`로 셀렉트 박스를 찾고 `change` 이벤트를 매핑하십시오.
+### Step 2. `src/components/searchBar.js` (검색 이벤트 복구)
+1. `init` 함수 내부의 실행 순서를 점검하십시오.
+2. `searchUI.innerHTML = ...` 을 통해 뼈대를 만들고, `containerElement.insertBefore(...)`를 통해 화면에 그리는 로직이 **무조건 가장 먼저** 실행되어야 합니다.
+3. 화면에 그려진 이후(하단부)에 `document.getElementById('boj-search-input')`과 `document.getElementById('boj-search-btn')`을 변수에 담으십시오.
+4. 그 다음, 해당 변수들에 `addEventListener`를 사용하여 `keyup(Enter)`와 `click` 이벤트를 매핑하십시오.
+
+### Step 3. `src/components/pillContainer.js` (알약 삭제 복구)
+1. `init` 함수를 점검하십시오. 
+2. `containerElement = document.createElement('div');` 로 컨테이너를 만들고, `searchContainer.appendChild(containerElement);` 로 화면에 붙이는 작업이 이루어집니다.
+3. **이 직후에 단 한 번만** `containerElement.addEventListener('click', ...)` 를 통해 이벤트 위임을 설정해야 합니다. (`render` 함수 내부가 아닌 `init` 함수 내부에 있어야 합니다.)
+4. 클릭된 요소(`e.target`)의 클래스리스트가 `boj-pill-remove`를 포함하고 있다면, 해당 요소의 `data-val` 속성값을 읽어 상태 관리자의 `removeFilter`를 호출하도록 로직을 점검하십시오.
 
 ---
 
-## 📝 4. 시스템 안정성 최종 점검 (Checklist)
+## 📝 3. 시스템 안정성 최종 점검 (Checklist)
 
-* [ ] 검색창에 쿼리를 입력하고 엔터키를 쳤을 때 정상적으로 알약이 생성되며 테이블이 갱신되는가?
-* [ ] 검색창 옆의 '검색' 버튼을 마우스로 클릭했을 때도 동일하게 쿼리가 작동하는가?
-* [ ] 알약(Pill) 옆의 'X' 버튼을 눌렀을 때 알약이 즉시 사라지고 테이블이 원래대로 돌아오는가?
-* [ ] (향후 과제) 백준 스타일의 맞은 사람 정렬이나 행 배경색 칠하기 기능을 추가할 아키텍처적 공간(여력)이 충분히 확보되었는가?
+* [ ] 우측 상단의 🌓 테마 전환 버튼을 클릭했을 때 화면이 어두워지고 밝아지는 다크모드가 정상 작동하는가?
+* [ ] 검색창에 텍스트를 입력하고 '엔터키'가 아닌 마우스로 '검색' 버튼을 클릭했을 때 정상적으로 알약이 생성되는가?
+* [ ] 생성된 알약 옆의 'X' 버튼을 마우스로 클릭했을 때 알약이 즉시 사라지고 필터가 해제되는가?
