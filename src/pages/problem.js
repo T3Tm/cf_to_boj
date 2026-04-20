@@ -1,6 +1,6 @@
 /**
- * src/pages/problem.js (v3.2.8)
- * 개별 문제 페이지 컨트롤러 (중앙 정렬, 백준 스타일 토글 버튼 적용)
+ * src/pages/problem.js (v3.3.1)
+ * 개별 문제 페이지 컨트롤러 (중복 변수 제거 및 3차 검토 완료)
  */
 window.BOJ_CF.Pages.Problem = (function() {
     return {
@@ -8,17 +8,18 @@ window.BOJ_CF.Pages.Problem = (function() {
             const ps = document.querySelector('.problem-statement');
             if (!ps || document.querySelector('.page-header')) return;
 
-            // 0. 데이터 및 사용자 상태 확인
+            // 0. 경로 및 데이터 준비 (1차 선언으로 통합)
+            const pathParts = window.location.pathname.split('/');
+            const contestId = pathParts[3];
+            const problemIndex = pathParts[4];
             const handle = document.querySelector('.boj-header-user')?.innerText.trim();
+
             const [allProbs, userStatusRes] = await Promise.all([
                 window.BOJ_CF.Fetcher.fetchAllProblems(),
                 handle ? window.BOJ_CF.Fetcher.fetchUserStatus(handle) : Promise.resolve(null)
             ]);
 
-            const pathParts = window.location.pathname.split('/');
-            const contestId = pathParts[3];
-            const problemIndex = pathParts[4];
-            
+            // 문제 통계 및 사용자 상태 확인
             const problemStat = allProbs?.problemStatistics?.find(s => s.contestId == contestId && s.index == problemIndex);
             const totalSolved = problemStat ? problemStat.solvedCount : '-';
 
@@ -27,21 +28,17 @@ window.BOJ_CF.Pages.Problem = (function() {
             const isSolved = mySubs.some(s => s.verdict === 'OK');
             const isAttempted = mySubs.length > 0;
 
-            // 1. 탭 메뉴 (nav-pills)
-            const hiddenLinks = Array.from(document.querySelectorAll('.second-level-menu a'));
-            const submitLink = hiddenLinks.find(a => a.href.includes('/submit'))?.href || '#';
-            const statusLink = hiddenLinks.find(a => a.href.includes('/status'))?.href || '#';
-
+            // 1. 탭 메뉴 (nav-pills) - 위에서 선언한 변수 재사용
             const tabMenu = document.createElement('ul');
             tabMenu.className = 'nav nav-pills problem-menu';
             tabMenu.innerHTML = `
                 <li class="active"><a href="${window.location.href}">문제</a></li>
-                <li><a href="${submitLink}">제출</a></li>
-                <li><a href="${statusLink}">채점 현황</a></li>
+                <li><a href="/problemset/submit?contestId=${contestId}&problemIndex=${problemIndex}">제출</a></li>
+                <li><a href="/problemset/status?contestId=${contestId}&index=${problemIndex}">채점 현황</a></li>
             `;
             ps.parentNode.insertBefore(tabMenu, ps);
 
-            // 2. 헤더 및 정보 테이블 (중앙 정렬 텍스트)
+            // 2. 헤더 및 정보 테이블
             const header = ps.querySelector('.header');
             if (header) {
                 const rawTitle = header.querySelector('.title')?.innerText || '';

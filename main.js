@@ -1,11 +1,11 @@
 /**
- * main.js (v3.2)
- * 확장 프로그램 진입점 및 라우터
+ * main.js (v3.3.2)
+ * 확장 프로그램 진입점 및 라우터 (3차 검토 완료 및 에러 방어 강화)
  */
 (function() {
-    console.log("[BOJ_CF] Extension v3.2 Loaded");
+    console.log("[BOJ_CF] Extension v3.3 Loaded");
 
-    // 1. 기존 헤더에서 유저 데이터 안전하게 백업
+    // 1. 헤더 유저 데이터 추출 및 안전 처리
     const langChooser = document.querySelector('.lang-chooser');
     const profileLink = langChooser ? langChooser.querySelector('a[href^="/profile/"]') : null;
     const logoutLink = langChooser ? langChooser.querySelector('a[href$="logout"]') : null;
@@ -43,23 +43,26 @@
         `;
     }
 
-    // 3. 컴포넌트 초기화
-    window.BOJ_CF.Components.ThemeToggle.init();
-
-    // 4. 전역 레이아웃 조정
+    // 컴포넌트 및 레이아웃 초기화
+    if (window.BOJ_CF?.Components?.ThemeToggle) {
+        window.BOJ_CF.Components.ThemeToggle.init();
+    }
+    
     const sidebar = document.getElementById('sidebar');
     if (sidebar) sidebar.style.display = 'none';
 
-    // 5. 정밀 라우팅 (Exact Match / Regex)
+    // 3. 정밀 라우팅
     const path = window.location.pathname;
 
     if (path.match(/^\/problemset\/problem\/[0-9]+\/[A-Z0-9]+$/)) {
-        window.BOJ_CF.Pages.Problem.init();
+        window.BOJ_CF.Pages.Problem?.init();
     } else if (path === '/problemset' || path.startsWith('/problemset/page/')) {
-        window.BOJ_CF.Pages.Problemset.init();
+        window.BOJ_CF.Pages.Problemset?.init();
+    } else if (path === '/problemset/submit') {
+        window.BOJ_CF.Pages.Submit?.init();
     } else if (path === '/problemset/status' || path === '/status' || path.startsWith('/problemset/status/page/')) {
-        window.BOJ_CF.Pages.Status.init();
+        window.BOJ_CF.Pages.Status?.init();
     } else if (path.startsWith('/profile/')) {
-        window.BOJ_CF.Pages.Profile.init();
+        window.BOJ_CF.Pages.Profile?.init();
     }
 })();

@@ -249,6 +249,58 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
 }
 .spoiler-link:hover { background: #e9ecef; border-color: #0076c0; }
 
+/* 8. 제출 페이지 (Submit Page) BOJ Style */
+.submit-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+.submit-form-row {
+    display: flex;
+    margin-bottom: 20px;
+    align-items: center;
+}
+.submit-form-label {
+    width: 150px;
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+}
+.submit-form-input-group {
+    flex: 1;
+}
+.submit-form-input-group input, 
+.submit-form-input-group select, 
+.submit-form-input-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.submit-form-input-group textarea {
+    height: 400px;
+    font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+}
+.submit-button-container {
+    text-align: center;
+    margin-top: 30px;
+}
+.btn-boj-submit {
+    padding: 10px 40px;
+    font-size: 18px;
+    font-weight: bold;
+    background-color: #0076c0;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-boj-submit:hover {
+    background-color: #005a93;
+}
+
 /* 다크모드 대응 고도화 */
 :root[data-theme="dark"] .page-header h1, 
 :root[data-theme="dark"] .headline h2, 

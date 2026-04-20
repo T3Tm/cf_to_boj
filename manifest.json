@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Codeforces to Baekjoon",
-  "version": "3.2",
+  "version": "3.3",
   "description": "Codeforces 백준 스타일 전역 테마 및 통합 검색 엔진",
   "permissions": ["storage"],
   "host_permissions": ["https://codeforces.com/api/*"],
@@ -31,6 +31,7 @@
         "src/pages/problemset.js",
         "src/pages/profile.js",
         "src/pages/status.js",
+        "src/pages/submit.js",
         "main.js"
       ],
       "run_at": "document_idle"
