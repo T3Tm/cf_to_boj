@@ -4,13 +4,13 @@
  */
 window.BOJ_CF.Components = window.BOJ_CF.Components || {};
 window.BOJ_CF.Components.ThemeToggle = (function() {
-    let initialized = false; // 중복 바인딩 방지
+    let initialized = false;
     return {
         init: function() {
             if (initialized) return;
-            // [방어] 전역 이벤트 위임(Event Delegation)
             document.body.addEventListener('click', (e) => {
-                if (e.target && e.target.id === 'boj-theme-toggle') {
+                const btn = e.target.closest('#boj-theme-toggle');
+                if (btn) {
                     const next = window.BOJ_CF.StateManager.getState().theme === 'dark' ? 'light' : 'dark';
                     window.BOJ_CF.StateManager.setTheme(next);
                 }

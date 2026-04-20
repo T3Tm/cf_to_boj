@@ -15,28 +15,32 @@
     const profileUrl = profileLink ? profileLink.href : '#';
     const logoutUrl = logoutLink ? logoutLink.href : '#';
 
-    // 2. 헤더 전면 파괴 및 Flexbox 기반 백준 스타일 헤더 재건축
-    const header = document.getElementById('header');
-    if (header) {
-        header.innerHTML = `
-            <div class="boj-header-left">
-                <a href="/" style="font-size: 22px; font-weight: 900; color: var(--boj-primary); text-decoration: none; letter-spacing: -0.5px;">Codeforces</a>
-            </div>
-            <div class="boj-header-center">
-                <ul class="boj-menu-list">
-                    <li><a href="/problemset">문제</a></li>
-                    <li><a href="/problemset/submit">제출</a></li> <li><a href="/contests">대회</a></li>
-                    <li><a href="/problemset/status">채점 현황</a></li>
-                    <li><a href="/top">랭킹</a></li>
-                    <li><a href="/groups/my">그룹</a></li>
-                </ul>
-            </div>
-            <div class="boj-header-right">
-                <button id="boj-theme-toggle">🌓 테마 전환</button>
-                ${profileLink ? `<a href="${profileUrl}" class="boj-header-user">${handle}</a> <span style="margin:0 8px; color:var(--boj-border);">|</span> <a href="${logoutUrl}" style="color:#888; text-decoration:none;">로그아웃</a>` : `<a href="/enter" style="font-weight:bold; color:var(--boj-primary);">로그인</a>`}
-            </div>
-        `;
-    }
+    // 헤더 재건축 로직 부분 (main.js)
+const header = document.getElementById('header');
+if (header) {
+    header.innerHTML = `
+        <div class="boj-header-left">
+            <a href="/" style="font-size: 22px; font-weight: 900; color: var(--boj-primary); text-decoration: none; letter-spacing: -0.5px;">Codeforces</a>
+        </div>
+        <div class="boj-header-center">
+            <ul class="boj-menu-list">
+                <li><a href="/problemset">문제</a></li>
+                <li><a href="/contests">대회</a></li>
+                <li><a href="/problemset/status">채점 현황</a></li>
+                <li><a href="/ratings">랭킹</a></li> <li><a href="/groups">그룹</a></li> </ul>
+        </div>
+        <div class="boj-header-right">
+            <button id="boj-theme-toggle">🌓 테마 전환</button>
+            ${profileLink ? `
+                <a href="${profileUrl}" class="boj-header-user">${handle}</a> 
+                <span style="margin:0 8px; color:var(--boj-border);">|</span> 
+                <a href="${logoutUrl}" style="color:#888; text-decoration:none;">로그아웃</a>
+            ` : `
+                <a href="/enter" style="font-weight:bold; color:var(--boj-primary);">로그인</a>
+            `}
+        </div>
+    `;
+}
 
     window.BOJ_CF.Components.ThemeToggle.init();
 

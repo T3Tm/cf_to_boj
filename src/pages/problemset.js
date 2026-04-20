@@ -1,36 +1,31 @@
 window.BOJ_CF.Pages = window.BOJ_CF.Pages || {};
 window.BOJ_CF.Pages.Problemset = (function() {
     let globalDB = [];
-    let currentPage = 1; // [추가됨] 페이지네이션 현재 상태 변수
+    let currentPage = 1;
+    let sortMode = 'rating'; 
+    let sortAsc = true;      
 
-    // 컨트롤러 최상단 영역 (let globalDB = []; 등과 함께 선언)
-    let sortMode = 'rating'; // 'rating' 또는 'solvedCount'
-    let sortAsc = true; 
-
-    // 정렬 함수 교체
     const sortProblems = (problems) => {
-        return problems.sort((a, b) => {
+        return [...problems].sort((a, b) => {
             if (sortMode === 'solvedCount') {
                 return sortAsc ? a.solvedCount - b.solvedCount : b.solvedCount - a.solvedCount;
             } else {
                 const rA = a.rating || Infinity;
                 const rB = b.rating || Infinity;
                 if (rA !== rB) return sortAsc ? rA - rB : rB - rA;
-                return b.contestId - a.contestId; // 동일 난이도면 최신 문제순
+                return b.contestId - a.contestId; 
             }
         });
     };
 
     const buildVirtualTable = (problems) => {
-        const max = window.BOJ_CF.Config.MAX_RENDER_COUNT; // Config에서 동적으로 가져옴
+        const max = window.BOJ_CF.Config.MAX_RENDER_COUNT; 
         const totalPages = Math.ceil(problems.length / max) || 1;
         const startIndex = (currentPage - 1) * max;
         const currentProblems = sortProblems(problems).slice(startIndex, startIndex + max);
 
-        // 페이지네이션 버튼 HTML 생성
         let paginationHtml = `<div class="boj-pagination" style="text-align:center; margin-top:20px; padding-bottom:20px;">`;
         for (let i = 1; i <= totalPages; i++) {
-            // 앞뒤 4페이지씩만 보여주어 버튼이 무한히 길어지는 것 방지
             if (i === 1 || i === totalPages || (i >= currentPage - 4 && i <= currentPage + 4)) {
                 paginationHtml += `<button class="boj-page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}" style="margin:0 3px; padding:5px 12px; font-weight:bold; border:1px solid var(--boj-border); background:${i === currentPage ? 'var(--boj-primary)' : 'var(--boj-bg)'}; color:${i === currentPage ? '#fff' : 'var(--boj-text)'}; border-radius:4px; cursor:pointer;">${i}</button>`;
             } else if (i === currentPage - 5 || i === currentPage + 5) {
@@ -72,26 +67,28 @@ window.BOJ_CF.Pages.Problemset = (function() {
             vt = document.createElement('div'); vt.id = 'boj-virtual-table';
             document.querySelector('.boj-search-container').insertAdjacentElement('afterend', vt);
             
-            // [중요] 이벤트 위임: vt가 처음 생성될 때 한 번만 클릭 감지
+            // [교정] 이벤트 리스너 내부에서 handleFilters를 재호출하여 현재 알약 상태 보존
             vt.addEventListener('click', (e) => {
-                // 페이지네이션 클릭 처리
-                if (e.target.classList.contains('boj-page-btn')) {
-                    currentPage = parseInt(e.target.getAttribute('data-page'));
-                    buildVirtualTable(problems);
+                const btn = e.target.closest('.boj-page-btn');
+                if (btn) {
+                    currentPage = parseInt(btn.getAttribute('data-page'));
+                    // 현재 필터 상태를 다시 읽어와서 정렬 및 렌더링
+                    handleFilters(window.BOJ_CF.StateManager.getState());
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
                 }
-                // [디테일] 정렬 헤더 클릭 처리
+
                 const th = e.target.closest('th[data-sort]');
                 if (th) {
                     const type = th.getAttribute('data-sort');
-                    if (sortMode === type) {
-                        sortAsc = !sortAsc; // 정렬 방향 반전
-                    } else {
+                    if (sortMode === type) sortAsc = !sortAsc;
+                    else {
                         sortMode = type;
-                        sortAsc = type === 'rating' ? true : false; // 정답자 수는 기본 내림차순(많은순)
+                        sortAsc = type === 'rating'; 
                     }
                     currentPage = 1;
-                    buildVirtualTable(problems);
+                    // 현재 필터 상태를 다시 읽어와서 정렬 및 렌더링
+                    handleFilters(window.BOJ_CF.StateManager.getState());
                 }
             });
         }
@@ -99,16 +96,11 @@ window.BOJ_CF.Pages.Problemset = (function() {
     };
 
     const handleFilters = (state) => {
-        currentPage = 1; // 검색 조건이 바뀌면 1페이지로 강제 리셋
-
-        // [수정된 부분] originalTable과 pagination의 style.display를 조작하던 분기문 완전 삭제
-
+        // [중요] currentPage 초기화 로직은 StateManager의 필터가 추가될 때만 작동해야 하므로, 
+        // 정렬 시에는 초기화하지 않도록 buildVirtualTable 내부에서 currentPage를 조절함
         const evaluator = window.BOJ_CF.QueryParser.createEvaluator(state.activeFilters);
         const filtered = globalDB.filter(evaluator);
         buildVirtualTable(filtered);
-        
-        const vt = document.getElementById('boj-virtual-table');
-        if (vt) vt.style.display = 'block';
     };
 
     return {
@@ -116,41 +108,22 @@ window.BOJ_CF.Pages.Problemset = (function() {
             const pc = document.querySelector('#pageContent');
             if (!pc) return;
 
-            // [추가됨] 페이지 진입 즉시 원본 테이블과 페이지네이션 영구 숨김
-            const origTable = document.querySelector('.datatable');
-            const paginations = document.querySelectorAll('.pagination');
-            paginations.forEach(p => p.style.display = 'none');
-
-           // 검색창과 알약 컨테이너가 DOM에 완전히 그려진 이후에 실행
             window.BOJ_CF.Components.SearchBar.init(pc);
             window.BOJ_CF.Components.PillContainer.init();
 
-            // [수정된 부분] DOM에 그려진 이후 요소를 찾아 이벤트 매핑
-            const pageSizeSelect = document.getElementById('boj-page-size-select');
-            if (pageSizeSelect) {
-                pageSizeSelect.value = window.BOJ_CF.Config.MAX_RENDER_COUNT; // 현재 설정값 동기화
-                pageSizeSelect.addEventListener('change', (e) => {
-                    window.BOJ_CF.Config.MAX_RENDER_COUNT = parseInt(e.target.value);
-                    currentPage = 1; // 1페이지로 리셋
-                    handleFilters(window.BOJ_CF.StateManager.getState()); // 화면 갱신
-                });
-            }
+            // 페이지 개수 조절 이벤트
+            document.getElementById('boj-page-size-select')?.addEventListener('change', (e) => {
+                window.BOJ_CF.Config.MAX_RENDER_COUNT = parseInt(e.target.value);
+                currentPage = 1;
+                handleFilters(window.BOJ_CF.StateManager.getState());
+            });
 
-            const handleEl = document.querySelector('.boj-header-user'); // 변경된 헤더 클래스 참조
-            const handle = handleEl ? handleEl.innerText.trim() : null;
-            
+            // API 로드 및 DB 구축 (직렬화 로드)
             const allProbs = await window.BOJ_CF.Fetcher.fetchAllProblems();
-            if (!allProbs) {
-                pc.innerHTML = `<div class="boj-error-card" style="padding:40px; text-align:center; color:red; font-weight:bold; background:var(--boj-bg);">코드포스 API 응답이 없습니다. (서버 지연)<br>잠시 후 새로고침 해주세요.</div>`;
-                return;
-            }
-            let userStatus = null;
-            if (handle) {
-                userStatus = await window.BOJ_CF.Fetcher.fetchUserStatus(handle); // allProbs 완료 후 호출
-            }
+            const handle = document.querySelector('.boj-header-user')?.innerText.trim();
+            const userStatus = handle ? await window.BOJ_CF.Fetcher.fetchUserStatus(handle) : null;
 
-            if (allProbs && allProbs.problems && allProbs.problemStatistics) {
-                // [추가됨] solvedCount 매핑용 Dictionary(Zipping)
+            if (allProbs) {
                 const solvedCountMap = {};
                 allProbs.problemStatistics.forEach(stat => {
                     solvedCountMap[`${stat.contestId}${stat.index}`] = stat.solvedCount;
@@ -158,7 +131,9 @@ window.BOJ_CF.Pages.Problemset = (function() {
 
                 const solvedSet = new Set();
                 if (userStatus && userStatus.result) {
-                    userStatus.result.forEach(sub => { if (sub.verdict === 'OK') solvedSet.add(`${sub.problem.contestId}${sub.problem.index}`); });
+                    userStatus.result.forEach(sub => { 
+                        if (sub.verdict === 'OK') solvedSet.add(`${sub.problem.contestId}${sub.problem.index}`); 
+                    });
                 }
                 
                 globalDB = allProbs.problems.map(p => ({
@@ -169,14 +144,12 @@ window.BOJ_CF.Pages.Problemset = (function() {
                     contestId: p.contestId,
                     index: p.index,
                     isSolved: solvedSet.has(`${p.contestId}${p.index}`),
-                    solvedCount: solvedCountMap[`${p.contestId}${p.index}`] || 0 // [추가됨] 맞힌 사람 수 결합
+                    solvedCount: solvedCountMap[`${p.contestId}${p.index}`] || 0
                 }));
-            }
 
-            // [추가됨] 필터 여부와 무관하게 초기 가상 테이블 강제 렌더링
-            buildVirtualTable(globalDB);
-            const vt = document.getElementById('boj-virtual-table');
-            if (vt) vt.style.display = 'block';
+                window.BOJ_CF.StateManager.subscribe(handleFilters);
+                handleFilters(window.BOJ_CF.StateManager.getState());
+            }
         }
     };
 })();
