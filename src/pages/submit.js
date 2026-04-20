@@ -1,27 +1,23 @@
 /**
- * src/pages/submit.js (v3.3.4)
- * 제출 페이지 컨트롤러 (단일 폼 통합, 문제 제목 자동 완성, 3차 재검토 완료)
+ * src/pages/submit.js (v3.3.5)
+ * 제출 페이지 컨트롤러 (원본 폼 프록시 방식, 탭 정렬 수정, 3차 재검토 완료)
  */
 window.BOJ_CF.Pages.Submit = (function() {
     return {
         init: async function() {
             const pc = document.querySelector('#pageContent');
-            if (!pc) return;
-
-            // [재검토 1단계: 기존 폼 제거 및 데이터 확보]
             const originalForm = document.querySelector('form.submit-form');
             const roundBox = document.querySelector('.roundbox');
-            if (!originalForm) return;
+            if (!pc || !originalForm) return;
 
-            // 기존 폼 데이터 안전하게 추출
+            // [재검토 1단계: 원본 폼 보호 및 데이터 확보]
+            // 원본 폼은 숨기기만 하고 제출 시 직접 사용하도록 보존
+            originalForm.style.display = 'none';
+            if (roundBox) roundBox.style.display = 'none';
+
             const programTypeIdHtml = originalForm.querySelector('select[name="programTypeId"]')?.innerHTML || '';
             const sourceCodeValue = originalForm.querySelector('textarea[name="sourceCode"]')?.value || '';
-            const csrfToken = originalForm.querySelector('input[name="csrf_token"]')?.value || '';
-            const ftaa = originalForm.querySelector('input[name="ftaa"]')?.value || '';
-            const bfaa = originalForm.querySelector('input[name="bfaa"]')?.value || '';
-            const actionUrl = originalForm.action;
 
-            // [재검토 2단계: 문제 정보 추출 및 제목 조회]
             const params = new URLSearchParams(window.location.search);
             const contestId = params.get('contestId');
             const problemIndex = params.get('problemIndex');
@@ -30,24 +26,16 @@ window.BOJ_CF.Pages.Submit = (function() {
             if (contestId && problemIndex) {
                 const allProbs = await window.BOJ_CF.Fetcher.fetchAllProblems();
                 const prob = allProbs?.problems?.find(p => p.contestId == contestId && p.index == problemIndex);
-                if (prob) {
-                    problemFullTitle = `${contestId}${problemIndex} - ${prob.name}`;
-                }
+                if (prob) problemFullTitle = `${contestId}${problemIndex} - ${prob.name}`;
             }
 
-            // [재검토 3단계: 화면 재구성 - 중복 방지]
-            // 기존 roundbox 및 폼 요소들을 모두 숨김 처리하여 중복 노출 차단
-            if (roundBox) roundBox.style.display = 'none';
-            originalForm.style.display = 'none';
-            document.querySelectorAll('.roundbox').forEach(el => el.style.display = 'none');
-
-            // 탭 메뉴 생성 및 주입
+            // [재검토 2단계: 탭 메뉴 주입 - 정렬 수정]
             if (contestId && problemIndex) {
                 let existingTabs = document.querySelector('.problem-menu');
                 if (!existingTabs) {
                     const tabMenu = document.createElement('ul');
                     tabMenu.className = 'nav nav-pills problem-menu';
-                    tabMenu.style.justifyContent = 'center';
+                    // justify-content: center 제거하여 왼쪽 정렬 복구
                     tabMenu.innerHTML = `
                         <li><a href="/problemset/problem/${contestId}/${problemIndex}">문제</a></li>
                         <li class="active"><a href="#">제출</a></li>
@@ -57,27 +45,21 @@ window.BOJ_CF.Pages.Submit = (function() {
                 }
             }
 
-            // 새 폼 컨테이너 생성
-            let customFormContainer = document.getElementById('boj-custom-submit-container');
-            if (!customFormContainer) {
-                customFormContainer = document.createElement('div');
-                customFormContainer.id = 'boj-custom-submit-container';
-                pc.appendChild(customFormContainer);
+            // [재검토 3단계: 커스텀 폼 생성 및 이벤트 바인딩]
+            let customContainer = document.getElementById('boj-custom-submit-container');
+            if (!customContainer) {
+                customContainer = document.createElement('div');
+                customContainer.id = 'boj-custom-submit-container';
+                pc.appendChild(customContainer);
             }
 
-            customFormContainer.innerHTML = `
-                <div class="submit-form-container">
+            customContainer.innerHTML = `
+                <div class="submit-form-container" style="margin-top: 20px;">
                     <div class="page-header"><h1 style="text-align: left; font-size: 28px;">제출</h1></div>
-                    <form action="${actionUrl}" method="POST" id="boj-submit-form">
-                        <input type="hidden" name="csrf_token" value="${csrfToken}">
-                        <input type="hidden" name="ftaa" value="${ftaa}">
-                        <input type="hidden" name="bfaa" value="${bfaa}">
-                        <input type="hidden" name="action" value="submitSolution">
-                        
+                    <div id="boj-submit-proxy-form">
                         <div class="submit-form-row">
                             <div class="submit-form-label">문제</div>
                             <div class="submit-form-input-group">
-                                <input type="text" name="submittedProblemCode" value="${contestId && problemIndex ? contestId + problemIndex : ''}" style="display:none;">
                                 <div style="padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; font-weight: bold; color: #333;">
                                     ${problemFullTitle || '문제를 선택해주세요'}
                                 </div>
@@ -87,7 +69,7 @@ window.BOJ_CF.Pages.Submit = (function() {
                         <div class="submit-form-row">
                             <div class="submit-form-label">언어</div>
                             <div class="submit-form-input-group">
-                                <select name="programTypeId" required style="width: 100%; max-width: 400px;">
+                                <select id="boj-proxy-lang" style="width: 100%; max-width: 400px;">
                                     ${programTypeIdHtml}
                                 </select>
                             </div>
@@ -96,24 +78,40 @@ window.BOJ_CF.Pages.Submit = (function() {
                         <div class="submit-form-row" style="align-items: flex-start; margin-top: 20px;">
                             <div class="submit-form-label" style="padding-top: 10px;">소스 코드</div>
                             <div class="submit-form-input-group">
-                                <textarea name="sourceCode" placeholder="코드를 여기에 붙여넣으세요" required style="height: 500px; font-family: 'Consolas', 'Monaco', monospace; line-height: 1.5;"></textarea>
+                                <textarea id="boj-proxy-code" placeholder="코드를 여기에 붙여넣으세요" style="height: 500px; font-family: 'Consolas', 'Monaco', monospace; line-height: 1.5;"></textarea>
                             </div>
                         </div>
 
                         <div class="submit-button-container">
-                            <button type="submit" class="btn-boj-submit">제출</button>
+                            <button type="button" id="boj-btn-proxy-submit" class="btn-boj-submit">제출</button>
                         </div>
-                    </form>
+                    </div>
                 </div>
             `;
 
-            // 소스 코드 값 복원
-            const newTextArea = customFormContainer.querySelector('textarea[name="sourceCode"]');
-            if (newTextArea) newTextArea.value = sourceCodeValue;
+            // 값 복원
+            document.getElementById('boj-proxy-code').value = sourceCodeValue;
 
-            // 서브 메뉴 숨김
-            const secondMenu = document.querySelector('.second-level-menu');
-            if (secondMenu) secondMenu.style.setProperty('display', 'none', 'important');
+            // 실제 제출 로직: 커스텀 폼 데이터를 원본 폼에 복사 후 제출 트리거
+            document.getElementById('boj-btn-proxy-submit').addEventListener('click', () => {
+                const proxyLang = document.getElementById('boj-proxy-lang').value;
+                const proxyCode = document.getElementById('boj-proxy-code').value;
+
+                // 원본 폼 요소 업데이트
+                const originalLang = originalForm.querySelector('select[name="programTypeId"]');
+                const originalCode = originalForm.querySelector('textarea[name="sourceCode"]');
+                const originalProb = originalForm.querySelector('input[name="submittedProblemCode"]');
+
+                if (originalLang) originalLang.value = proxyLang;
+                if (originalCode) originalCode.value = proxyCode;
+                if (originalProb && contestId && problemIndex) originalProb.value = contestId + problemIndex;
+
+                // 원본 폼 제출 실행
+                originalForm.submit();
+            });
+
+            // 기타 불필요 요소 제거
+            document.querySelector('.second-level-menu')?.style.setProperty('display', 'none', 'important');
         }
     };
 })();
