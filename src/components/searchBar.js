@@ -21,9 +21,9 @@ window.BOJ_CF.Components.SearchBar = (function() {
             // 2. DOM에 먼저 삽입 (이 줄이 무조건 이벤트 바인딩보다 먼저 와야 함)
             containerElement.insertBefore(searchUI, containerElement.firstChild);
 
-            // 3. 삽입이 끝난 후 요소를 찾아서 이벤트 부착
-            const input = document.getElementById('boj-search-input');
-            const btn = document.getElementById('boj-search-btn');
+           // 3. [수정된 부분] 전역 탐색(document) 대신, 지역 탐색(searchUI)으로 요소 찾기
+            const input = searchUI.querySelector('#boj-search-input');
+            const btn = searchUI.querySelector('#boj-search-btn');
 
             const handleInput = () => {
                 let val = input.value.trim();

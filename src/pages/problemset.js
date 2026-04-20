@@ -71,25 +71,16 @@ window.BOJ_CF.Pages.Problemset = (function() {
     };
 
     const handleFilters = (state) => {
-        currentPage = 1; // [추가됨] 검색 조건이 바뀌면 1페이지로 강제 리셋
+        currentPage = 1; // 검색 조건이 바뀌면 1페이지로 강제 리셋
 
-        const originalTable = document.querySelector('.datatable:not(.boj-virtual-datatable)');
-        // ... (아래 로직은 기존과 동일) ...
-        const pagination = document.querySelectorAll('.pagination');
+        // [수정된 부분] originalTable과 pagination의 style.display를 조작하던 분기문 완전 삭제
+
+        const evaluator = window.BOJ_CF.QueryParser.createEvaluator(state.activeFilters);
+        const filtered = globalDB.filter(evaluator);
+        buildVirtualTable(filtered);
+        
         const vt = document.getElementById('boj-virtual-table');
-
-        if (state.activeFilters.length === 0) {
-            if (originalTable) originalTable.style.display = '';
-            pagination.forEach(p => p.style.display = '');
-            if (vt) vt.style.display = 'none';
-        } else {
-            if (originalTable) originalTable.style.display = 'none';
-            pagination.forEach(p => p.style.display = 'none');
-            const evaluator = window.BOJ_CF.QueryParser.createEvaluator(state.activeFilters);
-            const filtered = globalDB.filter(evaluator);
-            buildVirtualTable(filtered);
-            if (vt) vt.style.display = 'block';
-        }
+        if (vt) vt.style.display = 'block';
     };
 
     return {
@@ -100,7 +91,6 @@ window.BOJ_CF.Pages.Problemset = (function() {
             // [추가됨] 페이지 진입 즉시 원본 테이블과 페이지네이션 영구 숨김
             const origTable = document.querySelector('.datatable');
             const paginations = document.querySelectorAll('.pagination');
-            if (origTable) origTable.style.display = 'none';
             paginations.forEach(p => p.style.display = 'none');
 
            // 검색창과 알약 컨테이너가 DOM에 완전히 그려진 이후에 실행

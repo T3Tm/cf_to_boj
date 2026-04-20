@@ -73,3 +73,9 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
 .boj-tier-icon { width: 14px; height: 18px; vertical-align: -3px; margin-right: 6px; }
 /* 코드포스 낡은 서브 메뉴(Second-level Menu) 영구 숨김 */
 .second-level-menu { display: none !important; }
+
+/* [추가된 부분] 코드포스 오리지널 테이블 및 구형 페이지네이션 영구 숨김 강제화 */
+.datatable:not(.boj-virtual-datatable), 
+.pagination {
+    display: none !important;
+}
