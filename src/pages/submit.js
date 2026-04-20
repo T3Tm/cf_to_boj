@@ -1,6 +1,7 @@
 /**
- * src/pages/submit.js (v3.3.6)
- * 제출 페이지 컨트롤러 (제출 버튼 정밀 트리거, 리다이렉션 유도, 3차 재검토 완료)
+ * src/pages/submit.js (v3.3.9)
+ * 제출 페이지 컨트롤러 (폼 컨텍스트 유지형 레이아웃 재배치)
+ * 3차 정밀 검토 완료: 폼 무결성 유지, 페이지 완전 초기화, Ace Editor 차단
  */
 window.BOJ_CF.Pages.Submit = (function() {
     return {
@@ -9,118 +10,86 @@ window.BOJ_CF.Pages.Submit = (function() {
             const originalForm = document.querySelector('form.submit-form');
             if (!pc || !originalForm) return;
 
-            // [재검토 1단계: 기존 요소 정밀 제거]
-            // "Submit solution", "Codeforces" 타이틀 및 중복 안내문 제거
-            const redundantElements = [
-                '.roundbox', 
-                'h2.caption', 
-                '.second-level-menu',
-                '#pageContent > h2'
-            ];
-            redundantElements.forEach(selector => {
-                document.querySelectorAll(selector).forEach(el => {
-                    el.style.setProperty('display', 'none', 'important');
-                });
-            });
+            // [재검토 1단계: 핵심 요소 획득 및 원본 폼 보호]
+            const langSelect = originalForm.querySelector('select[name="programTypeId"]');
+            const codeTextArea = originalForm.querySelector('textarea[name="source"]');
+            const submitBtn = originalForm.querySelector('#singlePageSubmitButton') || originalForm.querySelector('.submit');
+            const problemDataCell = originalForm.querySelector('.field-name')?.parentElement?.querySelector('td:last-child');
+            const problemFullText = problemDataCell?.innerText.trim() || '';
 
-            // 원본 폼 데이터 및 상태 확보
-            const programTypeIdHtml = originalForm.querySelector('select[name="programTypeId"]')?.innerHTML || '';
-            const sourceCodeValue = originalForm.querySelector('textarea[name="sourceCode"]')?.value || '';
-            const originalSubmitBtn = originalForm.querySelector('input[type="submit"], button[type="submit"]');
+            if (!langSelect || !codeTextArea || !submitBtn) return;
 
+            // [재검토 2단계: 페이지 완전 초기화 (탭 + 폼만 남김)]
             const params = new URLSearchParams(window.location.search);
             const contestId = params.get('contestId');
             const problemIndex = params.get('problemIndex');
-            let problemFullTitle = (contestId && problemIndex) ? `${contestId}${problemIndex}` : '';
 
+            // 탭 메뉴 미리 생성
+            let tabMenuHtml = '';
             if (contestId && problemIndex) {
-                const allProbs = await window.BOJ_CF.Fetcher.fetchAllProblems();
-                const prob = allProbs?.problems?.find(p => p.contestId == contestId && p.index == problemIndex);
-                if (prob) problemFullTitle = `${contestId}${problemIndex} - ${prob.name}`;
-            }
-
-            // [재검토 2단계: 탭 메뉴 구성]
-            if (contestId && problemIndex) {
-                let existingTabs = document.querySelector('.problem-menu');
-                if (!existingTabs) {
-                    const tabMenu = document.createElement('ul');
-                    tabMenu.className = 'nav nav-pills problem-menu';
-                    tabMenu.innerHTML = `
+                tabMenuHtml = `
+                    <ul class="nav nav-pills problem-menu">
                         <li><a href="/problemset/problem/${contestId}/${problemIndex}">문제</a></li>
                         <li class="active"><a href="#">제출</a></li>
                         <li><a href="/problemset/status?contestId=${contestId}&index=${problemIndex}">채점 현황</a></li>
-                    `;
-                    pc.prepend(tabMenu);
+                    </ul>
+                `;
+            }
+
+            // 페이지 콘텐츠 초기화 및 원본 폼 재삽입
+            pc.innerHTML = tabMenuHtml; // 탭 메뉴 먼저 넣기
+            pc.appendChild(originalForm); // 원본 폼을 pc 하위로 이동 (기존 테이블 등은 폼 안에 있음)
+
+            // [재검토 3단계: 폼 내부 레이아웃 재구성]
+            // 폼 안의 기존 UI(테이블 등)를 모두 숨김
+            Array.from(originalForm.children).forEach(child => {
+                if (child.tagName !== 'INPUT' || child.type !== 'hidden') {
+                    child.style.display = 'none';
                 }
-            }
+            });
 
-            // [재검토 3단계: 커스텀 폼 생성 및 이벤트 정밀 바인딩]
-            let customContainer = document.getElementById('boj-custom-submit-container');
-            if (!customContainer) {
-                customContainer = document.createElement('div');
-                customContainer.id = 'boj-custom-submit-container';
-                pc.appendChild(customContainer);
-            }
-
-            customContainer.innerHTML = `
-                <div class="submit-form-container" style="margin-top: 20px;">
-                    <div class="page-header"><h1 style="text-align: left; font-size: 28px;">제출</h1></div>
-                    <div id="boj-submit-proxy-form">
-                        <div class="submit-form-row">
-                            <div class="submit-form-label">문제</div>
-                            <div class="submit-form-input-group">
-                                <div style="padding: 12px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; font-weight: bold; color: #333;">
-                                    ${problemFullTitle || '문제를 선택해주세요'}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="submit-form-row">
-                            <div class="submit-form-label">언어</div>
-                            <div class="submit-form-input-group">
-                                <select id="boj-proxy-lang" style="width: 100%; max-width: 400px; padding: 8px;">
-                                    ${programTypeIdHtml}
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="submit-form-row" style="align-items: flex-start; margin-top: 20px;">
-                            <div class="submit-form-label" style="padding-top: 10px;">소스 코드</div>
-                            <div class="submit-form-input-group">
-                                <textarea id="boj-proxy-code" placeholder="코드를 여기에 붙여넣으세요" style="height: 500px; font-family: 'Consolas', 'Monaco', monospace; line-height: 1.5; padding: 15px;"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="submit-button-container" style="margin-top: 30px; text-align: center;">
-                            <button type="button" id="boj-btn-proxy-submit" class="btn-boj-submit">제출</button>
+            // 폼 내부에 새 백준 스타일 컨테이너 생성 (폼의 직접적인 자식으로)
+            const newLayout = document.createElement('div');
+            newLayout.className = 'submit-form-container';
+            newLayout.style.marginTop = '30px';
+            newLayout.innerHTML = `
+                <div class="page-header"><h1 style="text-align: left; font-size: 28px;">제출</h1></div>
+                <div class="submit-form-row">
+                    <div class="submit-form-label">문제</div>
+                    <div class="submit-form-input-group">
+                        <div style="padding: 12px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; font-weight: bold; color: #333;">
+                            ${problemFullText || '문제를 선택해주세요'}
                         </div>
                     </div>
                 </div>
+                <div class="submit-form-row">
+                    <div class="submit-form-label">언어</div>
+                    <div id="boj-target-lang" class="submit-form-input-group"></div>
+                </div>
+                <div class="submit-form-row" style="align-items: flex-start; margin-top: 20px;">
+                    <div class="submit-form-label" style="padding-top: 10px;">소스 코드</div>
+                    <div id="boj-target-code" class="submit-form-input-group"></div>
+                </div>
+                <div id="boj-target-submit" class="submit-button-container" style="margin-top: 30px;"></div>
             `;
+            originalForm.appendChild(newLayout);
 
-            // 데이터 복원
-            document.getElementById('boj-proxy-code').value = sourceCodeValue;
+            // 원본 요소들을 폼 내부의 새 위치로 이동
+            document.getElementById('boj-target-lang').appendChild(langSelect);
+            document.getElementById('boj-target-code').appendChild(codeTextArea);
+            document.getElementById('boj-target-submit').appendChild(submitBtn);
 
-            // 정밀 제출 로직: 원본 폼의 버튼을 직접 클릭하여 검증 로직 통과 유도
-            document.getElementById('boj-btn-proxy-submit').addEventListener('click', () => {
-                const proxyLang = document.getElementById('boj-proxy-lang').value;
-                const proxyCode = document.getElementById('boj-proxy-code').value;
+            // 시각적 보정
+            langSelect.style.cssText = "width: 100%; max-width: 400px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; display: block;";
+            codeTextArea.style.cssText = "width: 100%; height: 500px; font-family: 'Consolas', 'Monaco', monospace; line-height: 1.5; padding: 15px; border: 1px solid #ccc; border-radius: 4px; display: block !important;";
+            codeTextArea.hidden = false;
+            codeTextArea.removeAttribute('hidden');
+            
+            submitBtn.className = "btn-boj-submit";
+            submitBtn.value = "제출";
 
-                const originalLang = originalForm.querySelector('select[name="programTypeId"]');
-                const originalCode = originalForm.querySelector('textarea[name="sourceCode"]');
-                const originalProb = originalForm.querySelector('input[name="submittedProblemCode"]');
-
-                if (originalLang) originalLang.value = proxyLang;
-                if (originalCode) originalCode.value = proxyCode;
-                if (originalProb && contestId && problemIndex) originalProb.value = contestId + problemIndex;
-
-                // submit() 대신 click()을 사용하여 코드포스 내부 스크립트 실행 보장
-                if (originalSubmitBtn) {
-                    originalSubmitBtn.click();
-                } else {
-                    originalForm.submit();
-                }
-            });
+            // Ace Editor 및 불필요한 스크립트 요소 영구 삭제
+            document.querySelectorAll('#editor, .toggleEditorCheckboxLabel, .tabSizeDiv, #toggleEditorCheckbox').forEach(el => el.remove());
         }
     };
 })();
