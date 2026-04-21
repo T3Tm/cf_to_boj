@@ -1,48 +1,112 @@
 /**
- * src/api/fetcher.js
- * API 통신 및 15분 로컬 캐싱 레이어
+ * src/core/storage/fetcher.js (v4.0.0)
+ * [Logic Stabilization] API 통신 및 캐싱 레이어 (지수 백오프 적용)
+ * 
+ * 1. Exponential Backoff: 429 에러 또는 네트워크 장애 시 재시도 로직
+ * 2. Proxy Cache: 로컬 스토리지를 활용한 계층형 캐싱
+ * 3. Error Recovery: 오염된 캐시 데이터 자동 감지 및 초기화
  */
 window.BOJ_CF.Fetcher = (function() {
-    // getCached 함수 내부 (try-catch 및 삭제 로직 추가)
-    const getCached = (key, duration) => {
+    /**
+     * 지수 백오프 알고리즘을 적용한 fetch 래퍼
+     */
+    async function requestWithRetry(url, retries = 3, backoff = 1000) {
+        try {
+            const response = await fetch(url);
+            
+            // 429 Too Many Requests 처리
+            if (response.status === 429 && retries > 0) {
+                console.warn(`[BOJ_CF] 429 Too Many Requests. Retrying in ${backoff}ms...`);
+                await new Promise(resolve => setTimeout(resolve, backoff));
+                return requestWithRetry(url, retries - 1, backoff * 2);
+            }
+
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+            
+            const data = await response.json();
+            if (data.status !== 'OK') throw new Error(`API Error: ${data.comment || 'Unknown error'}`);
+            
+            return data;
+        } catch (error) {
+            if (retries > 0) {
+                console.error(`[BOJ_CF] Request failed: ${error.message}. Retrying in ${backoff}ms...`);
+                await new Promise(resolve => setTimeout(resolve, backoff));
+                return requestWithRetry(url, retries - 1, backoff * 2);
+            }
+            console.error(`[BOJ_CF] Max retries reached for: ${url}`);
+            return null;
+        }
+    }
+
+    /**
+     * 캐시된 데이터를 가져오거나 만료 시 제거합니다.
+     */
+    function getCached(key, duration) {
         try {
             const cached = localStorage.getItem(key);
             if (!cached) return null;
-            const parsed = JSON.parse(cached); // 오염된 JSON 방어
-            if (Date.now() - parsed.timestamp < duration) return parsed.data;
-            localStorage.removeItem(key); // 만료된 캐시 즉시 제거
+            
+            const parsed = JSON.parse(cached);
+            if (Date.now() - parsed.timestamp < duration) {
+                return parsed.data;
+            }
+            localStorage.removeItem(key);
         } catch (e) {
-            localStorage.removeItem(key); // 에러 발생 시 캐시 삭제로 자가 치유
+            localStorage.removeItem(key);
         }
         return null;
-    };
+    }
+
+    /**
+     * 데이터를 캐시에 저장합니다.
+     */
+    function setCached(key, data) {
+        try {
+            const cacheObj = {
+                timestamp: Date.now(),
+                data: data
+            };
+            localStorage.setItem(key, JSON.stringify(cacheObj));
+        } catch (e) {
+            console.error("[BOJ_CF] Cache storage failed:", e);
+        }
+    }
 
     return {
-        fetchUserStatus: async (username) => {
+        /**
+         * 특정 유저의 제출 현황을 가져옵니다. (15분 캐시)
+         */
+        fetchUserStatus: async function(username) {
             const key = `boj_cf_status_${username}`;
-            const duration = window.BOJ_CF.Config.API_CACHE_DURATION_MINS * 60 * 1000;
-            let data = getCached(key, duration);
-            if (data) return data;
+            const duration = (window.BOJ_CF.Config?.API_CACHE_DURATION_MINS || 15) * 60 * 1000;
             
-            try {
-                const res = await fetch(`https://codeforces.com/api/user.status?handle=${username}`);
-                data = await res.json();
-                if (data.status === 'OK') localStorage.setItem(key, JSON.stringify({ timestamp: Date.now(), data }));
-                return data;
-            } catch (e) { return null; }
-        },
-        fetchAllProblems: async () => {
-            const key = `boj_cf_all_problems`;
-            const duration = window.BOJ_CF.Config.DB_CACHE_DURATION_HOURS * 60 * 60 * 1000;
             let data = getCached(key, duration);
             if (data) return data;
 
-            try {
-                const res = await fetch(`https://codeforces.com/api/problemset.problems`);
-                data = await res.json();
-                if (data.status === 'OK') localStorage.setItem(key, JSON.stringify({ timestamp: Date.now(), data: data.result }));
-                return data.result;
-            } catch (e) { return null; }
+            const result = await requestWithRetry(`https://codeforces.com/api/user.status?handle=${username}`);
+            if (result) {
+                setCached(key, result);
+                return result;
+            }
+            return null;
+        },
+
+        /**
+         * 코드포스의 모든 문제 데이터를 가져옵니다. (24시간 캐시)
+         */
+        fetchAllProblems: async function() {
+            const key = `boj_cf_all_problems`;
+            const duration = (window.BOJ_CF.Config?.DB_CACHE_DURATION_HOURS || 24) * 60 * 60 * 1000;
+            
+            let data = getCached(key, duration);
+            if (data) return data;
+
+            const result = await requestWithRetry(`https://codeforces.com/api/problemset.problems`);
+            if (result && result.result) {
+                setCached(key, result.result);
+                return result.result;
+            }
+            return null;
         }
     };
 })();

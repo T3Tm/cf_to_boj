@@ -1,307 +1,83 @@
-/* 글로벌 백준 폰트 및 배경 */
-body { font-family: 'Pretendard', -apple-system, sans-serif !important; background-color: #f8f9fa; }
+/**
+ * styles/themes/overrides.css (v4.0.0)
+ * [Legacy Override] 코드포스 레이아웃 제압 스타일 (High Specificity)
+ */
 
-/* 글로벌 카드 래퍼 (모든 페이지 공통) */
-#pageContent { background: var(--boj-bg); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 30px; margin: 20px auto; width: 100%; max-width: var(--boj-max-width); float: none !important; box-sizing: border-box; }
+/* 1. 불필요한 코드포스 요소 제거 (명시도 강화) */
+body #header .top-links,
+body #header .top-links + div,
+body #sidebar,
+body .footer {
+    display: none !important; /* 제거 레이어는 예외적으로 사용 가능하나, 최소화함 */
+}
 
-/* 헤더 GNB 플랫화 */
-#header { 
-    max-width: var(--boj-max-width); 
-    margin: 0 auto; 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    padding: 15px 10px;
+/* 2. 전역 배경 및 텍스트 설정 */
+body {
+    background-color: var(--boj-bg);
+    color: var(--boj-text);
+    font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+}
+
+/* 3. 테이블 스타일 백준화 */
+#pageContent table.datatable,
+#pageContent table.status-frame-datatable {
+    border: 1px solid var(--boj-border);
+    background: var(--boj-bg);
+    border-radius: var(--boj-radius);
+    overflow: hidden;
+}
+
+#pageContent table.datatable th,
+#pageContent table.status-frame-datatable th {
+    background-color: var(--boj-table-header);
+    color: var(--boj-text);
+    border-bottom: 2px solid var(--boj-border);
+    padding: 12px 8px;
+    font-weight: 700;
+}
+
+#pageContent table.datatable td,
+#pageContent table.status-frame-datatable td {
     border-bottom: 1px solid var(--boj-border);
-    background: transparent !important;
-}
-
-.boj-header-center ul.boj-menu-list { 
-    display: flex; 
-    list-style: none; 
-    padding: 0; 
-    margin: 0; 
-    gap: 8px;
-}
-.boj-menu-list li a { 
-    padding: 10px 16px; 
-    font-size: 16px; 
-    font-weight: 600; 
-    color: var(--boj-text) !important; 
-    text-decoration: none !important; 
-    border-radius: 6px; 
-    transition: background 0.2s; 
-}
-.boj-menu-list li a:hover { 
-    background-color: var(--boj-table-stripe) !important; 
-}
-
-.boj-header-right { 
-    display: flex; 
-    align-items: center; 
-    font-size: 14px; 
-    color: var(--boj-text); 
-}
-.boj-header-user { 
-    font-weight: bold; 
-    margin-left: 10px; 
-    color: var(--boj-text) !important;
-    text-decoration: none !important;
-}
-
-.menu-box, .lang-chooser { display: none !important; }
-
-/* 다크모드 누수 완벽 방어 */
-:root[data-theme="dark"] body { background-color: #121212 !important; }
-:root[data-theme="dark"] #pageContent, :root[data-theme="dark"] .roundbox, :root[data-theme="dark"] .datatable { background-color: #1e1e1e !important; border-color: #444 !important; color: #e0e0e0 !important; }
-:root[data-theme="dark"] #header .menu-list li a, :root[data-theme="dark"] h1, :root[data-theme="dark"] h2, :root[data-theme="dark"] h3, :root[data-theme="dark"] p, :root[data-theme="dark"] span { color: #e0e0e0 !important; }
-:root[data-theme="dark"] a { color: #4da6ff !important; }
-
-.boj-tier-icon { width: 14px; height: 18px; vertical-align: -3px; margin-right: 6px; }
-.second-level-menu { display: none !important; }
-
-/* =========================================
-   백준 스타일 채점 현황 테이블 (v3.7.1)
-   ========================================= */
-
-/* 1. 기본 테이블 레이아웃 강제화 (CF datatable 무력화) */
-#pageContent .datatable, 
-#pageContent .roundbox {
-    background: transparent;
-    border: none;
-    padding: 0;
-    box-shadow: none;
-}
-
-#pageContent table.boj-status-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: #fff;
-    border-bottom: 1px solid #ddd;
-}
-
-/* 2. 헤더 스타일 (BOJ 시그니처) */
-#pageContent table.boj-status-table th {
-    background-color: #f9f9f9;
-    color: #333;
-    font-weight: bold;
-    font-size: 14px;
-    padding: 12px 10px;
-    border-top: 2px solid #0076c0;
-    border-bottom: 1px solid #ddd;
-    text-align: center;
-}
-
-/* 3. 셀 스타일 */
-#pageContent table.boj-status-table td {
-    padding: 12px 10px;
-    border-bottom: 1px solid #eee;
-    font-size: 14px;
-    color: #555;
-    text-align: center;
+    padding: 10px 8px;
     vertical-align: middle;
 }
 
-/* 4. 줄무늬 효과 */
-#pageContent table.boj-status-table tr:nth-child(even) td {
-    background-color: #fcfcfc;
+/* 4. 결과(Verdict) 색상 강조 */
+#pageContent .verdict-accepted {
+    color: var(--boj-success);
+    font-weight: 900;
 }
 
-/* 5. 호버 효과 */
-#pageContent table.boj-status-table tr:hover td {
-    background-color: #f5f5f5;
+#pageContent .verdict-rejected {
+    color: var(--boj-danger);
 }
 
-/* 6. 아이디, 문제 컬럼 왼쪽 정렬 */
-#pageContent table.boj-status-table td:nth-child(2), 
-#pageContent table.boj-status-table td:nth-child(3),
-#pageContent table.boj-status-table td:nth-child(4) {
-    text-align: left;
-    padding-left: 20px;
+/* 5. 문제 페이지 본문 레이아웃 */
+.problem-statement .header {
+    margin-bottom: 2em;
+    border-bottom: 1px solid var(--boj-border);
+    padding-bottom: 1em;
 }
 
-/* 7. 결과 색상 매핑 */
-#pageContent .verdict-accepted { color: #009874; font-weight: bold; }
-#pageContent .verdict-rejected { color: #dd4124; }
-#pageContent .verdict-waiting { color: #888; }
-
-/* 8. 다크모드 전용 스타일 */
-:root[data-theme="dark"] #pageContent table.boj-status-table { background-color: #1e1e1e; border-color: #444; }
-:root[data-theme="dark"] #pageContent table.boj-status-table th { background-color: #2d2d2d; color: #e0e0e0; border-bottom-color: #444; }
-:root[data-theme="dark"] #pageContent table.boj-status-table td { color: #ccc; border-bottom-color: #333; }
-:root[data-theme="dark"] #pageContent table.boj-status-table tr:nth-child(even) td { background-color: #252525; }
-:root[data-theme="dark"] #pageContent table.boj-status-table tr:hover td { background-color: #333; }
-
-/* 구형 페이지네이션 숨김 */
-.pagination { display: none !important; }
-
-/* =========================================
-   BOJ 스타일 문제 페이지 퍼펙트 클론 (기존 유지)
-   ========================================= */
-
-.nav-pills.problem-menu { 
-    display: flex; 
-    padding-left: 0; 
-    margin-bottom: 25px; 
-    list-style: none; 
-    border-bottom: 1px solid #ddd; 
-}
-.nav-pills.problem-menu > li { margin-bottom: -1px; }
-.nav-pills.problem-menu > li > a { 
-    position: relative; 
-    display: block; 
-    padding: 10px 15px; 
-    border-radius: 4px 4px 0 0; 
-    text-decoration: none; 
-    color: var(--boj-primary); 
-    font-weight: 500; 
-    font-size: 14px;
-    background: transparent;
-}
-.nav-pills.problem-menu > li.active > a { 
-    color: #555; 
-    background-color: #fff; 
-    border: 1px solid #ddd;
-    border-bottom-color: transparent;
+.problem-statement .title {
+    font-size: 2.5em;
+    color: var(--boj-text);
 }
 
-.page-header { 
-    padding-bottom: 9px; 
-    margin: 20px 0 30px; 
-    border-bottom: 1px solid #eee; 
-}
-.page-header h1 { 
-    font-size: 36px; 
-    margin-top: 20px; 
-    margin-bottom: 10px; 
-    font-weight: 500; 
-    color: #333;
-    letter-spacing: -1px;
+.problem-statement .section-title {
+    font-size: 1.5em;
+    color: var(--boj-primary);
+    border-bottom: 2px solid var(--boj-primary);
+    margin: 1.5em 0 0.5em;
+    padding-bottom: 0.2em;
 }
 
-.table-responsive { 
-    min-height: .01%; 
-    overflow-x: auto; 
-    margin-bottom: 40px; 
-}
-.table#problem-info { 
-    width: 100%; 
-    max-width: 100%; 
-    border-collapse: collapse; 
-    text-align: center; 
-}
-.table#problem-info th { 
-    padding: 8px; 
-    border-bottom: 2px solid #ddd; 
-    font-size: 15px;
-    font-weight: bold;
-}
-.table#problem-info td { 
-    padding: 8px; 
-    border-top: 1px solid #ddd; 
-    font-size: 15px;
+/* 6. 다크모드 대응 고도화 */
+[data-theme='dark'] #pageContent table.datatable tr:hover {
+    background-color: #252525;
 }
 
-.problem-section { margin-bottom: 40px; }
-.headline { 
-    border-bottom: 1px solid #ddd; 
-    margin-bottom: 15px; 
-    padding-bottom: 8px; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
+[data-theme='dark'] a {
+    color: #3498db;
 }
-.headline h2 { 
-    font-size: 24px; 
-    margin: 0; 
-    font-weight: 500; 
-}
-.problem-text { 
-    font-size: 16px; 
-    line-height: 1.8; 
-    word-break: break-all; 
-    font-family: 'Pretendard', -apple-system, sans-serif;
-}
-
-.boj-sample-row { display: flex; flex-wrap: wrap; margin-right: -15px; margin-left: -15px; }
-.col-md-6 { width: 50%; padding-right: 15px; padding-left: 15px; box-sizing: border-box; }
-
-.sampledata { 
-    display: block; 
-    padding: 10px; 
-    margin: 0 0 20px; 
-    font-size: 14px; 
-    line-height: 1.6; 
-    color: #333; 
-    background-color: #f1f1f1; 
-    border: 1px solid #e1e1e1; 
-    border-radius: 4px; 
-    font-family: 'Menlo', 'Monaco', 'Consolas', monospace; 
-    white-space: pre-wrap; 
-}
-
-.btn-copy-sample { 
-    padding: 2px 10px; 
-    font-size: 12px; 
-    background: #fff; 
-    border: 1px solid #ccc; 
-    border-radius: 4px; 
-    color: #0076c0; 
-    cursor: pointer;
-}
-
-#problem_tags .spoiler { 
-    padding: 15px;
-    background: #fdfdfd;
-    border: 1px solid #eee;
-    border-radius: 4px;
-}
-
-.submit-form-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
-.submit-form-row {
-    display: flex;
-    margin-bottom: 20px;
-    align-items: center;
-}
-.submit-form-label {
-    width: 150px;
-    font-weight: bold;
-}
-.submit-form-input-group {
-    flex: 1;
-}
-.submit-form-input-group input, 
-.submit-form-input-group select, 
-.submit-form-input-group textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.btn-boj-submit {
-    padding: 10px 40px;
-    font-size: 18px;
-    font-weight: bold;
-    background-color: #0076c0;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-:root[data-theme="dark"] .page-header h1, 
-:root[data-theme="dark"] .headline h2, 
-:root[data-theme="dark"] .problem-text,
-:root[data-theme="dark"] .table#problem-info th,
-:root[data-theme="dark"] .table#problem-info td { color: #e0e0e0 !important; }
-
-:root[data-theme="dark"] .sampledata { background-color: #2d2d2d !important; border-color: #444 !important; color: #ccc !important; }
-:root[data-theme="dark"] .btn-copy-sample { background: #333 !important; border-color: #555 !important; color: #4da6ff !important; }
-:root[data-theme="dark"] .headline, :root[data-theme="dark"] .page-header, :root[data-theme="dark"] .nav-pills.problem-menu { border-color: #444 !important; }
-:root[data-theme="dark"] .nav-pills.problem-menu > li.active > a { background-color: #1e1e1e !important; color: #4da6ff !important; border-color: #444 !important; border-bottom-color: transparent !important; }
