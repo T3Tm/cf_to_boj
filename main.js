@@ -54,13 +54,18 @@
     // 3. 정밀 라우팅
     const path = window.location.pathname;
 
-    if (path.match(/^\/problemset\/problem\/[0-9]+\/[A-Z0-9]+$/)) {
+    if (path.match(/^\/problemset\/problem\/[0-9]+\/[A-Z0-9]+$/) || path.match(/^\/contest\/[0-9]+\/problem\/[A-Z0-9]+$/)) {
         window.BOJ_CF.Pages.Problem?.init();
     } else if (path === '/problemset' || path.startsWith('/problemset/page/')) {
         window.BOJ_CF.Pages.Problemset?.init();
-    } else if (path === '/problemset/submit') {
+    } else if (path === '/problemset/submit' || path.match(/^\/contest\/[0-9]+\/submit$/)) {
         window.BOJ_CF.Pages.Submit?.init();
-    } else if (path === '/problemset/status' || path === '/status' || path.startsWith('/problemset/status/page/')) {
+    } else if (
+        path === '/problemset/status' || 
+        path === '/status' || 
+        path.startsWith('/problemset/status/page/') ||
+        path.match(/^\/contest\/[0-9]+\/status/)
+    ) {
         window.BOJ_CF.Pages.Status?.init();
     } else if (path.startsWith('/profile/')) {
         window.BOJ_CF.Pages.Profile?.init();
