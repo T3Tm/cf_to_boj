@@ -51,7 +51,38 @@
 
 ---
 
-## 🚀 4. 단계별 리팩토링 로드맵
+## 📊 4. 통합 티어 환산 시스템 (Standardized Tiers)
+
+코드포스의 데이터를 백준 스타일로 변환하기 위해 **문제 난이도**와 **유저 등급**을 서로 다른 로직으로 표준화합니다.
+
+### ① 문제 티어 (Problem Difficulty)
+코드포스의 Rating(800 ~ 3500+)을 백준의 30단계 체계(B5 ~ R1)에 100점 단위로 선형 매핑합니다.
+
+| 티어 (Tier) | CF Rating 범위 | 비고 |
+| :--- | :--- | :--- |
+| **Bronze** | 800 ~ 1299 | 100점당 1단계 상승 (800=B5, 1200=B1) |
+| **Silver** | 1300 ~ 1799 | 1300=S5, 1700=S1 |
+| **Gold** | 1800 ~ 2299 | 1800=G5, 2200=G1 |
+| **Platinum** | 2300 ~ 2799 | 2300=P5, 2700=P1 |
+| **Diamond** | 2800 ~ 3299 | 2800=D5, 3200=D1 |
+| **Ruby** | 3300 ~ 3500+ | 3300=R5, 3700+=R1 |
+
+### ② 유저 티어 (User Rank)
+코드포스의 공식 등급(Title) 구간을 백준의 티어 색상과 대응시키며, 구간 내 레이팅에 따라 5~1단계를 부여합니다.
+
+| 티어 (Tier) | CF Rating 범위 | 대응되는 공식 등급 (Title) |
+| :--- | :--- | :--- |
+| **Bronze** | 0 ~ 1199 | Newbie |
+| **Silver** | 1200 ~ 1399 | Pupil |
+| **Gold** | 1400 ~ 1599 | Specialist |
+| **Platinum** | 1600 ~ 1899 | Expert |
+| **Diamond** | 1900 ~ 2399 | Candidate Master, Master, International Master |
+| **Ruby** | 2400 ~ 2999 | Grandmaster, International Grandmaster |
+| **Master** | 3000+ | Legendary Grandmaster |
+
+---
+
+## 🚀 5. 단계별 리팩토링 로드맵
 
 ### Phase 1: 엔진 및 라우터 정립 (v4.0.0)
 *   [ ] `main.js` 로직을 `Router`와 `Pages/` 컨트롤러로 분리 (Strategy 패턴 적용).

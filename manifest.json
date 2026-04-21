@@ -15,6 +15,7 @@
       ],
       "js": [
         "content/inject.js",
+        "src/core/settings/index.js",
         "src/utils/domObserver.js",
         "src/utils/debounce.js",
         "src/utils/sanitizer.js",
@@ -32,6 +33,7 @@
         "src/pages/profile.js",
         "src/pages/status.js",
         "src/pages/submit.js",
+        "src/core/router/index.js",
         "content/main.js"
       ],
       "run_at": "document_idle"
