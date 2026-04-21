@@ -7,8 +7,18 @@
 body #header .top-links,
 body #header .top-links + div,
 body #sidebar,
-body .footer {
-    display: none !important; /* 제거 레이어는 예외적으로 사용 가능하나, 최소화함 */
+body .footer,
+body .second-level-menu,
+body .nav-links,
+body .focus-links,
+body .roundbox.menu-box,
+body .pagination {
+    display: none !important;
+}
+
+/* 문제 목록 원본 테이블 숨기기 (가상 테이블 사용 시) */
+#pageContent .datatable:not(.boj-virtual-datatable):not(.boj-status-table) {
+    display: none;
 }
 
 /* 2. 전역 배경 및 텍스트 설정 */

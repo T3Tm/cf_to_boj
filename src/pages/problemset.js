@@ -27,7 +27,7 @@ window.BOJ_CF.Pages.Problemset = (function() {
         let paginationHtml = `<div class="boj-pagination" style="text-align:center; margin-top:20px; padding-bottom:20px;">`;
         for (let i = 1; i <= totalPages; i++) {
             if (i === 1 || i === totalPages || (i >= currentPage - 4 && i <= currentPage + 4)) {
-                paginationHtml += `<button class="boj-page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}" style="margin:0 3px; padding:5px 12px; font-weight:bold; border:1px solid var(--boj-border); background:${i === currentPage ? 'var(--boj-primary)' : 'var(--boj-bg)'}; color:${i === currentPage ? '#fff' : 'var(--boj-text)'}; border-radius:4px; cursor:pointer;">${i}</button>`;
+                paginationHtml += `<button class="boj-page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
             } else if (i === currentPage - 5 || i === currentPage + 5) {
                 paginationHtml += `<span style="margin:0 3px; color:var(--boj-text);">...</span>`;
             }
@@ -38,11 +38,11 @@ window.BOJ_CF.Pages.Problemset = (function() {
             <table class="datatable boj-virtual-datatable" style="width:100%; border-collapse:collapse;">
                 <thead>
                     <tr>
-                        <th>문제</th>
+                        <th style="width: 10%;">문제</th>
                         <th>제목</th>
-                        <th data-sort="solvedCount" style="cursor:pointer;" title="클릭하여 정답자 순 정렬">맞힌 사람 ↕</th>
-                        <th data-sort="rating" style="cursor:pointer;" title="클릭하여 난이도 순 정렬">난이도 ↕</th>
-                        <th>✅</th>
+                        <th style="width: 15%;" data-sort="solvedCount" class="boj-sortable">맞힌 사람 ↕</th>
+                        <th style="width: 10%;" data-sort="rating" class="boj-sortable">난이도 ↕</th>
+                        <th style="width: 5%;">✅</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,11 +50,16 @@ window.BOJ_CF.Pages.Problemset = (function() {
                     ${currentProblems.map(p => {
                         const icon = chrome.runtime.getURL(window.BOJ_CF.TierCalculator.getProblemTierIcon(p.rating));
                         return `<tr>
-                            <td><a href="/problemset/problem/${p.contestId}/${p.index}" style="color:var(--boj-primary); font-weight:bold;">${p.contestId}${p.index}</a></td>
+                            <td style="text-align: center;"><a href="/problemset/problem/${p.contestId}/${p.index}" style="color:var(--boj-primary); font-weight:bold;">${p.contestId}${p.index}</a></td>
                             <td><a href="/problemset/problem/${p.contestId}/${p.index}">${p.name}</a></td>
-                            <td style="color:var(--boj-primary); font-weight:bold; font-size: 13px;"><img src="//codeforces.com/codeforces.org/s/87100/images/icons/user.png" style="vertical-align:-2px; width:12px; opacity:0.7;"> ${p.solvedCount.toLocaleString()}</td>
-                            <td><img src="${icon}" class="boj-tier-icon" title="${p.rating || '?'}"></td>
-                            <td>${p.isSolved ? '<span style="color:#009874; font-weight:bold;">✔</span>' : ''}</td>
+                            <td style="text-align: center; color:var(--boj-primary); font-weight:bold; font-size: 13px;">
+                                <img src="//codeforces.com/codeforces.org/s/87100/images/icons/user.png" style="vertical-align:-2px; width:12px; opacity:0.7; margin-right: 4px;"> 
+                                ${p.solvedCount.toLocaleString()}
+                            </td>
+                            <td style="text-align: center;">
+                                <img src="${icon}" class="boj-tier-icon" title="${p.rating || '?'}" style="width: 18px; vertical-align: middle;">
+                            </td>
+                            <td style="text-align: center;">${p.isSolved ? '<span style="color:#009874; font-weight:bold;">✔</span>' : ''}</td>
                         </tr>`;
                     }).join('')}
                 </tbody>
@@ -67,7 +72,10 @@ window.BOJ_CF.Pages.Problemset = (function() {
             vt = document.createElement('div'); vt.id = 'boj-virtual-table';
             document.querySelector('.boj-search-container').insertAdjacentElement('afterend', vt);
             
-            // [교정] 이벤트 리스너 내부에서 handleFilters를 재호출하여 현재 알약 상태 보존
+            // 코드포스 원본 테이블 즉시 숨김 처리 (안전장치)
+            const originalTables = document.querySelectorAll('.datatable:not(.boj-virtual-datatable)');
+            originalTables.forEach(t => t.style.display = 'none');
+            
             vt.addEventListener('click', (e) => {
                 const btn = e.target.closest('.boj-page-btn');
                 if (btn) {
