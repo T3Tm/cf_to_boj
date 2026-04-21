@@ -1,38 +1,38 @@
 {
   "manifest_version": 3,
   "name": "Codeforces to Baekjoon",
-  "version": "3.3",
-  "description": "Codeforces 백준 스타일 전역 테마 및 통합 검색 엔진",
+  "version": "4.0.0",
+  "description": "Codeforces 데이터 기반 백준 스타일 전역 테마 및 통합 검색 엔진 (Standardized)",
   "permissions": ["storage"],
   "host_permissions": ["https://codeforces.com/api/*"],
   "content_scripts": [
     {
       "matches": ["*://codeforces.com/*"],
       "css": [
-        "styles/variables.css",
-        "styles/components.css",
-        "styles/overrides.css"
+        "styles/base/variables.css",
+        "styles/components/components.css",
+        "styles/themes/overrides.css"
       ],
       "js": [
-        "theme-init.js",
+        "content/inject.js",
         "src/utils/domObserver.js",
         "src/utils/debounce.js",
         "src/utils/sanitizer.js",
-        "src/core/config.js",
-        "src/core/tierCalculator.js",
-        "src/core/stateManager.js",
-        "src/core/queryParser.js",
-        "src/api/fetcher.js",
-        "src/components/themeToggle.js",
-        "src/components/pillContainer.js",
-        "src/components/searchBar.js",
-        "src/components/spoilerToggle.js",
+        "src/core/engine/config.js",
+        "src/core/engine/tierCalculator.js",
+        "src/core/engine/stateManager.js",
+        "src/core/engine/queryParser.js",
+        "src/core/storage/fetcher.js",
+        "src/components/feature/themeToggle.js",
+        "src/components/feature/pillContainer.js",
+        "src/components/feature/searchBar.js",
+        "src/components/feature/spoilerToggle.js",
         "src/pages/problem.js",
         "src/pages/problemset.js",
         "src/pages/profile.js",
         "src/pages/status.js",
         "src/pages/submit.js",
-        "main.js"
+        "content/main.js"
       ],
       "run_at": "document_idle"
     }

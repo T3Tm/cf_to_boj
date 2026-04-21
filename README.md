@@ -1,95 +1,67 @@
-# 🏆 Codeforces to Baekjoon (v3.1 Optimized Master)
+# 🏆 Codeforces to Baekjoon (v4.0.0 "Grounded Modular Standard")
 
-본 프로젝트는 코드포스(Codeforces)의 사용자 경험을 백준(Baekjoon Online Judge/solved.ac) 스타일로 완전히 재구성하는 크롬 확장 프로그램입니다. v3.1 업데이트를 통해 레거시 스크립트를 전면 폐기하고, 대규모 데이터 처리와 유지보수에 최적화된 **컴포넌트 기반 모듈형 아키텍처**로 재탄생했습니다.
-
----
-
-## 📂 1. 최종 확정 파일 구조 (Directory Tree)
-
-불필요한 아이콘을 제거하고, 경로 명확성을 위해 정돈된 최종 트리 구조입니다.
-
-    .
-    ├── manifest.json            # 정규화된 경로 및 로딩 순서 강제
-    ├── theme-init.js            # 테마 초기화 (화면 깜빡임 차단용 최우선 실행)
-    ├── main.js                  # 최종 실행 진입점 및 페이지 라우터
-    ├── README.md                # 프로젝트 통합 명세서 (본 문서)
-    ├── icons/                   # 파일명 일괄 정리 (Snake Case 적용)
-    │   ├── bronze1.svg ~ ruby5.svg
-    │   ├── master.svg
-    │   ├── no_rating.svg
-    │   ├── question_mark.svg
-    │   └── icons48.png, icons128.png
-    ├── src/                     # 모듈화된 핵심 로직
-    │   ├── api/                 
-    │   │   └── fetcher.js       # 네트워크 통신 및 로컬 캐싱 레이어
-    │   ├── components/          
-    │   │   ├── pillContainer.js # 알약(Pill) UI 렌더링 및 이벤트 위임
-    │   │   ├── searchBar.js     # 검색창 UI 및 디바운스 입력 감지
-    │   │   ├── spoilerToggle.js # 문제 지문 하단 스포일러 방지 토글
-    │   │   └── themeToggle.js   # 글로벌 다크/라이트 모드 스위치
-    │   ├── core/                
-    │   │   ├── queryParser.js   # AST 기반 복합 검색어 평가 엔진
-    │   │   ├── stateManager.js  # 전역 상태 관리 (Pub/Sub 모델)
-    │   │   └── tierCalculator.js# 100점 단위 계단식 티어 변환 공식
-    │   ├── pages/               
-    │   │   ├── problem.js       # 개별 문제 페이지 컨트롤러 (스포일러 차단 전담)
-    │   │   ├── problemset.js    # 문제 목록 페이지 컨트롤러 (인메모리 필터링 전담)
-    │   │   └── profile.js       # 유저 프로필 페이지 컨트롤러 (스트릭/해결 목록 전담)
-    │   └── utils/               
-    │       ├── debounce.js      # 연산 폭주 방지 지연 함수
-    │       ├── domObserver.js   # AJAX 통신 감지 싱글톤 옵저버
-    │       └── sanitizer.js     # XSS 해킹 방어용 특수문자 이스케이프
-    └── styles/                  # 역할별로 병합/분리된 스타일시트
-        ├── variables.css        # 테마 변수 (다크/라이트 색상표)
-        ├── components.css       # 주입되는 커스텀 UI 고유 디자인
-        └── overrides.css        # 코드포스 레거시 레이아웃 강제 제압
+본 프로젝트는 코드포스(Codeforces)의 데이터 위에 백준(BOJ)의 사용자 경험과 로직을 입히는 브라우저 확장 프로그램입니다. **v4.0.0 대규모 업데이트**는 코드포스 환경에서 구현 불가능한 허구적 기능을 배제하고, 소프트웨어 설계 원칙(SOLID)에 기반한 견고한 모듈 시스템을 구축하는 데 집중합니다.
 
 ---
 
-## 🚀 2. 핵심 구현 기능 (Key Features)
+## 🎯 1. 개발 철학 (Core Principles)
 
-### ① solved.ac 문법 기반 통합 검색 엔진
-* **인메모리 필터링:** 페이지 로드 시 표 데이터를 메모리에 인덱싱하여, 수천 개의 문제를 필터링할 때 발생하는 브라우저 프리징(멈춤) 현상을 완벽히 해결했습니다.
-* **배치 렌더링(Batch Rendering):** 검색 조건 변경 시 DOM의 개별 스타일을 조작하지 않고, 클래스 제어를 통해 브라우저의 화면 갱신(Reflow) 부하를 최소화했습니다.
-* **지원 쿼리:** 태그(`#dp`), 티어 범위(`*s1..g5`), 레이팅(`r:1500`), 상태(`s@me`, `~s@me`) 및 복합 괄호 연산.
-
-### ② 스마트 테마 엔진 (Theme System)
-* **FOUC 완벽 방어:** `theme-init.js`를 모듈 시스템과 분리하여 최우선 실행함으로써, 새로고침 시 화면이 하얗게 번쩍이는 현상을 제거했습니다.
-* **스코프 격리:** 시스템 다크모드에 휩쓸리지 않고, 확장 프로그램 자체의 `data-theme` 속성에 기반하여 독립적으로 테마를 제어합니다.
-
-### ③ 유저 프로필 및 스포일러 방어
-* **알고리즘 스포일러 차단:** 개별 문제 진입 시 우측 사이드바의 태그를 영구 숨김 처리하고, 지문 하단에 '보기/가리기' 버튼이 적용된 백준 스타일 UI를 주입합니다.
-* **프로필 2단 레이아웃:** 유저 프로필 조회 시 API를 연동하여 맞은 문제와 틀린 문제를 시각적으로 분리 렌더링합니다.
+1.  **현실적 변환 (Grounded Mapping):** 코드포스 API가 제공하지 않는 데이터(예: 그룹 랭킹, 실시간 스트릭 등)를 억지로 생성하지 않습니다. 데이터는 CF의 것을 사용하되, **보여주는 방식(Logic & UI)**만 BOJ로 변환합니다.
+2.  **단일 책임 원칙 (Single Responsibility):** 하나의 모듈은 하나의 기능(검색, 티어 계산, 페이지 제어 등)만 담당하여, 코드포스의 UI 업데이트 시 해당 모듈만 수정하면 되도록 설계합니다.
+3.  **비파괴적 수정 (Non-Destructive):** 기존 코드포스의 데이터 구조를 파괴하지 않고, DOM 조작과 CSS 주입을 통해 상위에 레이어를 덮어씌우는 방식을 유지합니다.
 
 ---
 
-## ⚡ 3. 페이지별 컴포넌트 최적화 (Tree Shaking)
+## 🏗️ 2. 디자인 패턴 기반 폴더 구조 (Refined Architecture)
 
-성능 낭비를 막기 위해 각 페이지 성격에 맞지 않는 컴포넌트 로딩을 차단했습니다.
-* **Problemset (목록):** 통합 검색창 및 필터링 로드 O / 스포일러 토글 차단.
-* **Problem (개별 문제):** 스포일러 토글 로드 O / 검색창 및 필터링 차단.
-* **Profile (프로필):** 테마 토글만 로드 / 불필요한 검색 로직 전면 차단.
+```text
+.
+├── manifest.json           # 확장 프로그램 명세 (V3 권장 사항 준수)
+├── content/
+│   ├── inject.js           # [Bootstrap] 전역 네임스페이스 및 테마 초기 로드
+│   └── main.js             # [Orchestrator] 라우터를 통한 페이지별 전략 실행
+├── src/
+│   ├── core/
+│   │   ├── router/         # [Strategy Pattern] 경로별 페이지 컨트롤러 매핑
+│   │   ├── settings/       # [Observer Pattern] 사용자 설정 관리 및 구독
+│   │   ├── storage/        # [Proxy Pattern] API 데이터 및 LocalStorage 통합 관리
+│   │   └── engine/         # [Pure Logic] TierCalculator, QueryParser (데이터 가공)
+│   ├── components/         # [Atomic Design] 재사용 가능한 UI 조각
+│   │   ├── layout/         # Header, Footer 등 전역 레이아웃
+│   │   └── feature/        # SearchBar, SpoilerToggle 등 기능성 UI
+│   ├── pages/              # [Controllers] 각 페이지(Problem, Status 등) 전용 로직
+│   └── utils/              # [Helpers] DOM 조작, 정규식, 필터링 유틸리티
+└── styles/                 # [Theme System] CSS Variables 기반 스타일 분리
+```
 
 ---
 
-## ⚠️ 4. 아키텍처 방어 로직 (Defenses)
+## ✅ 3. 구현 확정 기능 vs 보류 사항
 
-리팩토링 과정에서 검토되고 적용된 잠재적 충돌 방어 로직입니다.
+### 🟢 구현 확정 (Feasible & Stable)
+*   **solved.ac 스타일 티어 이식:** 800~3000+ Rating을 Bronze~Master 티어로 선형 매핑.
+*   **통합 검색 엔진:** CF 문제 목록 데이터를 가공하여 `#tags`, `*tier`, `@status` 검색 지원.
+*   **백준 스타일 UI:** 1단 레이아웃, 예제 2분할, 알고리즘 분류 스포일러 방지 토글.
+*   **클라이언트 페이징:** 채점 현황(Status)의 방대한 데이터를 20개 단위로 슬라이싱하여 노출.
 
-1. **에셋 경로 정규화:** `no_rating.svg` 등 파일명을 Snake Case로 일괄 정규화하고 절대 경로 참조를 강제하여 아이콘 렌더링 누락 에러를 차단했습니다.
-2. **의존성 및 실행 순서 충돌 방어:** `manifest.json` 내에서 유틸리티 -> 코어 로직 -> UI 컴포넌트 -> 컨트롤러 순으로 로딩 순서를 하드코딩하여 `ReferenceError`를 차단했습니다.
-3. **API Rate Limit (429 에러) 방어:** `fetcher.js`에 15분 단위 `localStorage` 캐싱 로직을 도입하여, 무분별한 서버 요청으로 인한 IP 차단을 방지합니다.
-4. **이벤트 메모리 누수 방어:** 알약 생성/삭제 시 부모 컨테이너 단 한 곳에만 이벤트를 위임(Event Delegation)하여 메모리 누수를 해결했습니다.
-5. **AJAX 증발 현상 방어:** 문제 목록에서 페이지를 이동할 때 표가 비동기로 갱신되며 아이콘이 날아가는 현상을 `DOMObserver` 싱글톤 패턴으로 감지하여 자동 복구합니다.
-6. **스타일 출혈(Bleed) 차단:** 레거시 덮어쓰기 과정에서 `!important` 남용을 없애고, 구체적인 DOM 경로(명시도)를 활용하여 코드포스의 다른 UI가 깨지는 부작용을 제거했습니다.
+### 🔴 보류/제외 (Infeasible or Error-Prone)
+*   **실시간 스트릭 달력:** CF API의 Rate Limit 및 과거 제출 데이터의 파편화로 인해 정확한 구현이 어려움 (추후 단계적 도입 검토).
+*   **가상 경험치 시스템:** 서버 연동 없는 클라이언트 전용 데이터는 신뢰성이 낮아 제외.
+*   **강제 레이아웃 변경:** CF 고유의 입력 폼(Submit Page) 등 기능적 오류를 유발할 수 있는 부분은 최소한의 CSS만 적용.
 
 ---
 
-## 🛠️ 5. 향후 확장 가이드 (Developer Guide)
+## 🚀 4. 단계별 리팩토링 로드맵
 
-새로운 기능(예: 랜덤 디펜스, 경험치 시각화)을 추가할 때는 기존 코드를 훼손하지 않고 아래의 규칙을 따릅니다.
+### Phase 1: 엔진 및 라우터 정립 (v4.0.0)
+*   [ ] `main.js` 로직을 `Router`와 `Pages/` 컨트롤러로 분리 (Strategy 패턴 적용).
+*   [ ] `TierCalculator` 로직을 `GEMINI.md`의 최신 표준으로 동기화.
+*   [ ] `Settings` 모듈 구현으로 사용자 옵션(티어 On/Off 등) 기초 마련.
 
-1. **UI 추가:** `src/components/`에 새로운 자바스크립트 모듈을 생성합니다.
-2. **데이터 공유:** `src/core/stateManager.js`에 상태(Action)를 추가하고, 새 컴포넌트에서 `subscribe`를 통해 변경 사항을 구독합니다.
-3. **페이지 조립:** `src/pages/` 내의 해당 뷰 컨트롤러에서 새 컴포넌트의 `init()`을 호출합니다.
-4. **등록:** 새로 만든 파일의 경로를 `manifest.json`의 알맞은 위치에 추가합니다.
+### Phase 2: UI 컴포넌트 표준화 (v4.1.0)
+*   [ ] 헤더(Header) 및 검색창(SearchBar)을 독립 컴포넌트로 분리.
+*   [ ] `styles/` 구조를 `Base/Components/Themes`로 파편화하여 테마 전환 속도 개선.
+
+### Phase 3: 로직 안정화 (v4.2.0)
+*   [ ] `DOMObserver` 싱글톤 패턴 적용으로 AJAX 렌더링 시 티어 아이콘 유실 방지.
+*   [ ] `Fetcher` 모듈에 지수 백오프(Exponential Backoff)를 적용하여 API 차단 방지.
