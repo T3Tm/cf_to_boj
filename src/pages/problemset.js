@@ -108,20 +108,18 @@ window.BOJ_CF.Pages.Problemset = (function() {
             const pc = document.querySelector('#pageContent');
             if (!pc) return;
 
-            window.BOJ_CF.Components.SearchBar.init(pc);
-            window.BOJ_CF.Components.PillContainer.init();
+            // 1. Settings 반영 (저장된 페이지 크기 로드)
+            if (window.BOJ_CF.Settings) {
+                window.BOJ_CF.Config.MAX_RENDER_COUNT = window.BOJ_CF.Settings.get('MAX_RENDER_COUNT') || 20;
+            }
 
-            // 페이지 개수 조절 이벤트
-            document.getElementById('boj-page-size-select')?.addEventListener('change', (e) => {
-                window.BOJ_CF.Config.MAX_RENDER_COUNT = parseInt(e.target.value);
-                currentPage = 1;
-                handleFilters(window.BOJ_CF.StateManager.getState());
-            });
+            // 2. 컴포넌트 렌더링
+            window.BOJ_CF.Components.SearchBar.render(pc);
 
-            // API 로드 및 DB 구축 (직렬화 로드)
+            // 3. API 로드 및 DB 구축
             const allProbs = await window.BOJ_CF.Fetcher.fetchAllProblems();
             const handle = document.querySelector('.boj-header-user')?.innerText.trim();
-            const userStatus = handle ? await window.BOJ_CF.Fetcher.fetchUserStatus(handle) : null;
+            const userStatus = (handle && handle !== 'Guest') ? await window.BOJ_CF.Fetcher.fetchUserStatus(handle) : null;
 
             if (allProbs) {
                 const solvedCountMap = {};

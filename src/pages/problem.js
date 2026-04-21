@@ -168,32 +168,13 @@ window.BOJ_CF.Pages.Problem = (function() {
                 });
             }
 
-            // 5. 알고리즘 분류 (백준 스타일 보기/가리기 버튼 - 호버 효과 제거)
-            const tags = Array.from(document.querySelectorAll('.tag-box')).map(t => t.innerText.trim());
-            if (tags.length > 0) {
-                const tagSection = document.createElement('div');
-                tagSection.className = 'col-md-12';
-                tagSection.innerHTML = `
-                    <section id="problem_tags" class="problem-section" style="margin-top: 20px;">
-                        <div class="headline" style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">
-                            <h2 style="font-size: 20px;">알고리즘 분류</h2>
-                            <span id="boj-btn-show-tags" style="font-size: 13px; color: #0076c0; cursor: pointer; user-select: none;">${isSolved ? '가리기' : '보기'}</span>
-                        </div>
-                        <div id="boj-tag-container" style="display: ${isSolved ? 'block' : 'none'}; padding-top: 10px;">
-                            <div class="boj-selected-pills" style="display: flex; flex-wrap: wrap; gap: 8px;">
-                                ${tags.map(t => `<span class="boj-pill" style="cursor:default;">${t}</span>`).join('')}
-                            </div>
-                        </div>
-                    </section>
-                `;
-                ps.appendChild(tagSection);
+            // 5. 알고리즘 분류 (독립 컴포넌트 호출)
+            const tags = Array.from(document.querySelectorAll('.tag-box'))
+                .filter(t => t.getAttribute('title') !== 'Difficulty')
+                .map(t => t.innerText.trim());
 
-                document.getElementById('boj-btn-show-tags').addEventListener('click', function() {
-                    const container = document.getElementById('boj-tag-container');
-                    const isVisible = container.style.display === 'block';
-                    container.style.display = isVisible ? 'none' : 'block';
-                    this.innerText = isVisible ? '보기' : '가리기';
-                });
+            if (tags.length > 0) {
+                window.BOJ_CF.Components.SpoilerToggle.render(ps, tags);
             }
         }
     };
