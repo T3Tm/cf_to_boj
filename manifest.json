@@ -25,6 +25,7 @@
         "src/core/engine/queryParser.js",
         "src/core/storage/fetcher.js",
         "src/components/feature/themeToggle.js",
+        "src/components/layout/Header.js",
         "src/components/feature/pillContainer.js",
         "src/components/feature/searchBar.js",
         "src/components/feature/spoilerToggle.js",
