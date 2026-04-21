@@ -1,6 +1,6 @@
 /**
- * src/pages/problem.js (v3.3.1)
- * 개별 문제 페이지 컨트롤러 (중복 변수 제거 및 3차 검토 완료)
+ * src/pages/problem.js (v4.0.0)
+ * [UI Refinement] 개별 문제 페이지 컨트롤러 (탭 메뉴 정렬 및 태그 복구)
  */
 window.BOJ_CF.Pages.Problem = (function() {
     return {
@@ -8,7 +8,7 @@ window.BOJ_CF.Pages.Problem = (function() {
             const ps = document.querySelector('.problem-statement');
             if (!ps || document.querySelector('.page-header')) return;
 
-            // 0. 경로 및 데이터 준비 (1차 선언으로 통합)
+            // 0. 경로 및 데이터 준비
             const pathParts = window.location.pathname.split('/');
             const contestId = pathParts[3];
             const problemIndex = pathParts[4];
@@ -19,7 +19,7 @@ window.BOJ_CF.Pages.Problem = (function() {
                 handle ? window.BOJ_CF.Fetcher.fetchUserStatus(handle) : Promise.resolve(null)
             ]);
 
-            // 문제 통계 및 사용자 상태 확인
+            // [수정] 객체 구조에 맞춰 problemStatistics에서 검색
             const problemStat = allProbs?.problemStatistics?.find(s => s.contestId == contestId && s.index == problemIndex);
             const totalSolved = problemStat ? problemStat.solvedCount : '-';
 
@@ -28,7 +28,7 @@ window.BOJ_CF.Pages.Problem = (function() {
             const isSolved = mySubs.some(s => s.verdict === 'OK');
             const isAttempted = mySubs.length > 0;
 
-            // 1. 탭 메뉴 (nav-pills) - 위에서 선언한 변수 재사용
+            // 1. 탭 메뉴 (nav-pills) - 한 줄 나열을 위해 #pageContent 상단에 배치
             const tabMenu = document.createElement('ul');
             tabMenu.className = 'nav nav-pills problem-menu';
             tabMenu.innerHTML = `
@@ -36,7 +36,8 @@ window.BOJ_CF.Pages.Problem = (function() {
                 <li><a href="/problemset/submit?contestId=${contestId}&problemIndex=${problemIndex}">제출</a></li>
                 <li><a href="/problemset/status/${contestId}/problem/${problemIndex}">채점 현황</a></li>
             `;
-            ps.parentNode.insertBefore(tabMenu, ps);
+            const pc = document.querySelector('#pageContent');
+            if (pc) pc.insertBefore(tabMenu, pc.firstChild);
 
             // 2. 헤더 및 정보 테이블
             const header = ps.querySelector('.header');
@@ -70,36 +71,28 @@ window.BOJ_CF.Pages.Problem = (function() {
             }
 
             // 모든 '>' 또는 '»' 기호 정밀 제거
-            const removeArrows = () => {
-                const elements = document.querySelectorAll('.breadcrumb, .side-navigation__item, .lang-chooser');
-                elements.forEach(el => {
-                    el.childNodes.forEach(node => {
-                        if (node.nodeType === 3) {
-                            node.textContent = node.textContent.replace(/[»>]/g, '').trim();
-                        }
-                    });
+            const elements = document.querySelectorAll('.breadcrumb, .side-navigation__item, .lang-chooser');
+            elements.forEach(el => {
+                el.childNodes.forEach(node => {
+                    if (node.nodeType === 3) node.textContent = node.textContent.replace(/[»>]/g, '').trim();
                 });
-            };
-            removeArrows();
+            });
 
-            // [유틸] 섹션 포맷팅
+            // 섹션 포맷팅 유틸
             const formatSection = (selector, titleKOR) => {
                 const el = ps.querySelector(selector);
                 if (el) {
-                    el.querySelector('.section-title').style.display = 'none';
+                    const titleEl = el.querySelector('.section-title');
+                    if (titleEl) titleEl.style.display = 'none';
                     const headline = document.createElement('div');
                     headline.className = 'headline';
                     headline.innerHTML = `<h2>${titleKOR}</h2>`;
                     el.insertBefore(headline, el.firstChild);
                     el.className = 'problem-section';
-                    const contentWrapper = document.createElement('div');
-                    contentWrapper.className = 'problem-text';
-                    while (el.childNodes.length > 2) contentWrapper.appendChild(el.childNodes[2]);
-                    el.appendChild(contentWrapper);
                 }
             };
 
-            // 3. 본문 추출
+            // 3. 본문 추출 및 정돈
             const inputSpec = ps.querySelector('.input-specification');
             const descWrapper = document.createElement('section');
             descWrapper.id = 'description';
@@ -121,37 +114,39 @@ window.BOJ_CF.Pages.Problem = (function() {
             formatSection('.output-specification', '출력');
             formatSection('.note', '힌트');
 
-            // 4. 예제 (복사 버튼)
+            // 4. 예제 (2분할 레이아웃)
             const sampleTests = ps.querySelector('.sample-tests');
             if (sampleTests) {
-                sampleTests.querySelector('.section-title').style.display = 'none';
-                const sampleWrapper = document.createElement('div');
-                sampleWrapper.className = 'row sample-wrapper';
                 const inputs = sampleTests.querySelectorAll('.input');
                 const outputs = sampleTests.querySelectorAll('.output');
+                const sampleWrapper = document.createElement('div');
+                sampleWrapper.className = 'row sample-wrapper';
                 
                 for (let i = 0; i < inputs.length; i++) {
                     const inText = inputs[i].querySelector('pre').innerText;
                     const outText = outputs[i] ? outputs[i].querySelector('pre').innerText : '';
                     const row = document.createElement('div');
-                    row.className = 'row boj-sample-row';
+                    row.className = 'boj-sample-row';
+                    row.style.display = 'flex';
+                    row.style.gap = '20px';
+                    row.style.marginBottom = '20px';
                     row.innerHTML = `
-                        <div class="col-md-6">
-                            <section id="sampleinput${i+1}" class="problem-section">
+                        <div style="flex:1;">
+                            <section class="problem-section">
                                 <div class="headline" style="display: flex; justify-content: space-between; align-items: center;">
                                     <h2 style="margin:0;">예제 입력 ${i+1}</h2>
-                                    <button class="btn-copy-sample" data-clipboard-target="#sample-input-${i+1}">복사</button>
+                                    <button class="btn-copy-sample" data-target="in-${i}">복사</button>
                                 </div>
-                                <pre class="sampledata" id="sample-input-${i+1}">${inText}</pre>
+                                <pre class="sampledata" id="in-${i}">${inText}</pre>
                             </section>
                         </div>
-                        <div class="col-md-6">
-                            <section id="sampleoutput${i+1}" class="problem-section">
+                        <div style="flex:1;">
+                            <section class="problem-section">
                                 <div class="headline" style="display: flex; justify-content: space-between; align-items: center;">
                                     <h2 style="margin:0;">예제 출력 ${i+1}</h2>
-                                    <button class="btn-copy-sample" data-clipboard-target="#sample-output-${i+1}">복사</button>
+                                    <button class="btn-copy-sample" data-target="out-${i}">복사</button>
                                 </div>
-                                <pre class="sampledata" id="sample-output-${i+1}">${outText}</pre>
+                                <pre class="sampledata" id="out-${i}">${outText}</pre>
                             </section>
                         </div>
                     `;
@@ -161,20 +156,21 @@ window.BOJ_CF.Pages.Problem = (function() {
 
                 ps.addEventListener('click', (e) => {
                     if (e.target.classList.contains('btn-copy-sample')) {
-                        const targetSelector = e.target.getAttribute('data-clipboard-target');
-                        const targetNode = ps.querySelector(targetSelector);
-                        if (targetNode) navigator.clipboard.writeText(targetNode.innerText);
+                        const id = e.target.getAttribute('data-target');
+                        const text = document.getElementById(id)?.innerText;
+                        if (text) navigator.clipboard.writeText(text);
                     }
                 });
             }
 
-            // 5. 알고리즘 분류 (독립 컴포넌트 호출)
-            const tags = Array.from(document.querySelectorAll('.tag-box'))
+            // 5. 알고리즘 분류 복구 (강화된 추출 로직)
+            const sidebarTags = Array.from(document.querySelectorAll('.tag-box'))
                 .filter(t => t.getAttribute('title') !== 'Difficulty')
                 .map(t => t.innerText.trim());
-
-            if (tags.length > 0) {
-                window.BOJ_CF.Components.SpoilerToggle.render(ps, tags);
+            
+            const uniqueTags = [...new Set(sidebarTags)];
+            if (uniqueTags.length > 0) {
+                window.BOJ_CF.Components.SpoilerToggle.render(ps, uniqueTags);
             }
         }
     };

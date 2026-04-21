@@ -22,6 +22,6 @@
     *   `ThemeToggle.js`를 `Settings` 기반으로 전면 리팩토링하여 상태 변경 시 `document.documentElement`를 즉시 조작함.
     *   `inject.js`에서 `localStorage` 기반 부트스트랩 로직을 강화하여 초기 로딩 속도 및 안정성 확보.
 
-## 6. 추가 레거시 요소(menu-box, pagination) 제거
-- **문제:** 커스텀 UI 주입 후에도 코드포스 특유의 둥근 박스 메뉴와 원본 페이지네이션 바가 남아있음.
-- **해결:** `overrides.css`에 명시도 높은 셀렉터를 추가하여 해당 요소들을 전역적으로 숨김 처리함.
+## 7. Problem 페이지 런타임 에러(TypeError) 수정
+- **문제:** `problem.js`에서 `Fetcher`가 반환한 객체를 배열로 오인하여 `.find()` 함수 호출 시 `TypeError: allProbs.find is not a function` 발생. 이로 인해 이후의 모든 UI 변환 로직이 중단됨.
+- **해결:** 코드포스 API 구조에 맞춰 `allProbs.problemStatistics` 배열에 접근하여 데이터를 검색하도록 로직을 교정함.
