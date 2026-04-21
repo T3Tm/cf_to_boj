@@ -34,7 +34,7 @@ window.BOJ_CF.Pages.Problem = (function() {
             tabMenu.innerHTML = `
                 <li class="active"><a href="${window.location.href}">문제</a></li>
                 <li><a href="/problemset/submit?contestId=${contestId}&problemIndex=${problemIndex}">제출</a></li>
-                <li><a href="/problemset/status?contestId=${contestId}&index=${problemIndex}">채점 현황</a></li>
+                <li><a href="/problemset/status/${contestId}/problem/${problemIndex}">채점 현황</a></li>
             `;
             ps.parentNode.insertBefore(tabMenu, ps);
 

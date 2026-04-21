@@ -61,9 +61,8 @@
     } else if (path === '/problemset/submit' || path.match(/^\/contest\/[0-9]+\/submit$/)) {
         window.BOJ_CF.Pages.Submit?.init();
     } else if (
-        path === '/problemset/status' || 
-        path === '/status' || 
-        path.startsWith('/problemset/status/page/') ||
+        path.startsWith('/problemset/status') || 
+        path.startsWith('/status') || 
         path.match(/^\/contest\/[0-9]+\/status/)
     ) {
         window.BOJ_CF.Pages.Status?.init();
