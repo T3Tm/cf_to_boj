@@ -4,10 +4,7 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
 /* 글로벌 카드 래퍼 (모든 페이지 공통) */
 #pageContent { background: var(--boj-bg); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 30px; margin: 20px auto; width: 100%; max-width: var(--boj-max-width); float: none !important; box-sizing: border-box; }
 
-/* 헤더 GNB 플랫화 (사이드 래퍼 크기 동기화) */
-/* =========================================
-   새로 구축된 백준 스타일 헤더 (GNB)
-   ========================================= */
+/* 헤더 GNB 플랫화 */
 #header { 
     max-width: var(--boj-max-width); 
     margin: 0 auto; 
@@ -19,7 +16,6 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
     background: transparent !important;
 }
 
-/* 중앙 메뉴 리스트 */
 .boj-header-center ul.boj-menu-list { 
     display: flex; 
     list-style: none; 
@@ -40,7 +36,6 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
     background-color: var(--boj-table-stripe) !important; 
 }
 
-/* 우측 유저 및 토글 영역 */
 .boj-header-right { 
     display: flex; 
     align-items: center; 
@@ -53,116 +48,98 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
     color: var(--boj-text) !important;
     text-decoration: none !important;
 }
-.boj-header-user:hover { text-decoration: underline !important; }
 
-/* 기존 코드포스 메뉴 박스 완전 억제 */
 .menu-box, .lang-chooser { display: none !important; }
-
-/* 오리지널 테이블 다이어트 */
-.datatable table th { border-top: 2px solid var(--boj-primary) !important; border-bottom: 1px solid var(--boj-border) !important; padding: 12px !important; background: transparent !important; }
-.datatable table td { border-bottom: 1px solid var(--boj-border) !important; padding: 12px !important; border-left: none !important; border-right: none !important;}
-.datatable table tr:hover td { background-color: var(--boj-hover) !important; }
 
 /* 다크모드 누수 완벽 방어 */
 :root[data-theme="dark"] body { background-color: #121212 !important; }
 :root[data-theme="dark"] #pageContent, :root[data-theme="dark"] .roundbox, :root[data-theme="dark"] .datatable { background-color: #1e1e1e !important; border-color: #444 !important; color: #e0e0e0 !important; }
 :root[data-theme="dark"] #header .menu-list li a, :root[data-theme="dark"] h1, :root[data-theme="dark"] h2, :root[data-theme="dark"] h3, :root[data-theme="dark"] p, :root[data-theme="dark"] span { color: #e0e0e0 !important; }
 :root[data-theme="dark"] a { color: #4da6ff !important; }
-:root[data-theme="dark"] .datatable table th, :root[data-theme="dark"] .boj-virtual-datatable th { color: #e0e0e0 !important; }
 
 .boj-tier-icon { width: 14px; height: 18px; vertical-align: -3px; margin-right: 6px; }
-/* 코드포스 낡은 서브 메뉴(Second-level Menu) 영구 숨김 */
 .second-level-menu { display: none !important; }
 
-/* [추가된 부분] 코드포스 오리지널 테이블 (단, 채점현황 및 가상 테이블 제외) 및 구형 페이지네이션 영구 숨김 강제화 */
-.datatable:not(.boj-virtual-datatable):not([class*="status"]):not([id*="status"]), 
-.pagination {
-    display: none !important;
-}
-
 /* =========================================
-   BOJ 스타일 채점 현황 테이블 (Perfect Clone)
+   백준 스타일 채점 현황 테이블 (v3.7.1)
    ========================================= */
 
-/* 테이블 컨테이너 및 기본 스타일 */
-.status-frame-datatable, .datatable.boj-status-table {
-    width: 100% !important;
-    background: transparent !important;
-    border: none !important;
+/* 1. 기본 테이블 레이아웃 강제화 (CF datatable 무력화) */
+#pageContent .datatable, 
+#pageContent .roundbox {
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
 }
 
-.status-frame-datatable table, .datatable.boj-status-table table {
-    width: 100% !important;
-    border-collapse: collapse !important;
+#pageContent table.boj-status-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+/* 2. 헤더 스타일 (BOJ 시그니처) */
+#pageContent table.boj-status-table th {
+    background-color: #f9f9f9;
+    color: #333;
+    font-weight: bold;
     font-size: 14px;
-    margin-bottom: 20px;
-    background: #fff;
+    padding: 12px 10px;
+    border-top: 2px solid #0076c0;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
 }
 
-/* 헤더 스타일 (BOJ 특유의 회색 배경 및 상단 보더) */
-.status-frame-datatable th, .datatable.boj-status-table th {
-    background: #f9f9f9 !important;
-    color: #333 !important;
-    font-weight: bold !important;
-    padding: 10px 8px !important;
-    border-top: 2px solid #0076c0 !important;
-    border-bottom: 1px solid #ddd !important;
-    text-align: center !important;
-}
-
-/* 셀 스타일 */
-.status-frame-datatable td, .datatable.boj-status-table td {
-    padding: 12px 8px !important;
-    border-bottom: 1px solid #eee !important;
-    text-align: center !important;
+/* 3. 셀 스타일 */
+#pageContent table.boj-status-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
     color: #555;
-    background: transparent !important;
+    text-align: center;
+    vertical-align: middle;
 }
 
-/* 줄무늬 효과 */
-.status-frame-datatable tr:nth-child(even) td, 
-.datatable.boj-status-table tr:nth-child(even) td {
-    background-color: #fcfcfc !important;
+/* 4. 줄무늬 효과 */
+#pageContent table.boj-status-table tr:nth-child(even) td {
+    background-color: #fcfcfc;
 }
 
-/* 호버 효과 */
-.status-frame-datatable tr:hover td, 
-.datatable.boj-status-table tr:hover td {
-    background-color: #f5f5f5 !important;
+/* 5. 호버 효과 */
+#pageContent table.boj-status-table tr:hover td {
+    background-color: #f5f5f5;
 }
 
-/* 아이디, 문제 컬럼 왼쪽 정렬 (BOJ 스타일) */
-.status-frame-datatable td:nth-child(2), 
-.status-frame-datatable td:nth-child(3),
-.datatable.boj-status-table td:nth-child(2),
-.datatable.boj-status-table td:nth-child(3) {
-    text-align: left !important;
-    padding-left: 15px !important;
+/* 6. 아이디, 문제 컬럼 왼쪽 정렬 */
+#pageContent table.boj-status-table td:nth-child(2), 
+#pageContent table.boj-status-table td:nth-child(3),
+#pageContent table.boj-status-table td:nth-child(4) {
+    text-align: left;
+    padding-left: 20px;
 }
 
-/* 결과 텍스트 강조 */
-.verdict-accepted { color: #009874 !important; font-weight: bold; }
-.verdict-rejected { color: #dd4124 !important; }
-.verdict-waiting { color: #888 !important; }
+/* 7. 결과 색상 매핑 */
+#pageContent .verdict-accepted { color: #009874; font-weight: bold; }
+#pageContent .verdict-rejected { color: #dd4124; }
+#pageContent .verdict-waiting { color: #888; }
 
-/* 다크모드 대응 */
-:root[data-theme="dark"] .status-frame-datatable table,
-:root[data-theme="dark"] .datatable.boj-status-table table { background: #1e1e1e !important; }
-:root[data-theme="dark"] .status-frame-datatable th,
-:root[data-theme="dark"] .datatable.boj-status-table th { background: #2d2d2d !important; color: #e0e0e0 !important; border-top-color: #0076c0 !important; border-bottom-color: #444 !important; }
-:root[data-theme="dark"] .status-frame-datatable td,
-:root[data-theme="dark"] .datatable.boj-status-table td { border-bottom-color: #333 !important; color: #ccc; }
-:root[data-theme="dark"] .status-frame-datatable tr:nth-child(even) td, 
-:root[data-theme="dark"] .datatable.boj-status-table tr:nth-child(even) td { background-color: #252525 !important; }
-:root[data-theme="dark"] .status-frame-datatable tr:hover td, 
-:root[data-theme="dark"] .datatable.boj-status-table tr:hover td { background-color: #333 !important; }
+/* 8. 다크모드 전용 스타일 */
+:root[data-theme="dark"] #pageContent table.boj-status-table { background-color: #1e1e1e; border-color: #444; }
+:root[data-theme="dark"] #pageContent table.boj-status-table th { background-color: #2d2d2d; color: #e0e0e0; border-bottom-color: #444; }
+:root[data-theme="dark"] #pageContent table.boj-status-table td { color: #ccc; border-bottom-color: #333; }
+:root[data-theme="dark"] #pageContent table.boj-status-table tr:nth-child(even) td { background-color: #252525; }
+:root[data-theme="dark"] #pageContent table.boj-status-table tr:hover td { background-color: #333; }
 
+/* 구형 페이지네이션 숨김 */
+.pagination { display: none !important; }
 
 /* =========================================
-   BOJ 스타일 문제 페이지 퍼펙트 클론 (v3.2.6)
+   BOJ 스타일 문제 페이지 퍼펙트 클론 (기존 유지)
    ========================================= */
 
-/* 1. 탭 메뉴 (nav-pills) - 백준 상단 메뉴 스타일 */
 .nav-pills.problem-menu { 
     display: flex; 
     padding-left: 0; 
@@ -188,12 +165,7 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
     border: 1px solid #ddd;
     border-bottom-color: transparent;
 }
-.nav-pills.problem-menu > li > a:hover {
-    background-color: #eee;
-    border-color: #eee #eee #ddd;
-}
 
-/* 2. 제목 및 정보 헤더 (page-header) */
 .page-header { 
     padding-bottom: 9px; 
     margin: 20px 0 30px; 
@@ -208,7 +180,6 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
     letter-spacing: -1px;
 }
 
-/* 3. 정보 테이블 (problem-info) */
 .table-responsive { 
     min-height: .01%; 
     overflow-x: auto; 
@@ -219,29 +190,19 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
     max-width: 100%; 
     border-collapse: collapse; 
     text-align: center; 
-    background-color: transparent; 
 }
 .table#problem-info th { 
     padding: 8px; 
-    line-height: 1.42; 
-    vertical-align: bottom; 
-    border-top: none;
     border-bottom: 2px solid #ddd; 
     font-size: 15px;
     font-weight: bold;
-    color: #333;
-    text-align: center;
 }
 .table#problem-info td { 
     padding: 8px; 
-    line-height: 1.42; 
-    vertical-align: top; 
     border-top: 1px solid #ddd; 
     font-size: 15px;
-    color: #333;
 }
 
-/* 4. 본문 섹션 디자인 (headline, problem-text) */
 .problem-section { margin-bottom: 40px; }
 .headline { 
     border-bottom: 1px solid #ddd; 
@@ -255,18 +216,14 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
     font-size: 24px; 
     margin: 0; 
     font-weight: 500; 
-    color: #333; 
 }
 .problem-text { 
     font-size: 16px; 
     line-height: 1.8; 
     word-break: break-all; 
-    color: #333;
     font-family: 'Pretendard', -apple-system, sans-serif;
 }
-.problem-text p { margin: 0 0 10px; }
 
-/* 5. 예제 박스 (BOJ Perfect Clone) */
 .boj-sample-row { display: flex; flex-wrap: wrap; margin-right: -15px; margin-left: -15px; }
 .col-md-6 { width: 50%; padding-right: 15px; padding-left: 15px; box-sizing: border-box; }
 
@@ -277,53 +234,30 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
     font-size: 14px; 
     line-height: 1.6; 
     color: #333; 
-    word-break: break-all; 
-    word-wrap: break-word; 
     background-color: #f1f1f1; 
     border: 1px solid #e1e1e1; 
     border-radius: 4px; 
-    font-family: 'Menlo', 'Monaco', 'Consolas', "Courier New", monospace; 
+    font-family: 'Menlo', 'Monaco', 'Consolas', monospace; 
     white-space: pre-wrap; 
 }
 
-/* 6. 복사 버튼 (BOJ Style) */
 .btn-copy-sample { 
     padding: 2px 10px; 
     font-size: 12px; 
-    font-weight: 400;
-    cursor: pointer; 
     background: #fff; 
     border: 1px solid #ccc; 
     border-radius: 4px; 
     color: #0076c0; 
-    transition: all 0.2s ease;
-}
-.btn-copy-sample:hover { 
-    background: #f8f9fa; 
-    border-color: #adadad; 
+    cursor: pointer;
 }
 
-/* 7. 알고리즘 분류 */
 #problem_tags .spoiler { 
     padding: 15px;
     background: #fdfdfd;
     border: 1px solid #eee;
     border-radius: 4px;
 }
-.spoiler-list { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.spoiler-link { 
-    background: #f8f9fa; 
-    border: 1px solid #e9ecef; 
-    padding: 4px 12px; 
-    border-radius: 4px; 
-    color: #0076c0; 
-    text-decoration: none; 
-    font-size: 13px; 
-    transition: all 0.2s; 
-}
-.spoiler-link:hover { background: #e9ecef; border-color: #0076c0; }
 
-/* 8. 제출 페이지 (Submit Page) BOJ Style */
 .submit-form-container {
     max-width: 800px;
     margin: 0 auto;
@@ -337,8 +271,6 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
 .submit-form-label {
     width: 150px;
     font-weight: bold;
-    font-size: 16px;
-    color: #333;
 }
 .submit-form-input-group {
     flex: 1;
@@ -350,17 +282,8 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 14px;
-    box-sizing: border-box;
 }
-.submit-form-input-group textarea {
-    height: 400px;
-    font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
-}
-.submit-button-container {
-    text-align: center;
-    margin-top: 30px;
-}
+
 .btn-boj-submit {
     padding: 10px 40px;
     font-size: 18px;
@@ -371,11 +294,7 @@ body { font-family: 'Pretendard', -apple-system, sans-serif !important; backgrou
     border-radius: 4px;
     cursor: pointer;
 }
-.btn-boj-submit:hover {
-    background-color: #005a93;
-}
 
-/* 다크모드 대응 고도화 */
 :root[data-theme="dark"] .page-header h1, 
 :root[data-theme="dark"] .headline h2, 
 :root[data-theme="dark"] .problem-text,
