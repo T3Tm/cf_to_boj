@@ -1,9 +1,9 @@
 /**
  * styles/themes/overrides.css (v4.0.0)
- * [Legacy Override] 코드포스 레이아웃 제압 스타일 (High Specificity)
+ * [Full Width & Global Theme] 레이아웃 확장 및 전역 테마 제압
  */
 
-/* 1. 불필요한 코드포스 요소 제거 (명시도 강화) */
+/* 1. 불필요한 코드포스 요소 제거 및 레이아웃 확장 */
 body #header .top-links,
 body #header .top-links + div,
 body #sidebar,
@@ -12,82 +12,141 @@ body .second-level-menu,
 body .nav-links,
 body .focus-links,
 body .roundbox.menu-box,
-body .pagination {
+body .pagination,
+.side-navigation {
     display: none !important;
 }
 
-/* 문제 목록 원본 테이블 숨기기 (가상 테이블 사용 시) */
+/* 콘텐츠 영역을 화면 전체로 확장 */
+#content, #pageContent {
+    width: 100% !important;
+    max-width: 1140px !important; /* 백준 표준 컨테이너 너비 */
+    margin: 0 auto !important;
+    padding: 20px !important;
+    float: none !important;
+}
+
+/* 문제 목록 원본 테이블 숨기기 */
 #pageContent .datatable:not(.boj-virtual-datatable):not(.boj-status-table) {
-    display: none;
+    display: none !important;
 }
 
-/* 2. 전역 배경 및 텍스트 설정 */
-body {
-    background-color: var(--boj-bg);
-    color: var(--boj-text);
-    font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+/* 2. 전역 배경 및 텍스트 설정 (테마 범위 확장) */
+html, body {
+    background-color: var(--boj-bg) !important;
+    color: var(--boj-text) !important;
 }
 
-/* 3. 테이블 스타일 백준화 */
+/* 코드포스의 모든 둥근 박스와 테이블에 테마 적용 */
+.roundbox, .ttypography, .problem-statement, .datatable, .status-frame-datatable, .table-responsive {
+    background-color: var(--boj-bg) !important;
+    color: var(--boj-text) !important;
+    border-color: var(--boj-border) !important;
+}
+
+/* 3. 테이블 스타일 백준화 및 가독성 개선 */
+#pageContent table.table,
 #pageContent table.datatable,
-#pageContent table.status-frame-datatable {
-    border: 1px solid var(--boj-border);
-    background: var(--boj-bg);
-    border-radius: var(--boj-radius);
-    overflow: hidden;
+.boj-virtual-datatable {
+    width: 100% !important;
+    border: 1px solid var(--boj-border) !important;
+    background: var(--boj-bg) !important;
+    border-collapse: collapse !important;
+    margin-bottom: 20px !important;
 }
 
-#pageContent table.datatable th,
-#pageContent table.status-frame-datatable th {
-    background-color: var(--boj-table-header);
-    color: var(--boj-text);
-    border-bottom: 2px solid var(--boj-border);
-    padding: 12px 8px;
-    font-weight: 700;
+#pageContent table th {
+    background-color: var(--boj-table-header) !important;
+    color: var(--boj-text) !important;
+    border: 1px solid var(--boj-border) !important;
+    padding: 12px 8px !important;
+    text-align: center !important;
 }
 
-#pageContent table.datatable td,
-#pageContent table.status-frame-datatable td {
-    border-bottom: 1px solid var(--boj-border);
-    padding: 10px 8px;
-    vertical-align: middle;
+#pageContent table td {
+    border: 1px solid var(--boj-border) !important;
+    padding: 10px 8px !important;
+    background-color: transparent !important;
+    color: var(--boj-text) !important;
 }
 
-/* 4. 결과(Verdict) 색상 강조 */
-#pageContent .verdict-accepted {
-    color: var(--boj-success);
-    font-weight: 900;
+/* 4. 문제 페이지 전용 스타일 (Problem.js 연동) */
+.problem-menu.nav-pills {
+    margin-bottom: 20px !important;
+    border-bottom: 1px solid var(--boj-border) !important;
+    padding-bottom: 10px !important;
 }
 
-#pageContent .verdict-rejected {
-    color: var(--boj-danger);
+.problem-menu.nav-pills li a {
+    color: var(--boj-text) !important;
+    border-radius: var(--boj-radius) !important;
+    padding: 8px 16px !important;
 }
 
-/* 5. 문제 페이지 본문 레이아웃 */
-.problem-statement .header {
-    margin-bottom: 2em;
-    border-bottom: 1px solid var(--boj-border);
-    padding-bottom: 1em;
+.problem-menu.nav-pills li.active a {
+    background-color: var(--boj-primary) !important;
+    color: #fff !important;
 }
 
-.problem-statement .title {
-    font-size: 2.5em;
-    color: var(--boj-text);
+.page-header h1 {
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    border-bottom: 1px solid var(--boj-border) !important;
+    padding-bottom: 15px !important;
+    margin-bottom: 20px !important;
+    color: var(--boj-text) !important;
 }
 
-.problem-statement .section-title {
-    font-size: 1.5em;
-    color: var(--boj-primary);
-    border-bottom: 2px solid var(--boj-primary);
-    margin: 1.5em 0 0.5em;
-    padding-bottom: 0.2em;
+.problem-section {
+    margin-bottom: 30px !important;
 }
 
-/* 6. 다크모드 대응 고도화 */
-[data-theme='dark'] #pageContent table.datatable tr:hover {
-    background-color: #252525;
+.problem-section .headline h2 {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    color: var(--boj-primary) !important;
+    border-bottom: 2px solid var(--boj-primary) !important;
+    display: inline-block !important;
+    margin-bottom: 15px !important;
+    padding-bottom: 5px !important;
 }
 
-[data-theme='dark'] a {
-    color: #3498db;
+.problem-text {
+    font-size: 16px !important;
+    line-height: 1.8 !important;
+    color: var(--boj-text) !important;
 }
+
+/* 예제 박스 */
+pre.sampledata {
+    background-color: var(--boj-table-header) !important;
+    border: 1px solid var(--boj-border) !important;
+    padding: 15px !important;
+    border-radius: var(--boj-radius) !important;
+    font-family: 'Menlo', 'Monaco', 'Consolas', monospace !important;
+    font-size: 14px !important;
+    color: var(--boj-text) !important;
+}
+
+.btn-copy-sample {
+    background: var(--boj-bg) !important;
+    border: 1px solid var(--boj-primary) !important;
+    color: var(--boj-primary) !important;
+    padding: 2px 8px !important;
+    font-size: 12px !important;
+    border-radius: var(--boj-radius) !important;
+    cursor: pointer !important;
+}
+
+.btn-copy-sample:hover {
+    background: var(--boj-primary) !important;
+    color: #fff !important;
+}
+
+/* 5. 결과(Verdict) 색상 */
+.verdict-accepted { color: var(--boj-success) !important; font-weight: 900 !important; }
+.verdict-rejected { color: var(--boj-danger) !important; }
+
+/* 6. 링크 색상 */
+a, a:visited { color: var(--boj-primary) !important; text-decoration: none !important; }
+[data-theme='dark'] a { color: #3498db !important; }
