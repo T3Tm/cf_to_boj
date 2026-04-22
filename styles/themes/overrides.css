@@ -5,7 +5,6 @@
 
 /* 1. 코드포스 레거시 요소 제거 */
 body #header .top-links,
-body #header .top-links + div,
 body #sidebar,
 body .footer,
 body .second-level-menu,
@@ -30,6 +29,7 @@ body {
     max-width: var(--boj-max-width) !important;
     margin: 0 auto !important;
     padding: 20px 15px !important;
+    background-color: var(--boj-bg) !important;
 }
 
 /* 3. 상단 탭 메뉴 (nav-tabs 오리지널 스타일) */
@@ -39,10 +39,7 @@ body {
     padding: 0 !important;
     margin: 0 0 25px 0 !important;
     border-bottom: 1px solid var(--boj-border) !important;
-}
-
-.problem-menu.nav-tabs li {
-    margin-bottom: -1px !important;
+    background: transparent !important;
 }
 
 .problem-menu.nav-tabs li a {
@@ -63,75 +60,96 @@ body {
     font-weight: 700 !important;
 }
 
-/* 4. 섹션 소제목 (Headline 스타일) */
-.headline h2 {
-    font-size: 22px !important;
-    font-weight: 700 !important;
-    color: var(--boj-primary) !important;
-    border-bottom: 2px solid var(--boj-primary) !important;
-    display: inline-block !important;
-    margin: 30px 0 15px 0 !important;
-    padding-bottom: 5px !important;
-}
-
-/* 5. 정보 테이블 (Standardized) */
-#pageContent table.table, 
-#problem-info,
-.boj-virtual-datatable {
-    width: 100% !important;
-    border-collapse: collapse !important;
+/* 4. [복구] 제출 페이지 전용 레이아웃 */
+.submit-form-container {
+    margin-top: 30px !important;
+    padding: 20px !important;
     border: 1px solid var(--boj-border) !important;
-    margin-bottom: 30px !important;
-}
-
-#pageContent table th,
-.boj-virtual-datatable th {
-    background-color: var(--boj-table-header) !important;
-    border: 1px solid var(--boj-border) !important;
-    padding: 12px 8px !important;
-    font-weight: 700 !important;
-}
-
-#pageContent table td,
-.boj-virtual-datatable td {
-    border: 1px solid var(--boj-border) !important;
-    padding: 12px 8px !important;
-    color: var(--boj-text) !important;
-}
-
-/* 6. 예제 박스 및 복사 버튼 */
-pre.sampledata {
-    background-color: #f5f5f5 !important;
-    border: 1px solid #cccccc !important;
-    padding: 15px !important;
     border-radius: 4px !important;
-    font-family: 'Menlo', 'Monaco', 'Consolas', monospace !important;
+    background: var(--boj-bg) !important;
+}
+
+.submit-form-row {
+    display: flex !important;
+    margin-bottom: 25px !important;
+    align-items: flex-start !important;
+}
+
+.submit-form-label {
+    width: 140px !important;
+    font-weight: 700 !important;
+    color: var(--boj-text) !important;
+    padding-top: 10px !important;
+    flex-shrink: 0 !important;
+}
+
+.submit-form-input-group {
+    flex: 1 !important;
+}
+
+/* 5. 소스코드 에디터 (Back to BOJ Standard) */
+.boj-editor-wrapper {
+    width: 100% !important;
+    border: 1px solid var(--boj-border) !important;
+    border-radius: 4px !important;
+    background-color: var(--boj-table-header) !important;
+    overflow: hidden !important;
+}
+
+textarea[name="source"] {
+    width: 100% !important;
+    height: 500px !important;
+    padding: 20px !important;
+    font-family: 'Consolas', 'Monaco', 'Menlo', monospace !important;
     font-size: 14px !important;
-    color: #333333 !important;
+    line-height: 1.6 !important;
+    color: var(--boj-text) !important;
+    background-color: var(--boj-table-header) !important;
+    border: none !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    resize: vertical !important;
+    outline: none !important;
 }
 
-[data-theme='dark'] pre.sampledata {
-    background-color: #0d1117 !important;
-    border-color: #30363d !important;
-    color: #c9d1d9 !important;
-}
-
-/* 7. 결과 텍스트 (Status) */
-.result-ac { color: var(--boj-success) !important; font-weight: 700 !important; }
-.result-wa { color: var(--boj-danger) !important; }
-.result-tle, .result-mle { color: var(--boj-warning) !important; }
-
-/* 8. 제출 버튼 (Fixed Blue) */
+/* 6. 제출 버튼 (Fixed Blue) */
 .btn-boj-submit {
-    background-color: #337ab7 !important; /* BOJ 오리지널 버튼 블루 */
+    display: inline-block !important;
+    background-color: #337ab7 !important;
     color: #ffffff !important;
     border: 1px solid #2e6da4 !important;
-    padding: 10px 30px !important;
-    font-size: 16px !important;
+    padding: 12px 60px !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
     border-radius: 4px !important;
     cursor: pointer !important;
+    transition: var(--boj-transition) !important;
 }
 
 .btn-boj-submit:hover {
     background-color: #286090 !important;
+}
+
+/* 7. 정보 테이블 및 본문 가시성 */
+#pageContent table.table, #problem-info {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    border: 1px solid var(--boj-border) !important;
+}
+
+#pageContent table th { background-color: var(--boj-table-header) !important; border: 1px solid var(--boj-border) !important; padding: 12px !important; }
+#pageContent table td { border: 1px solid var(--boj-border) !important; padding: 12px !important; color: var(--boj-text) !important; }
+
+/* 8. 알고리즘 분류 (복구 확인) */
+.boj-spoiler-container {
+    display: block !important;
+    margin-top: 30px !important;
+    border: 1px solid var(--boj-border) !important;
+    border-radius: 4px !important;
+}
+
+/* 다크모드 대응 고도화 */
+[data-theme='dark'] textarea[name="source"] {
+    background-color: #0d1117 !important;
+    color: #c9d1d9 !important;
 }
