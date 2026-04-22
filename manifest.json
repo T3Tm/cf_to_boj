@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Codeforces to Baekjoon",
-  "version": "4.0.0",
-  "description": "Codeforces 데이터 기반 백준 스타일 전역 테마 및 통합 검색 엔진 (Standardized)",
+  "version": "4.2.0",
+  "description": "Codeforces 데이터 기반 백준 스타일 전역 테마 및 통합 검색 엔진 (Modular CSS Update)",
   "permissions": ["storage"],
   "host_permissions": ["https://codeforces.com/api/*"],
   "content_scripts": [
@@ -10,8 +10,14 @@
       "matches": ["*://codeforces.com/*"],
       "css": [
         "styles/base/variables.css",
+        "styles/base/reset.css",
         "styles/components/components.css",
-        "styles/themes/overrides.css"
+        "styles/pages/problem.css",
+        "styles/pages/problemset.css",
+        "styles/pages/status.css",
+        "styles/pages/profile.css",
+        "styles/pages/submit.css",
+        "styles/themes/cleaner.css"
       ],
       "js": [
         "content/inject.js",

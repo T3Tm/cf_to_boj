@@ -1,5 +1,5 @@
 /**
- * src/pages/status.js (v4.0.0)
+ * src/pages/status.js (v4.0.1)
  * [Logic Stabilization] 채점 현황 컨트롤러 (20개씩 페이징 & AJAX 완벽 대응)
  */
 window.BOJ_CF.Pages.Status = (function() {
@@ -23,6 +23,36 @@ window.BOJ_CF.Pages.Status = (function() {
                 el.style.display = 'none';
             });
         });
+    }
+
+    /**
+     * 문제별 채점 현황일 경우 탭 메뉴를 렌더링합니다.
+     */
+    function renderTabs() {
+        const pathParts = window.location.pathname.split('/');
+        // 예: /problemset/status/123/problem/A 또는 /contest/123/status
+        let contestId = null;
+        let problemIndex = null;
+
+        if (pathParts.includes('problemset') && pathParts.includes('status')) {
+            contestId = pathParts[3];
+            problemIndex = pathParts[5];
+        } else if (pathParts.includes('contest')) {
+            contestId = pathParts[2];
+            // 컨테스트 내 문제별 상태는 별도 처리 필요할 수 있음
+        }
+
+        if (contestId && problemIndex && !document.querySelector('.problem-menu')) {
+            const tabMenu = document.createElement('ul');
+            tabMenu.className = 'nav nav-tabs problem-menu';
+            tabMenu.innerHTML = `
+                <li><a href="/problemset/problem/${contestId}/${problemIndex}">문제</a></li>
+                <li><a href="/problemset/submit?contestId=${contestId}&problemIndex=${problemIndex}">제출</a></li>
+                <li class="active"><a href="#">채점 현황</a></li>
+            `;
+            const pc = document.querySelector('#pageContent');
+            if (pc) pc.insertBefore(tabMenu, pc.firstChild);
+        }
     }
 
     /**
@@ -60,14 +90,13 @@ window.BOJ_CF.Pages.Status = (function() {
                     const vt = verdictCell.innerText.toLowerCase();
                     if (vt.includes('accepted')) { 
                         verdictCell.innerText = '맞았습니다!!'; 
-                        verdictCell.style.color = '#009874'; 
-                        verdictCell.style.fontWeight = 'bold';
+                        verdictCell.className = 'result-ac'; // 헌법 준수 클래스명
                     }
-                    else if (vt.includes('wrong')) verdictCell.innerText = '틀렸습니다';
-                    else if (vt.includes('time limit')) verdictCell.innerText = '시간 초과';
-                    else if (vt.includes('memory limit')) verdictCell.innerText = '메모리 초과';
-                    else if (vt.includes('runtime error')) verdictCell.innerText = '런타임 에러';
-                    else if (vt.includes('compilation error')) verdictCell.innerText = '컴파일 에러';
+                    else if (vt.includes('wrong')) { verdictCell.innerText = '틀렸습니다'; verdictCell.className = 'result-wa'; }
+                    else if (vt.includes('time limit')) { verdictCell.innerText = '시간 초과'; verdictCell.className = 'result-tle'; }
+                    else if (vt.includes('memory limit')) { verdictCell.innerText = '메모리 초과'; verdictCell.className = 'result-mle'; }
+                    else if (vt.includes('runtime error')) { verdictCell.innerText = '런타임 에러'; verdictCell.className = 'result-re'; }
+                    else if (vt.includes('compilation error')) { verdictCell.innerText = '컴파일 에러'; verdictCell.className = 'result-ce'; }
                 }
 
                 // 티어 아이콘 주입
@@ -75,7 +104,7 @@ window.BOJ_CF.Pages.Status = (function() {
                 if (probColIndex !== -1) {
                     const link = row.cells[probColIndex]?.querySelector('a');
                     if (link && !link.querySelector('.boj-tier-icon')) {
-                        const probText = link.innerText.trim(); // 예: "123A"
+                        const probText = link.innerText.trim();
                         const match = probText.match(/([0-9]+)([A-Z][0-9]*)/);
                         
                         let rating = null;
@@ -141,19 +170,20 @@ window.BOJ_CF.Pages.Status = (function() {
             const pc = document.querySelector('#pageContent');
             if (!pc) return;
 
-            // 1. 데이터 로드 (정확한 티어 표시용)
-            const allProbs = await window.BOJ_CF.Fetcher.fetchAllProblems();
-            problemsDB = allProbs ? allProbs.problems : [];
+            // 1. 데이터 로드
+            const allProbsRes = await window.BOJ_CF.Fetcher.fetchAllProblems();
+            problemsDB = allProbsRes ? allProbsRes.problems : [];
 
             // 2. 초기 렌더링
+            renderTabs();
             cleanup();
             await transformTable();
 
-            // 3. 안정화 연동: DOMObserver 감시 시작
+            // 3. 안정화 연동
             if (window.BOJ_CF.Utils.DOMObserver) {
                 window.BOJ_CF.Utils.DOMObserver.observe('#pageContent', () => {
+                    renderTabs();
                     cleanup();
-                    // 테이블 자체가 날아갔거나 내용이 바뀌었을 수 있으므로 클래스 제거 후 재검토
                     const table = document.querySelector('.boj-status-table');
                     if (table) table.classList.remove('boj-processed-table');
                     transformTable();

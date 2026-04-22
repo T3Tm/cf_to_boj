@@ -1,0 +1,22 @@
+/**
+ * styles/themes/cleaner.css (v4.2.0)
+ * [Atomic CSS] 코드포스 레거시 요소 정밀 제압 레이어
+ */
+body #header .top-links,
+body #header .top-links + div,
+body #sidebar,
+body .footer,
+body .second-level-menu,
+body .nav-links,
+body .focus-links,
+body .roundbox.menu-box,
+body .pagination,
+body .side-navigation,
+body .userbox {
+    display: none !important; /* 제거 레이어는 명시적 !important 허용 */
+}
+
+/* 문제 목록 원본 테이블 숨기기 */
+#pageContent .datatable:not(.boj-virtual-datatable):not(.boj-status-table) {
+    display: none;
+}

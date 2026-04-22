@@ -43,6 +43,14 @@
     *   `.result-tle`, `.result-mle`: `#fa7268`
 *   **테이블:** `table#status-table` (Zebra Striping: even rows `#f9f9f9`)
 
+### ④ 유저 프로필 (Profile)
+*   **프로필 헤더:** `div.page-header`
+    *   `h1`: 유저 아이디와 티어 아이콘 (`img.tier-icon` 가로 20px, 세로 25px 내외)
+*   **통계 테이블:** `table#statics` (격자 및 줄무늬 효과)
+    *   항목: 등수, 맞은 문제, 시도했지만 맞지 못한 문제, 제출
+*   **결과 통계:** `table` 내부에 `맞았습니다`, `틀렸습니다` 등 세부 항목 표시
+*   **문제 리스트:** `div.problem-list` (해결한 문제 번호들이 공백을 두고 나열됨)
+
 ---
 
 ## 📏 3. 레이아웃 상세 규격 (Layout Constraints)

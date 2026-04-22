@@ -1,0 +1,20 @@
+/**
+ * styles/pages/status.css (v4.2.0)
+ * [Atomic CSS] 채점 현황 및 결과 텍스트
+ */
+.result-ac { color: var(--boj-success); font-weight: 700; }
+.result-wa { color: var(--boj-danger); }
+.result-tle, .result-mle, .result-re, .result-ce { color: var(--boj-warning); font-weight: 700; }
+
+/* 채점 현황 테이블 줄무늬 */
+.boj-status-table tbody tr:nth-of-type(odd) {
+    background-color: var(--boj-table-header);
+}
+
+.boj-pager {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 25px;
+    padding-bottom: 30px;
+}

@@ -1,5 +1,5 @@
 /**
- * src/pages/submit.js (v4.0.0)
+ * src/pages/submit.js (v4.0.1)
  * [Frozen Design] 제출 페이지 컨트롤러 (BOJ_REFERENCE.md 표준 준수)
  */
 window.BOJ_CF.Pages.Submit = (function() {
@@ -84,10 +84,20 @@ window.BOJ_CF.Pages.Submit = (function() {
             // 6. 속성 고정 (조작성 보장)
             codeTextArea.style.visibility = 'visible';
             codeTextArea.style.display = 'block';
+            codeTextArea.style.height = '600px'; // 높이 확대
             codeTextArea.removeAttribute('hidden');
             
             submitBtn.className = "btn-boj-submit";
             submitBtn.value = "제출";
+
+            // 제출 후 리다이렉트 방어 (해당 문제 채점 현황으로 유도)
+            originalForm.addEventListener('submit', () => {
+                // 코드포스 기본 동작을 막지 않고, 제출 직후 로컬 스토리지에 힌트를 저장하여 
+                // 다음 로드 시 라우팅에 참고할 수 있게 함 (CF 기본은 /status 로 감)
+                if (contestId && problemIndex) {
+                    localStorage.setItem('boj_cf_last_submit', `/problemset/status/${contestId}/problem/${problemIndex}`);
+                }
+            });
 
             // 레거시 잔재 영구 제거
             document.querySelectorAll('#editor, .toggleEditorCheckboxLabel, .tabSizeDiv, #toggleEditorCheckbox').forEach(el => el.remove());

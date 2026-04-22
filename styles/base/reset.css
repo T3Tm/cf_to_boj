@@ -1,0 +1,47 @@
+/**
+ * styles/base/reset.css (v4.2.0)
+ * [Atomic CSS] 전역 레이아웃 및 폰트 초기화
+ */
+body {
+    background-color: var(--boj-bg);
+    color: var(--boj-text);
+    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+}
+
+#content, #pageContent {
+    width: 100%;
+    max-width: var(--boj-max-width);
+    margin: 0 auto;
+    padding: 20px 15px;
+    box-sizing: border-box;
+}
+
+/* 전역 테이블 기본 스타일 (Standard) */
+table.table, table.datatable {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--boj-border);
+    background-color: var(--boj-bg);
+}
+
+table th {
+    background-color: var(--boj-table-header);
+    border: 1px solid var(--boj-border);
+    padding: 12px 8px;
+    font-weight: 700;
+    text-align: center;
+}
+
+table td {
+    border: 1px solid var(--boj-border);
+    padding: 12px 8px;
+    color: var(--boj-text);
+}
+
+/* 유틸리티: 텍스트 컬러 */
+.text-primary { color: var(--boj-primary); }
+.text-success { color: var(--boj-success); }
+.text-danger { color: var(--boj-danger); }
