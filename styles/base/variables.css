@@ -1,14 +1,14 @@
 /**
  * styles/base/variables.css (v4.0.0)
- * [Design System] 전역 테마 변수 및 색상 팔레트
+ * [Frozen Design] 백준 오리지널 디자인 토큰 (BOJ_REFERENCE.md 준수)
  */
 :root {
     /* BOJ Signature Colors */
-    --boj-primary: #0076c0;
-    --boj-primary-dark: #005a92;
-    --boj-success: #009874;
-    --boj-danger: #dd4124;
-    --boj-warning: #ffc107;
+    --boj-primary: #0076ba;      /* Primary Blue */
+    --boj-primary-dark: #005a8e;
+    --boj-success: #00985b;      /* Success Green (맞았습니다!!) */
+    --boj-danger: #dd4124;       /* Danger Red (틀렸습니다) */
+    --boj-warning: #fa7268;      /* Warning Orange (시간/메모리 초과) */
     
     /* Neutral Colors */
     --boj-bg: #ffffff;
@@ -17,17 +17,19 @@
     --boj-border: #dddddd;
     --boj-table-header: #f9f9f9;
 
-    /* Spacing & Sizing */
+    /* Spacing & Layout */
+    --boj-max-width: 1140px;
     --boj-radius: 4px;
-    --boj-transition: all 0.2s ease;
+    --boj-transition: all 0.2s ease-in-out;
 }
 
-/* 다크모드 대응 (v4.0.0 표준) */
+/* 다크모드 (시인성 최적화 버전) */
 [data-theme='dark'] {
     --boj-bg: #1a1a1a;
     --boj-text: #e0e0e0;
     --boj-text-light: #aaaaaa;
     --boj-border: #333333;
     --boj-table-header: #2d2d2d;
-    --boj-primary: #3498db; /* 다크모드용 시인성 높은 블루 */
+    --boj-primary: #3498db;
+    --boj-success: #00c871;
 }

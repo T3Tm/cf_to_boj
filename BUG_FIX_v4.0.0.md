@@ -22,6 +22,16 @@
     *   `ThemeToggle.js`를 `Settings` 기반으로 전면 리팩토링하여 상태 변경 시 `document.documentElement`를 즉시 조작함.
     *   `inject.js`에서 `localStorage` 기반 부트스트랩 로직을 강화하여 초기 로딩 속도 및 안정성 확보.
 
-## 7. Problem 페이지 런타임 에러(TypeError) 수정
-- **문제:** `problem.js`에서 `Fetcher`가 반환한 객체를 배열로 오인하여 `.find()` 함수 호출 시 `TypeError: allProbs.find is not a function` 발생. 이로 인해 이후의 모든 UI 변환 로직이 중단됨.
-- **해결:** 코드포스 API 구조에 맞춰 `allProbs.problemStatistics` 배열에 접근하여 데이터를 검색하도록 로직을 교정함.
+## 8. 문제 본문 테마 색상 상속 결함 수정
+- **문제:** 다크모드 전환 시 코드포스 고유의 스타일 규칙이 우선되어 문제 본문 텍스트가 배경색과 겹쳐 보이지 않는 현상 발생.
+- **해결:** `.problem-statement *` 셀렉터를 통해 모든 하위 요소에 `color: var(--boj-text) !important`를 강제 주입하여 전역 가시성 확보.
+
+## 9. 탭 메뉴 CSS 간섭 및 디자인 유실 복구
+- **문제:** 레이아웃 클린업 과정에서 주입된 탭 메뉴(`.nav-pills`)의 스타일이 유실되어 가로 나열이 깨짐.
+- **해결:** `overrides.css`에서 탭 메뉴 전용 명시도를 높이고 `display: flex`를 강제하여 백준 스타일의 가로 메뉴 구조를 고착화함.
+
+## 10. 소스코드 에디터 조작 불능(Click/Type) 결함 수정
+- **문제:** 하이라이트 레이어가 입력창 위를 덮어 클릭 이벤트를 가로채거나, 레이어 순위(z-index) 미비로 인해 입력이 불가능해짐.
+- **해결:** 
+    *   입력창(`textarea`)의 `z-index`를 `10`으로 상향하고 최상단 배치.
+    *   하이라이트 레이어(`pre`)에 `pointer-events: none`을 부여하여 모든 클릭 이벤트가 하단의 입력창으로 통과되도록 설계 변경.

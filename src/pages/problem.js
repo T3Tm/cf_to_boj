@@ -28,9 +28,9 @@ window.BOJ_CF.Pages.Problem = (function() {
             const isSolved = mySubs.some(s => s.verdict === 'OK');
             const isAttempted = mySubs.length > 0;
 
-            // 1. 탭 메뉴 (nav-pills) - 한 줄 나열을 위해 #pageContent 상단에 배치
+            // 1. 탭 메뉴 (nav-tabs - BOJ 오리지널 스타일)
             const tabMenu = document.createElement('ul');
-            tabMenu.className = 'nav nav-pills problem-menu';
+            tabMenu.className = 'nav nav-tabs problem-menu';
             tabMenu.innerHTML = `
                 <li class="active"><a href="${window.location.href}">문제</a></li>
                 <li><a href="/problemset/submit?contestId=${contestId}&problemIndex=${problemIndex}">제출</a></li>
