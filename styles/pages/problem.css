@@ -1,34 +1,13 @@
 /**
- * styles/pages/problem.css (v4.2.0)
- * [Atomic CSS] 문제 상세 페이지 전용
+ * styles/pages/problem.css (v4.3.0)
+ * [Semantic] 문제 상세 페이지 레이아웃
  */
-.problem-menu.nav-tabs {
-    display: flex;
-    padding: 0;
-    margin: 0 0 25px 0;
-    border-bottom: 1px solid var(--boj-border);
-}
-
-.problem-menu.nav-tabs li a {
-    padding: 10px 20px;
-    color: var(--boj-primary);
-    text-decoration: none;
-    border-radius: 4px 4px 0 0;
-}
-
-.problem-menu.nav-tabs li.active a {
-    color: var(--boj-text);
-    background-color: var(--boj-bg);
-    border: 1px solid var(--boj-border);
-    border-bottom-color: var(--boj-bg);
-    margin-bottom: -1px;
-}
-
+.sample-wrapper { margin-top: 20px; }
 pre.sampledata {
-    background-color: #f5f5f5;
-    border: 1px solid #cccccc;
+    background-color: var(--bg-editor);
+    border: 1px solid var(--border-standard);
     padding: 15px;
-    border-radius: 4px;
+    border-radius: var(--radius-main);
     font-family: Menlo, Monaco, Consolas, monospace;
-    color: #333333;
+    color: var(--text-main);
 }

@@ -18,7 +18,7 @@ window.BOJ_CF.Pages.Submit = (function() {
 
             if (!langSelect || !codeTextArea || !submitBtn) return;
 
-            // 2. 탭 메뉴 구성
+            // 2. 탭 메뉴 구성 (boj-tabs 적용)
             const params = new URLSearchParams(window.location.search);
             const contestId = params.get('contestId');
             const problemIndex = params.get('problemIndex');
@@ -26,7 +26,7 @@ window.BOJ_CF.Pages.Submit = (function() {
             let tabMenuHtml = '';
             if (contestId && problemIndex) {
                 tabMenuHtml = `
-                    <ul class="nav nav-tabs problem-menu">
+                    <ul class="boj-tabs problem-menu">
                         <li><a href="/problemset/problem/${contestId}/${problemIndex}">문제</a></li>
                         <li class="active"><a href="#">제출</a></li>
                         <li><a href="/problemset/status/${contestId}/problem/${problemIndex}">채점 현황</a></li>
@@ -38,7 +38,7 @@ window.BOJ_CF.Pages.Submit = (function() {
             pc.innerHTML = tabMenuHtml;
             pc.appendChild(originalForm);
 
-            // 폼 내부 레거시 요소 숨김 (Input Hidden 제외)
+            // 폼 내부 레거시 요소 숨김
             Array.from(originalForm.children).forEach(child => {
                 if (child.tagName !== 'INPUT' || child.type !== 'hidden') child.style.display = 'none';
             });
@@ -47,12 +47,12 @@ window.BOJ_CF.Pages.Submit = (function() {
             const container = document.createElement('div');
             container.className = 'submit-form-container';
             container.innerHTML = `
-                <div class="page-header"><h1 style="text-align: left; font-size: 28px;">제출</h1></div>
+                <div class="boj-header-section"><h1 style="text-align: left; font-size: 28px; color: var(--text-main);">제출</h1></div>
                 
                 <div class="submit-form-row">
                     <div class="submit-form-label">문제</div>
                     <div class="submit-form-input-group">
-                        <div style="padding: 12px; background: var(--boj-table-header); border: 1px solid var(--boj-border); border-radius: 4px; font-weight: bold;">
+                        <div style="padding: 12px; background: var(--bg-element); border: 1px solid var(--border-standard); border-radius: var(--radius-main); font-weight: bold; color: var(--text-main);">
                             ${problemFullText || '문제를 선택해주세요'}
                         </div>
                     </div>
@@ -81,27 +81,21 @@ window.BOJ_CF.Pages.Submit = (function() {
             document.getElementById('boj-editor-root').appendChild(codeTextArea);
             document.getElementById('boj-target-submit').appendChild(submitBtn);
 
-            // 6. 속성 고정 (조작성 보장)
-            codeTextArea.style.visibility = 'visible';
-            codeTextArea.style.display = 'block';
-            codeTextArea.style.height = '600px'; // 높이 확대
-            codeTextArea.removeAttribute('hidden');
+            // 6. 속성 고정
+            langSelect.style.cssText = "width: 100%; max-width: 400px; padding: 10px; border: 1px solid var(--border-standard); border-radius: var(--radius-main); background: var(--bg-main); color: var(--text-main);";
             
-            submitBtn.className = "btn-boj-submit";
+            submitBtn.className = "boj-btn boj-btn-primary";
+            submitBtn.id = "submit_button";
             submitBtn.value = "제출";
 
-            // 제출 후 리다이렉트 방어 (해당 문제 채점 현황으로 유도)
+            // 제출 후 리다이렉트 방어
             originalForm.addEventListener('submit', () => {
-                // 코드포스 기본 동작을 막지 않고, 제출 직후 로컬 스토리지에 힌트를 저장하여 
-                // 다음 로드 시 라우팅에 참고할 수 있게 함 (CF 기본은 /status 로 감)
                 if (contestId && problemIndex) {
                     localStorage.setItem('boj_cf_last_submit', `/problemset/status/${contestId}/problem/${problemIndex}`);
                 }
             });
 
-            // 레거시 잔재 영구 제거
             document.querySelectorAll('#editor, .toggleEditorCheckboxLabel, .tabSizeDiv, #toggleEditorCheckbox').forEach(el => el.remove());
-            console.log("[BOJ_CF] Submission page standardized.");
         }
     };
 })();

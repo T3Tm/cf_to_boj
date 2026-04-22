@@ -30,21 +30,17 @@ window.BOJ_CF.Pages.Status = (function() {
      */
     function renderTabs() {
         const pathParts = window.location.pathname.split('/');
-        // 예: /problemset/status/123/problem/A 또는 /contest/123/status
         let contestId = null;
         let problemIndex = null;
 
         if (pathParts.includes('problemset') && pathParts.includes('status')) {
             contestId = pathParts[3];
             problemIndex = pathParts[5];
-        } else if (pathParts.includes('contest')) {
-            contestId = pathParts[2];
-            // 컨테스트 내 문제별 상태는 별도 처리 필요할 수 있음
         }
 
         if (contestId && problemIndex && !document.querySelector('.problem-menu')) {
             const tabMenu = document.createElement('ul');
-            tabMenu.className = 'nav nav-tabs problem-menu';
+            tabMenu.className = 'boj-tabs problem-menu';
             tabMenu.innerHTML = `
                 <li><a href="/problemset/problem/${contestId}/${problemIndex}">문제</a></li>
                 <li><a href="/problemset/submit?contestId=${contestId}&problemIndex=${problemIndex}">제출</a></li>
@@ -63,7 +59,7 @@ window.BOJ_CF.Pages.Status = (function() {
         if (!table || table.classList.contains('boj-processed-table')) return;
 
         console.log("[BOJ_CF] Transforming Status Table...");
-        table.classList.add('boj-processed-table', 'boj-status-table');
+        table.classList.add('boj-processed-table', 'boj-table', 'boj-table-striped');
 
         // 1. 헤더 번역
         const headerMap = {'#': '제출 번호', 'Who': '아이디', 'Problem': '문제', 'Verdict': '결과', 'Memory': '메모리', 'Time': '시간', 'Lang': '언어', 'When': '제출 시간', 'Sent': '제출 시간'};
@@ -84,19 +80,19 @@ window.BOJ_CF.Pages.Status = (function() {
             row.style.display = isVisible ? '' : 'none';
             
             if (isVisible && !row.classList.contains('boj-processed')) {
-                // 결과 번역 및 색상 적용
+                // 결과 번역 및 색상 적용 (시맨틱 클래스 사용)
                 const verdictCell = row.querySelector('.verdict-accepted, .verdict-rejected, .verdict-waiting, [class*="verdict"]');
                 if (verdictCell) {
                     const vt = verdictCell.innerText.toLowerCase();
                     if (vt.includes('accepted')) { 
                         verdictCell.innerText = '맞았습니다!!'; 
-                        verdictCell.className = 'result-ac'; // 헌법 준수 클래스명
+                        verdictCell.className = 'verdict-ac'; 
                     }
-                    else if (vt.includes('wrong')) { verdictCell.innerText = '틀렸습니다'; verdictCell.className = 'result-wa'; }
-                    else if (vt.includes('time limit')) { verdictCell.innerText = '시간 초과'; verdictCell.className = 'result-tle'; }
-                    else if (vt.includes('memory limit')) { verdictCell.innerText = '메모리 초과'; verdictCell.className = 'result-mle'; }
-                    else if (vt.includes('runtime error')) { verdictCell.innerText = '런타임 에러'; verdictCell.className = 'result-re'; }
-                    else if (vt.includes('compilation error')) { verdictCell.innerText = '컴파일 에러'; verdictCell.className = 'result-ce'; }
+                    else if (vt.includes('wrong')) { verdictCell.innerText = '틀렸습니다'; verdictCell.className = 'verdict-wa'; }
+                    else if (vt.includes('time limit')) { verdictCell.innerText = '시간 초과'; verdictCell.className = 'verdict-err'; }
+                    else if (vt.includes('memory limit')) { verdictCell.innerText = '메모리 초과'; verdictCell.className = 'verdict-err'; }
+                    else if (vt.includes('runtime error')) { verdictCell.innerText = '런타임 에러'; verdictCell.className = 'verdict-err'; }
+                    else if (vt.includes('compilation error')) { verdictCell.innerText = '컴파일 에러'; verdictCell.className = 'verdict-err'; }
                 }
 
                 // 티어 아이콘 주입

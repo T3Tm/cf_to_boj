@@ -1,35 +1,50 @@
 /**
- * styles/base/variables.css (v4.0.0)
- * [Frozen Design] 백준 오리지널 디자인 토큰 (BOJ_REFERENCE.md 준수)
+ * styles/base/variables.css (v4.3.0)
+ * [Semantic Theming] 용도 중심의 디자인 토큰 시스템
  */
 :root {
-    /* BOJ Signature Colors */
-    --boj-primary: #0076ba;      /* Primary Blue */
-    --boj-primary-dark: #005a8e;
-    --boj-success: #00985b;      /* Success Green (맞았습니다!!) */
-    --boj-danger: #dd4124;       /* Danger Red (틀렸습니다) */
-    --boj-warning: #fa7268;      /* Warning Orange (시간/메모리 초과) */
-    
-    /* Neutral Colors */
-    --boj-bg: #ffffff;
-    --boj-text: #333333;
-    --boj-text-light: #888888;
-    --boj-border: #dddddd;
-    --boj-table-header: #f9f9f9;
+    /* 1. Brand Colors (Constants) */
+    --brand-primary: #0076ba;
+    --brand-success: #00985b;
+    --brand-danger: #dd4124;
+    --brand-warning: #fa7268;
 
-    /* Spacing & Layout */
-    --boj-max-width: 1140px;
-    --boj-radius: 4px;
-    --boj-transition: all 0.2s ease-in-out;
+    /* 2. Semantic Backgrounds */
+    --bg-main: #ffffff;
+    --bg-element: #f9f9f9;      /* Table header, Panel heading */
+    --bg-editor: #f5f5f5;       /* Code block, Textarea */
+    --bg-overlay: rgba(0, 0, 0, 0.05);
+
+    /* 3. Semantic Texts */
+    --text-main: #333333;       /* Body, Headings */
+    --text-sub: #666666;        /* Captions, Metadata */
+    --text-hint: #888888;       /* Placeholders */
+    --text-inverse: #ffffff;    /* Text on primary buttons */
+
+    /* 4. Semantic Borders */
+    --border-standard: #dddddd;
+    --border-light: #eeeeee;
+    --border-primary: var(--brand-primary);
+
+    /* 5. Metrics */
+    --max-width: 1140px;
+    --radius-main: 4px;
+    --transition-fast: all 0.2s ease-in-out;
 }
 
-/* 다크모드 (시인성 최적화 버전) */
+/* Dark Theme Mapping */
 [data-theme='dark'] {
-    --boj-bg: #1a1a1a;
-    --boj-text: #e0e0e0;
-    --boj-text-light: #aaaaaa;
-    --boj-border: #333333;
-    --boj-table-header: #2d2d2d;
-    --boj-primary: #3498db;
-    --boj-success: #00c871;
+    --bg-main: #1a1a1a;
+    --bg-element: #2d2d2d;
+    --bg-editor: #0d1117;
+    
+    --text-main: #e0e0e0;
+    --text-sub: #aaaaaa;
+    --text-hint: #888888;
+    
+    --border-standard: #333333;
+    --border-light: #222222;
+    
+    --brand-primary: #3498db; /* 다크모드 가독성 향상 */
+    --brand-success: #00c871;
 }

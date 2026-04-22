@@ -1,41 +1,6 @@
 /**
- * styles/pages/profile.css (v4.2.0)
- * [Atomic CSS] 유저 프로필 페이지 전용
+ * styles/pages/profile.css (v4.3.0)
  */
-.boj-profile-header {
-    margin-bottom: 30px;
-    border-bottom: 2px solid var(--boj-primary);
-    padding-bottom: 15px;
-}
-
-.boj-profile-id-row {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.boj-profile-id-row h1 {
-    margin: 0;
-    font-size: 32px;
-    font-weight: 900;
-}
-
-.panel {
-    margin-bottom: 20px;
-    border: 1px solid var(--boj-border);
-    border-radius: var(--boj-radius);
-}
-
-.panel-heading {
-    padding: 10px 15px;
-    border-bottom: 1px solid var(--boj-border);
-    background-color: var(--boj-table-header);
-}
-
-.problem-list a {
-    color: var(--boj-primary);
-    text-decoration: none;
-    font-size: 15px;
-    margin-right: 12px;
-    display: inline-block;
+.problem-list-wrapper {
+    margin-bottom: 40px;
 }

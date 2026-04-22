@@ -28,9 +28,9 @@ window.BOJ_CF.Pages.Problem = (function() {
             const isSolved = mySubs.some(s => s.verdict === 'OK');
             const isAttempted = mySubs.length > 0;
 
-            // 1. 탭 메뉴 (nav-tabs - BOJ 오리지널 스타일)
+            // 1. 탭 메뉴 (boj-tabs 적용)
             const tabMenu = document.createElement('ul');
-            tabMenu.className = 'nav nav-tabs problem-menu';
+            tabMenu.className = 'boj-tabs problem-menu';
             tabMenu.innerHTML = `
                 <li class="active"><a href="${window.location.href}">문제</a></li>
                 <li><a href="/problemset/submit?contestId=${contestId}&problemIndex=${problemIndex}">제출</a></li>
@@ -51,17 +51,17 @@ window.BOJ_CF.Pages.Problem = (function() {
                 const memLimit = header.querySelector('.memory-limit')?.lastChild?.textContent || '512 MB';
 
                 let statusBadge = '';
-                if (isSolved) statusBadge = '<span class="boj-label label-success" style="margin-left:10px; font-size:14px; vertical-align:middle; padding:4px 8px; border-radius:4px; background:#009874; color:#fff;">성공</span>';
-                else if (isAttempted) statusBadge = '<span class="boj-label label-danger" style="margin-left:10px; font-size:14px; vertical-align:middle; padding:4px 8px; border-radius:4px; background:#dd4124; color:#fff;">실패</span>';
+                if (isSolved) statusBadge = '<span class="boj-label label-success" style="margin-left:10px; font-size:14px; vertical-align:middle; padding:4px 8px; border-radius:4px; background:var(--brand-success); color:#fff;">성공</span>';
+                else if (isAttempted) statusBadge = '<span class="boj-label label-danger" style="margin-left:10px; font-size:14px; vertical-align:middle; padding:4px 8px; border-radius:4px; background:var(--brand-danger); color:#fff;">실패</span>';
 
                 const infoWrapper = document.createElement('div');
                 infoWrapper.innerHTML = `
-                    <div class="page-header">
-                        <h1 style="text-align: left;"><span class="printable">${probId}번 - </span><span id="problem_title">${probName}</span>${statusBadge}</h1>
+                    <div class="boj-header-section">
+                        <h1 style="text-align: left; color: var(--text-main); font-size: 32px;"><span class="printable">${probId}번 - </span><span id="problem_title">${probName}</span>${statusBadge}</h1>
                     </div>
                     <div class="table-responsive">
-                        <table class="table" id="problem-info">
-                            <thead><tr><th style="width:25%; text-align: center;">시간 제한</th><th style="width:25%; text-align: center;">메모리 제한</th><th style="width:25%; text-align: center;">제출</th><th style="width:25%; text-align: center;">정답</th></tr></thead>
+                        <table class="boj-table" id="problem-info">
+                            <thead><tr><th style="width:25%;">시간 제한</th><th style="width:25%;">메모리 제한</th><th style="width:25%;">제출</th><th style="width:25%;">정답</th></tr></thead>
                             <tbody><tr><td style="text-align: center;">${timeLimit}</td><td style="text-align: center;">${memLimit}</td><td style="text-align: center;">-</td><td style="text-align: center;">${totalSolved}</td></tr></tbody>
                         </table>
                     </div>
@@ -70,22 +70,14 @@ window.BOJ_CF.Pages.Problem = (function() {
                 header.style.display = 'none';
             }
 
-            // 모든 '>' 또는 '»' 기호 정밀 제거
-            const elements = document.querySelectorAll('.breadcrumb, .side-navigation__item, .lang-chooser');
-            elements.forEach(el => {
-                el.childNodes.forEach(node => {
-                    if (node.nodeType === 3) node.textContent = node.textContent.replace(/[»>]/g, '').trim();
-                });
-            });
-
-            // 섹션 포맷팅 유틸
+            // [유틸] 섹션 포맷팅 (boj-headline 적용)
             const formatSection = (selector, titleKOR) => {
                 const el = ps.querySelector(selector);
                 if (el) {
                     const titleEl = el.querySelector('.section-title');
                     if (titleEl) titleEl.style.display = 'none';
                     const headline = document.createElement('div');
-                    headline.className = 'headline';
+                    headline.className = 'boj-headline';
                     headline.innerHTML = `<h2>${titleKOR}</h2>`;
                     el.insertBefore(headline, el.firstChild);
                     el.className = 'problem-section';

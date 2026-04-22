@@ -1,0 +1,35 @@
+/**
+ * styles/base/layout.css (v4.3.0)
+ * [Utility-First] 레이아웃 및 그리드 유틸리티
+ */
+.boj-container {
+    width: 100%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 20px 15px;
+    box-sizing: border-box;
+}
+
+.boj-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.boj-col-4 { flex: 0 0 33.333333%; max-width: 33.333333%; padding: 0 15px; }
+.boj-col-6 { flex: 0 0 50%; max-width: 50%; padding: 0 15px; }
+.boj-col-8 { flex: 0 0 66.666667%; max-width: 66.666667%; padding: 0 15px; }
+.boj-col-12 { flex: 0 0 100%; max-width: 100%; padding: 0 15px; }
+
+/* Spacing Helpers */
+.mt-10 { margin-top: 10px; }
+.mt-20 { margin-top: 20px; }
+.mt-40 { margin-top: 40px; }
+.mb-20 { margin-bottom: 20px; }
+
+/* Flex Helpers */
+.d-flex { display: flex; }
+.justify-center { justify-content: center; }
+.align-center { align-items: center; }
+.gap-10 { gap: 10px; }
