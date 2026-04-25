@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOJ-CF 설정</title>
+    <link href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/base/variables.css">
+    <link rel="stylesheet" href="styles/components/components.css">
+    <style>
+        body {
+            font-family: 'SUIT', sans-serif;
+            background-color: var(--bg-main, #f8f9fa);
+            color: var(--text-main, #333);
+            margin: 0;
+            padding: 40px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 {
+            border-bottom: 2px solid var(--boj-primary, #0076c0);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        .setting-group {
+            margin-bottom: 30px;
+        }
+        .setting-group h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--boj-primary, #0076c0);
+        }
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .setting-item:last-child { border-bottom: none; }
+        .setting-label {
+            flex: 1;
+        }
+        .setting-label .title {
+            font-weight: bold;
+            display: block;
+        }
+        .setting-label .desc {
+            font-size: 13px;
+            color: #777;
+        }
+        .setting-input {
+            margin-left: 20px;
+        }
+        select, input[type="number"] {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        .save-bar {
+            margin-top: 40px;
+            text-align: center;
+        }
+        .boj-btn {
+            background: var(--boj-primary, #0076c0);
+            color: #fff;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .boj-btn:hover { background: #005a96; }
+        #status-msg {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #27ae60;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Codeforces to Baekjoon 설정</h1>
+
+        <!-- 0-1. 폰트 설정 -->
+        <div class="setting-group">
+            <h2>기본 설정</h2>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span class="title">화면 폰트</span>
+                    <span class="desc">확장 프로그램 전체에 적용될 폰트를 선택합니다.</span>
+                </div>
+                <div class="setting-input">
+                    <select id="fontFamily">
+                        <option value="SUIT">SUIT (추천)</option>
+                        <option value="sans-serif">Sans-Serif</option>
+                        <option value="serif">Serif</option>
+                        <option value="monospace">Monospace</option>
+                        <option value="cursive">Cursive</option>
+                        <option value="consolas">Consolas</option>
+                        <option value="D2Coding">D2Coding</option>
+                    </select>
+                </div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span class="title">테마 설정</span>
+                    <span class="desc">전체적인 색상 테마를 선택합니다.</span>
+                </div>
+                <div class="setting-input">
+                    <select id="theme">
+                        <option value="auto">시스템 설정</option>
+                        <option value="light">라이트 모드</option>
+                        <option value="dark">다크 모드</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 0-3, 0-4. 티어 및 태그 설정 -->
+        <div class="setting-group">
+            <h2>콘텐츠 표시</h2>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span class="title">문제 티어 표시</span>
+                    <span class="desc">문제의 난이도를 티어 아이콘으로 보여줍니다.</span>
+                </div>
+                <div class="setting-input">
+                    <select id="showProblemTier">
+                        <option value="always">항상 보기</option>
+                        <option value="solved">성공한 경우만 보기</option>
+                        <option value="never">보지 않기</option>
+                    </select>
+                </div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span class="title">알고리즘 분류 표시</span>
+                    <span class="desc">문제 하단의 알고리즘 태그 표시 방식을 설정합니다.</span>
+                </div>
+                <div class="setting-input">
+                    <select id="hideAlgorithmTags">
+                        <option value="false">항상 보기</option>
+                        <option value="true">성공한 경우만 보기 (스포일러 방지)</option>
+                        <option value="never">보지 않기</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 0-2. 에디터 설정 -->
+        <div class="setting-group">
+            <h2>에디터 설정</h2>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span class="title">에디터 테마</span>
+                    <span class="desc">제출 페이지 및 코드 보기의 테마를 선택합니다.</span>
+                </div>
+                <div class="setting-input">
+                    <select id="editorTheme">
+                        <option value="monokai">Monokai</option>
+                        <option value="github">GitHub</option>
+                        <option value="tomorrow">Tomorrow</option>
+                        <option value="solarized_dark">Solarized Dark</option>
+                        <option value="solarized_light">Solarized Light</option>
+                    </select>
+                </div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span class="title">에디터 폰트 크기</span>
+                    <span class="desc">에디터 내 텍스트 크기를 설정합니다.</span>
+                </div>
+                <div class="setting-input">
+                    <input type="number" id="editorFontSize" min="10" max="32" value="14"> px
+                </div>
+            </div>
+        </div>
+
+        <div class="save-bar">
+            <button id="save-btn" class="boj-btn">저장하기</button>
+            <div id="status-msg"></div>
+        </div>
+    </div>
+    <script src="src/core/settings/options.js"></script>
+</body>
+</html>

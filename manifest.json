@@ -5,6 +5,7 @@
   "description": "Codeforces 데이터 기반 백준 스타일 전역 테마 (Semantic CSS Overhaul)",
   "permissions": ["storage"],
   "host_permissions": ["https://codeforces.com/api/*"],
+  "options_page": "index.html",
   "content_scripts": [
     {
       "matches": ["*://codeforces.com/*"],

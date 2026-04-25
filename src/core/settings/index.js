@@ -9,7 +9,10 @@ window.BOJ_CF.Settings = (function() {
         showProblemTier: true,      // 문제 티어 표시 여부
         showUserTier: true,         // 유저 티어 표시 여부
         hideAlgorithmTags: true,    // 알고리즘 분류 기본 숨김
-        usePagination: true         // 채점 현황 페이지네이션 사용
+        usePagination: true,        // 채점 현황 페이지네이션 사용
+        fontFamily: 'SUIT',         // 기본 폰트 설정 (0-1)
+        editorTheme: 'monokai',     // 에디터 테마 (0-2)
+        editorFontSize: 14          // 에디터 폰트 크기 (2-1-2)
     };
 
     let currentSettings = { ...defaults };

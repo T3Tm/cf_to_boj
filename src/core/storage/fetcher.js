@@ -107,6 +107,60 @@ window.BOJ_CF.Fetcher = (function() {
                 return result.result;
             }
             return null;
+        },
+
+        /**
+         * 유저의 상세 프로필 정보를 가져옵니다. (15분 캐시)
+         */
+        fetchUserInfo: async function(handle) {
+            const key = `boj_cf_user_info_${handle}`;
+            const duration = 15 * 60 * 1000;
+
+            let data = getCached(key, duration);
+            if (data) return data;
+
+            const result = await requestWithRetry(`https://codeforces.com/api/user.info?handles=${handle}`);
+            if (result && result.result) {
+                setCached(key, result.result[0]);
+                return result.result[0];
+            }
+            return null;
+        },
+
+        /**
+         * 전역 최신 제출 현황을 가져옵니다. (1분 캐시)
+         */
+        fetchRecentStatus: async function(count = 100) {
+            const key = `boj_cf_recent_status`;
+            const duration = 1 * 60 * 1000; // 1분
+
+            let data = getCached(key, duration);
+            if (data) return data;
+
+            const result = await requestWithRetry(`https://codeforces.com/api/problemset.recentStatus?count=${count}`);
+            if (result && result.result) {
+                setCached(key, result.result);
+                return result.result;
+            }
+            return null;
+        },
+
+        /**
+         * 특정 콘테스트의 제출 현황을 가져옵니다. (1분 캐시)
+         */
+        fetchContestStatus: async function(contestId, from = 1, count = 100) {
+            const key = `boj_cf_contest_status_${contestId}`;
+            const duration = 1 * 60 * 1000;
+
+            let data = getCached(key, duration);
+            if (data) return data;
+
+            const result = await requestWithRetry(`https://codeforces.com/api/contest.status?contestId=${contestId}&from=${from}&count=${count}`);
+            if (result && result.result) {
+                setCached(key, result.result);
+                return result.result;
+            }
+            return null;
         }
     };
 })();

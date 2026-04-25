@@ -1,9 +1,31 @@
-window.BOJ_CF.Pages = window.BOJ_CF.Pages || {};
 window.BOJ_CF.Pages.Problemset = (function() {
     let globalDB = [];
     let currentPage = 1;
     let sortMode = 'rating'; 
     let sortAsc = true;      
+
+    const getBookmarks = () => JSON.parse(localStorage.getItem('boj_cf_bookmarks') || '[]');
+    const toggleBookmark = (id) => {
+        let bookmarks = getBookmarks();
+        if (bookmarks.includes(id)) {
+            bookmarks = bookmarks.filter(b => b !== id);
+        } else {
+            bookmarks.push(id);
+        }
+        localStorage.setItem('boj_cf_bookmarks', JSON.stringify(bookmarks));
+    };
+
+    /**
+     * 설정에 따른 티어 아이콘 경로를 반환합니다.
+     */
+    const getTierIconPath = (rating, isSolved) => {
+        const mode = window.BOJ_CF.Settings.get('showProblemTier') || 'always';
+        
+        if (mode === 'never') return 'icons/relative-0.svg'; // 또는 빈 이미지
+        if (mode === 'solved' && !isSolved) return 'icons/relative-0.svg';
+        
+        return window.BOJ_CF.TierCalculator.getProblemTierIcon(rating);
+    };
 
     const sortProblems = (problems) => {
         return [...problems].sort((a, b) => {
@@ -23,6 +45,7 @@ window.BOJ_CF.Pages.Problemset = (function() {
         const totalPages = Math.ceil(problems.length / max) || 1;
         const startIndex = (currentPage - 1) * max;
         const currentProblems = sortProblems(problems).slice(startIndex, startIndex + max);
+        const bookmarks = getBookmarks();
 
         let paginationHtml = `<div class="boj-pagination" style="text-align:center; margin-top:20px; padding-bottom:20px;">`;
         for (let i = 1; i <= totalPages; i++) {
@@ -38,6 +61,7 @@ window.BOJ_CF.Pages.Problemset = (function() {
             <table class="datatable boj-virtual-datatable" style="width:100%; border-collapse:collapse;">
                 <thead>
                     <tr>
+                        <th style="width: 5%;">★</th>
                         <th style="width: 10%;">문제</th>
                         <th>제목</th>
                         <th style="width: 15%;" data-sort="solvedCount" class="boj-sortable">맞힌 사람 ↕</th>
@@ -46,10 +70,15 @@ window.BOJ_CF.Pages.Problemset = (function() {
                     </tr>
                 </thead>
                 <tbody>
-                    ${problems.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:40px; color:#888;">검색 결과가 없습니다.</td></tr>` : ''}
+                    ${problems.length === 0 ? `<tr><td colspan="6" style="text-align:center; padding:40px; color:#888;">검색 결과가 없습니다.</td></tr>` : ''}
                     ${currentProblems.map(p => {
-                        const icon = chrome.runtime.getURL(window.BOJ_CF.TierCalculator.getProblemTierIcon(p.rating));
-                        return `<tr>
+                        const iconPath = getTierIconPath(p.rating, p.isSolved);
+                        const icon = chrome.runtime.getURL(iconPath);
+                        const isBookmarked = bookmarks.includes(p.id);
+                        return `<tr data-id="${p.id}">
+                            <td style="text-align: center; cursor: pointer;" class="boj-bookmark-btn">
+                                <span style="color: ${isBookmarked ? '#f1c40f' : '#ccc'}; font-size: 18px;">${isBookmarked ? '★' : '☆'}</span>
+                            </td>
                             <td style="text-align: center;"><a href="/problemset/problem/${p.contestId}/${p.index}" style="color:var(--boj-primary); font-weight:bold;">${p.contestId}${p.index}</a></td>
                             <td><a href="/problemset/problem/${p.contestId}/${p.index}">${p.name}</a></td>
                             <td style="text-align: center; color:var(--boj-primary); font-weight:bold; font-size: 13px;">
@@ -72,7 +101,6 @@ window.BOJ_CF.Pages.Problemset = (function() {
             vt = document.createElement('div'); vt.id = 'boj-virtual-table';
             document.querySelector('.boj-search-container').insertAdjacentElement('afterend', vt);
             
-            // 코드포스 원본 테이블 즉시 숨김 처리 (안전장치)
             const originalTables = document.querySelectorAll('.datatable:not(.boj-virtual-datatable)');
             originalTables.forEach(t => t.style.display = 'none');
             
@@ -80,7 +108,6 @@ window.BOJ_CF.Pages.Problemset = (function() {
                 const btn = e.target.closest('.boj-page-btn');
                 if (btn) {
                     currentPage = parseInt(btn.getAttribute('data-page'));
-                    // 현재 필터 상태를 다시 읽어와서 정렬 및 렌더링
                     handleFilters(window.BOJ_CF.StateManager.getState());
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     return;
@@ -95,7 +122,15 @@ window.BOJ_CF.Pages.Problemset = (function() {
                         sortAsc = type === 'rating'; 
                     }
                     currentPage = 1;
-                    // 현재 필터 상태를 다시 읽어와서 정렬 및 렌더링
+                    handleFilters(window.BOJ_CF.StateManager.getState());
+                    return;
+                }
+
+                const bookmarkBtn = e.target.closest('.boj-bookmark-btn');
+                if (bookmarkBtn) {
+                    const tr = bookmarkBtn.closest('tr');
+                    const id = tr.getAttribute('data-id');
+                    toggleBookmark(id);
                     handleFilters(window.BOJ_CF.StateManager.getState());
                 }
             });
@@ -104,8 +139,6 @@ window.BOJ_CF.Pages.Problemset = (function() {
     };
 
     const handleFilters = (state) => {
-        // [중요] currentPage 초기화 로직은 StateManager의 필터가 추가될 때만 작동해야 하므로, 
-        // 정렬 시에는 초기화하지 않도록 buildVirtualTable 내부에서 currentPage를 조절함
         const evaluator = window.BOJ_CF.QueryParser.createEvaluator(state.activeFilters);
         const filtered = globalDB.filter(evaluator);
         buildVirtualTable(filtered);
@@ -116,15 +149,12 @@ window.BOJ_CF.Pages.Problemset = (function() {
             const pc = document.querySelector('#pageContent');
             if (!pc) return;
 
-            // 1. Settings 반영 (저장된 페이지 크기 로드)
             if (window.BOJ_CF.Settings) {
                 window.BOJ_CF.Config.MAX_RENDER_COUNT = window.BOJ_CF.Settings.get('MAX_RENDER_COUNT') || 20;
             }
 
-            // 2. 컴포넌트 렌더링
             window.BOJ_CF.Components.SearchBar.render(pc);
 
-            // 3. API 로드 및 DB 구축
             const allProbs = await window.BOJ_CF.Fetcher.fetchAllProblems();
             const handle = document.querySelector('.boj-header-user')?.innerText.trim();
             const userStatus = (handle && handle !== 'Guest') ? await window.BOJ_CF.Fetcher.fetchUserStatus(handle) : null;

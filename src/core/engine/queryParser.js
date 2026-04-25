@@ -40,6 +40,13 @@ window.BOJ_CF.QueryParser = (function() {
         if (actualToken === '@me') return isNot ? !p.isSolved : p.isSolved;
         if (actualToken === '?@me') return !p.isSolved;
 
+        // [추가] 북마크 쿼리 지원
+        if (actualToken === 'in:bookmarked' || actualToken === 'is:bookmarked' || actualToken === 'in:bookmarks') {
+            const bookmarks = JSON.parse(localStorage.getItem('boj_cf_bookmarks') || '[]');
+            const isBookmarked = bookmarks.includes(p.id);
+            return isNot ? !isBookmarked : isBookmarked;
+        }
+
         // [수정됨] 백준 티어 기반 레이팅 검색
         if (actualToken.startsWith('r:') || actualToken.startsWith('tier:') || actualToken.startsWith('rating:')) {
             const rangeQuery = actualToken.split(':')[1];

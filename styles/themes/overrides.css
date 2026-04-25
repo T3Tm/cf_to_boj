@@ -1,0 +1,236 @@
+/**
+ * styles/themes/overrides.css (v4.0.1)
+ * [Frozen Design] 백준 스타일 전역 레이아웃 제압 (BOJ_REFERENCE.md 준수)
+ * !important 최소화 및 명시도 기반 리팩토링
+ */
+
+/* 1. 코드포스 레거시 요소 제거 (명시도 극대화) */
+body #header .top-links,
+body #header .top-links + div,
+body #sidebar,
+body .footer,
+body .second-level-menu,
+body .nav-links,
+body .focus-links,
+body .roundbox.menu-box,
+body .pagination,
+body .side-navigation,
+body .userbox {
+    display: none !important;
+}
+
+/* 2. 전역 레이아웃 및 폰트 */
+body {
+    background-color: var(--boj-bg);
+    color: var(--boj-text);
+    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    line-height: 1.5;
+}
+
+body #content, 
+body #pageContent {
+    width: 100%;
+    max-width: var(--boj-max-width);
+    margin: 0 auto;
+    padding: 20px 15px;
+    background-color: var(--boj-bg);
+}
+
+/* 3. 상단 탭 메뉴 (Frozen Standard) */
+body .problem-menu.nav-tabs {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 25px 0;
+    border-bottom: 1px solid var(--boj-border);
+    background: transparent;
+}
+
+body .problem-menu.nav-tabs li a {
+    display: block;
+    padding: 10px 20px;
+    color: var(--boj-primary);
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: 4px 4px 0 0;
+    font-weight: 500;
+}
+
+body .problem-menu.nav-tabs li.active a {
+    color: var(--boj-text);
+    background-color: var(--boj-bg);
+    border: 1px solid var(--boj-border);
+    border-bottom-color: var(--boj-bg);
+    font-weight: 700;
+}
+
+/* 4. 제출 페이지 레이아웃 */
+body .submit-form-container {
+    margin-top: 30px;
+    padding: 20px;
+    border: 1px solid var(--boj-border);
+    border-radius: 4px;
+    background: var(--boj-bg);
+}
+
+body .submit-form-row {
+    display: flex;
+    margin-bottom: 25px;
+    align-items: flex-start;
+}
+
+body .submit-form-label {
+    width: 140px;
+    font-weight: 700;
+    color: var(--boj-text);
+    padding-top: 10px;
+    flex-shrink: 0;
+}
+
+/* 5. 소스코드 에디터 (Back to BOJ Standard) */
+body .boj-editor-wrapper {
+    width: 100%;
+    border: 1px solid var(--boj-border);
+    border-radius: 4px;
+    background-color: var(--boj-table-header);
+    overflow: hidden;
+}
+
+body textarea[name="source"] {
+    width: 100%;
+    /* height는 submit.js에서 직접 600px 주입 */
+    padding: 20px;
+    font-family: 'Consolas', 'Monaco', 'Menlo', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--boj-text);
+    background-color: var(--boj-table-header);
+    border: none;
+    box-sizing: border-box;
+    display: block;
+    resize: vertical;
+    outline: none;
+}
+
+/* 6. 제출 버튼 */
+body .btn-boj-submit {
+    display: inline-block;
+    background-color: #337ab7;
+    color: #ffffff;
+    border: 1px solid #2e6da4;
+    padding: 12px 60px;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+body .btn-boj-submit:hover {
+    background-color: #286090;
+}
+
+/* 7. 정보 테이블 및 본문 */
+body #pageContent table.table, 
+body #statics,
+body .table-bordered {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--boj-border);
+    margin-bottom: 20px;
+}
+
+body #pageContent table th,
+body #statics th {
+    background-color: var(--boj-table-header);
+    border: 1px solid var(--boj-border);
+    padding: 12px 8px;
+    font-weight: 700;
+}
+
+body #pageContent table td,
+body #statics td {
+    border: 1px solid var(--boj-border);
+    padding: 12px 8px;
+    color: var(--boj-text);
+}
+
+/* 8. 결과 텍스트 (Frozen Class) */
+.result-ac { color: var(--boj-success) !important; font-weight: 700 !important; }
+.result-wa { color: var(--boj-danger) !important; }
+.result-tle, .result-mle, .result-re, .result-ce { color: var(--boj-warning) !important; font-weight: 700 !important; }
+
+/* 9. 프로필 페이지 전용 스타일 (Standardized) */
+.boj-profile-header {
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--boj-primary);
+    padding-bottom: 15px;
+}
+
+.boj-profile-id-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.boj-profile-id-row h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 900;
+}
+
+.boj-tier-main {
+    width: 35px;
+    height: auto;
+}
+
+.panel {
+    margin-bottom: 20px;
+    background-color: var(--boj-bg);
+    border: 1px solid var(--boj-border);
+    border-radius: var(--boj-radius);
+}
+
+.panel-heading {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--boj-border);
+    background-color: var(--boj-table-header);
+}
+
+.panel-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--boj-text);
+}
+
+.problem-list {
+    line-height: 2.2;
+}
+
+.problem-list a {
+    color: var(--boj-primary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    margin-right: 12px;
+    display: inline-block;
+}
+
+.problem-list a:hover {
+    text-decoration: underline;
+}
+
+/* 그리드 보정 */
+.row { display: flex; flex-wrap: wrap; margin-right: -15px; margin-left: -15px; }
+.col-md-4 { flex: 0 0 33.333333%; max-width: 33.333333%; padding: 0 15px; }
+.col-md-8 { flex: 0 0 66.666667%; max-width: 66.666667%; padding: 0 15px; }
+
+/* 10. 다크모드 대응 */
+[data-theme='dark'] body textarea[name="source"] {
+    background-color: #0d1117;
+    color: #c9d1d9;
+}
+
+[data-theme='dark'] body .table-striped tbody tr:nth-of-type(odd) {
+    background-color: #252525;
+}
