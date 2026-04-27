@@ -19,9 +19,23 @@
         "styles/pages/status.css",
         "styles/pages/profile.css",
         "styles/pages/submit.css",
-        "styles/themes/cleaner.css"
+        "styles/themes/cleaner.css",
+        "styles/themes/dark.css"
       ],
       "js": [
+        "libs_ace/ace.js",
+        "libs_ace/theme-monokai.js",
+        "libs_ace/theme-github.js",
+        "libs_ace/theme-tomorrow.js",
+        "libs_ace/theme-solarized_dark.js",
+        "libs_ace/theme-solarized_light.js",
+        "libs_ace/mode-c_cpp.js",
+        "libs_ace/mode-java.js",
+        "libs_ace/mode-python.js",
+        "libs_ace/mode-csharp.js",
+        "libs_ace/mode-javascript.js",
+        "libs_ace/mode-golang.js",
+        "libs_ace/mode-rust.js",
         "content/inject.js",
         "src/core/settings/index.js",
         "src/utils/domObserver.js",
@@ -32,7 +46,6 @@
         "src/core/engine/stateManager.js",
         "src/core/engine/queryParser.js",
         "src/core/storage/fetcher.js",
-        "src/components/feature/themeToggle.js",
         "src/components/layout/Header.js",
         "src/components/feature/pillContainer.js",
         "src/components/feature/searchBar.js",
@@ -50,7 +63,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["icons/*.svg", "icons/*.png"],
+      "resources": ["icons/*.svg", "icons/*.png", "libs_ace/*"],
       "matches": ["*://codeforces.com/*"]
     }
   ]

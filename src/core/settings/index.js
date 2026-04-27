@@ -12,7 +12,8 @@ window.BOJ_CF.Settings = (function() {
         usePagination: true,        // 채점 현황 페이지네이션 사용
         fontFamily: 'SUIT',         // 기본 폰트 설정 (0-1)
         editorTheme: 'monokai',     // 에디터 테마 (0-2)
-        editorFontSize: 14          // 에디터 폰트 크기 (2-1-2)
+        editorFontSize: 14,         // 에디터 폰트 크기 (2-1-2)
+        preferredLanguages: []      // 선호 언어 목록 (백준 스타일 '내 언어')
     };
 
     let currentSettings = { ...defaults };

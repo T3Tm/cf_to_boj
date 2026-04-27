@@ -9,12 +9,21 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // 1. 저장된 설정 불러오기
-    chrome.storage.sync.get(fields, (items) => {
+    chrome.storage.sync.get([...fields, 'preferredLanguages'], (items) => {
+        // 일반 필드 복원
         fields.forEach(field => {
             const el = document.getElementById(field);
             if (el && items[field] !== undefined) {
-                if (el.type === 'number') el.value = items[field];
-                else el.value = items[field];
+                el.value = items[field];
+            }
+        });
+
+        // 선호 언어 체크박스 복원
+        const prefLangs = items.preferredLanguages || [];
+        const checkboxes = document.querySelectorAll('input[name="pref-lang"]');
+        checkboxes.forEach(cb => {
+            if (prefLangs.includes(cb.value)) {
+                cb.checked = true;
             }
         });
     });
@@ -22,12 +31,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. 설정 저장하기
     document.getElementById('save-btn').addEventListener('click', () => {
         const newSettings = {};
+        
+        // 일반 필드 수집
         fields.forEach(field => {
             const el = document.getElementById(field);
             if (el) {
                 newSettings[field] = el.type === 'number' ? parseInt(el.value) : el.value;
             }
         });
+
+        // 선호 언어 수집
+        const selectedLangs = [];
+        document.querySelectorAll('input[name="pref-lang"]:checked').forEach(cb => {
+            selectedLangs.push(cb.value);
+        });
+        newSettings['preferredLanguages'] = selectedLangs;
 
         chrome.storage.sync.set(newSettings, () => {
             const status = document.getElementById('status-msg');

@@ -130,16 +130,18 @@ window.BOJ_CF.Fetcher = (function() {
         /**
          * 전역 최신 제출 현황을 가져옵니다. (1분 캐시)
          */
-        fetchRecentStatus: async function(count = 100) {
-            const key = `boj_cf_recent_status`;
+        fetchRecentStatus: async function(count = 100, bypassCache = false) {
+            const key = `boj_cf_recent_status_${count}`;
             const duration = 1 * 60 * 1000; // 1분
 
-            let data = getCached(key, duration);
-            if (data) return data;
+            if (!bypassCache) {
+                let data = getCached(key, duration);
+                if (data) return data;
+            }
 
             const result = await requestWithRetry(`https://codeforces.com/api/problemset.recentStatus?count=${count}`);
             if (result && result.result) {
-                setCached(key, result.result);
+                if (!bypassCache) setCached(key, result.result);
                 return result.result;
             }
             return null;
@@ -148,19 +150,54 @@ window.BOJ_CF.Fetcher = (function() {
         /**
          * 특정 콘테스트의 제출 현황을 가져옵니다. (1분 캐시)
          */
-        fetchContestStatus: async function(contestId, from = 1, count = 100) {
-            const key = `boj_cf_contest_status_${contestId}`;
+        fetchContestStatus: async function(contestId, from = 1, count = 100, bypassCache = false) {
+            const key = `boj_cf_contest_status_${contestId}_${from}_${count}`;
             const duration = 1 * 60 * 1000;
 
-            let data = getCached(key, duration);
-            if (data) return data;
+            if (!bypassCache) {
+                let data = getCached(key, duration);
+                if (data) return data;
+            }
 
             const result = await requestWithRetry(`https://codeforces.com/api/contest.status?contestId=${contestId}&from=${from}&count=${count}`);
             if (result && result.result) {
-                setCached(key, result.result);
+                if (!bypassCache) setCached(key, result.result);
                 return result.result;
             }
             return null;
+        },
+
+        /**
+         * [고도화] 특정 조건을 만족하는 데이터가 충분히 모일 때까지 재귀적으로 페칭합니다.
+         */
+        fetchStatusWithFilter: async function(contestId, problemIndex, targetCount = 100, bypassCache = false) {
+            const key = `boj_cf_filtered_status_${contestId}_${problemIndex}_${targetCount}`;
+            const duration = 1 * 60 * 1000;
+
+            if (!bypassCache) {
+                let cachedData = getCached(key, duration);
+                if (cachedData) return cachedData;
+            }
+
+            let allFilteredResults = [];
+            let currentFrom = 1;
+            const batchSize = 500; // 한 번에 가져올 양
+            const maxAttempts = 4; // 최대 2000개까지 탐색
+
+            for (let i = 0; i < maxAttempts; i++) {
+                const result = await requestWithRetry(`https://codeforces.com/api/contest.status?contestId=${contestId}&from=${currentFrom}&count=${batchSize}`);
+                if (!result || !result.result || result.result.length === 0) break;
+
+                const filtered = result.result.filter(sub => sub.problem.index === problemIndex);
+                allFilteredResults = [...allFilteredResults, ...filtered];
+
+                if (allFilteredResults.length >= targetCount) break;
+                currentFrom += batchSize;
+            }
+
+            const finalData = allFilteredResults.slice(0, targetCount * 2); // 여유 있게 보관
+            if (!bypassCache) setCached(key, finalData);
+            return finalData;
         }
     };
 })();

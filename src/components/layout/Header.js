@@ -43,7 +43,6 @@ window.BOJ_CF.Components.Header = (function() {
                     </ul>
                 </div>
                 <div class="boj-header-right">
-                    <button id="boj-theme-toggle">🌓 테마 전환</button>
                     ${userData.isLoggedIn ? `
                         <a href="${userData.profileUrl}" class="boj-header-user">${userData.handle}</a> 
                         <span style="margin:0 8px; color:var(--boj-border);">|</span> 
@@ -53,22 +52,7 @@ window.BOJ_CF.Components.Header = (function() {
                     `}
                 </div>
             `;
-
-            this.bindEvents();
             console.log("[BOJ_CF] Header rendered.");
-        },
-
-        /**
-         * 헤더 내부의 이벤트를 바인딩합니다.
-         */
-        bindEvents: function() {
-            // 테마 토글 컴포넌트 연동
-            const toggleBtn = document.getElementById('boj-theme-toggle');
-            if (toggleBtn && window.BOJ_CF.Components.ThemeToggle) {
-                toggleBtn.addEventListener('click', () => {
-                    window.BOJ_CF.Components.ThemeToggle.toggle();
-                });
-            }
         }
     };
 })();

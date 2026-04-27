@@ -160,7 +160,7 @@
 
         <!-- 0-2. 에디터 설정 -->
         <div class="setting-group">
-            <h2>에디터 설정</h2>
+            <h2>에디터 및 제출 설정</h2>
             <div class="setting-item">
                 <div class="setting-label">
                     <span class="title">에디터 테마</span>
@@ -183,6 +183,48 @@
                 </div>
                 <div class="setting-input">
                     <input type="number" id="editorFontSize" min="10" max="32" value="14"> px
+                </div>
+            </div>
+            <div class="setting-item" style="flex-direction: column; align-items: flex-start;">
+                <div class="setting-label" style="width: 100%; margin-bottom: 10px;">
+                    <span class="title">내 언어 설정 (선호 언어)</span>
+                    <span class="desc">제출 드롭다운에서 보여줄 언어들을 선택합니다. (아무것도 선택하지 않으면 전체 목록 표시)</span>
+                </div>
+                <div id="preferred-languages-list" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; padding: 15px; background: #f1f3f5; border-radius: 4px; border: 1px solid #dee2e6;">
+                    <label><input type="checkbox" name="pref-lang" value="GNU GCC C11 5.1.0"> GNU GCC C11</label>
+                    <label><input type="checkbox" name="pref-lang" value="GNU G++17 7.3.0"> GNU G++17</label>
+                    <label><input type="checkbox" name="pref-lang" value="GNU G++20 13.2 (64 bit, winlibs)"> GNU G++20</label>
+                    <label><input type="checkbox" name="pref-lang" value="GNU G++23 14.2 (64 bit, msys2)"> GNU G++23</label>
+                    <label><input type="checkbox" name="pref-lang" value="C# 8, .NET Core 3.1"> C# 8, .NET Core 3.1</label>
+                    <label><input type="checkbox" name="pref-lang" value="C# 10, .NET SDK 6.0"> C# 10, .NET SDK 6.0</label>
+                    <label><input type="checkbox" name="pref-lang" value="C# 13, .NET SDK 9"> C# 13, .NET SDK 9</label>
+                    <label><input type="checkbox" name="pref-lang" value="C# Mono 6.8"> C# Mono 6.8</label>
+                    <label><input type="checkbox" name="pref-lang" value="D DMD32 v2.105.0"> D DMD32 v2.105.0</label>
+                    <label><input type="checkbox" name="pref-lang" value="F# 9, .NET SDK 9"> F# 9, .NET SDK 9</label>
+                    <label><input type="checkbox" name="pref-lang" value="Go 1.22.2"> Go 1.22.2</label>
+                    <label><input type="checkbox" name="pref-lang" value="Haskell GHC 8.10.1"> Haskell GHC 8.10.1</label>
+                    <label><input type="checkbox" name="pref-lang" value="Java 21 64bit"> Java 21 64bit</label>
+                    <label><input type="checkbox" name="pref-lang" value="Java 8 32bit"> Java 8 32bit</label>
+                    <label><input type="checkbox" name="pref-lang" value="Kotlin 1.7.20"> Kotlin 1.7.20</label>
+                    <label><input type="checkbox" name="pref-lang" value="Kotlin 1.9.21"> Kotlin 1.9.21</label>
+                    <label><input type="checkbox" name="pref-lang" value="Kotlin 2.2.0"> Kotlin 2.2.0</label>
+                    <label><input type="checkbox" name="pref-lang" value="OCaml 4.02.1"> OCaml 4.02.1</label>
+                    <label><input type="checkbox" name="pref-lang" value="Delphi 7"> Delphi 7</label>
+                    <label><input type="checkbox" name="pref-lang" value="Free Pascal 3.2.2"> Free Pascal 3.2.2</label>
+                    <label><input type="checkbox" name="pref-lang" value="PascalABC.NET 3.8.3"> PascalABC.NET</label>
+                    <label><input type="checkbox" name="pref-lang" value="Perl 5.20.1"> Perl 5.20.1</label>
+                    <label><input type="checkbox" name="pref-lang" value="PHP 8.1.7"> PHP 8.1.7</label>
+                    <label><input type="checkbox" name="pref-lang" value="Python 2.7.18"> Python 2.7.18</label>
+                    <label><input type="checkbox" name="pref-lang" value="Python 3.13.2"> Python 3.13.2</label>
+                    <label><input type="checkbox" name="pref-lang" value="PyPy 2.7.13 (7.3.0)"> PyPy 2.7.13</label>
+                    <label><input type="checkbox" name="pref-lang" value="PyPy 3.6.9 (7.3.0)"> PyPy 3.6.9</label>
+                    <label><input type="checkbox" name="pref-lang" value="PyPy 3.10 (7.3.15, 64bit)"> PyPy 3.10</label>
+                    <label><input type="checkbox" name="pref-lang" value="Ruby 3.2.2"> Ruby 3.2.2</label>
+                    <label><input type="checkbox" name="pref-lang" value="Rust 1.89.0 (2021)"> Rust (2021)</label>
+                    <label><input type="checkbox" name="pref-lang" value="Rust 1.89.0 (2024)"> Rust (2024)</label>
+                    <label><input type="checkbox" name="pref-lang" value="Scala 2.12.8"> Scala 2.12.8</label>
+                    <label><input type="checkbox" name="pref-lang" value="JavaScript V8 4.8.0"> JavaScript V8</label>
+                    <label><input type="checkbox" name="pref-lang" value="Node.js 15.8.0 (64bit)"> Node.js</label>
                 </div>
             </div>
         </div>

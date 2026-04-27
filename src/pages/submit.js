@@ -1,22 +1,28 @@
 /**
- * src/pages/submit.js (v4.2.0)
- * [Logic] Ace Editor 통합 및 제출 로직 강화
+ * src/pages/submit.js (v4.2.3)
+ * [Logic] Ace Editor 안정화 (Pre-loaded modules & packaged mode)
  */
 window.BOJ_CF.Pages.Submit = (function() {
     let editor = null;
 
     /**
-     * Ace Editor를 동적으로 로드하고 초기화합니다.
+     * Ace Editor를 초기화합니다.
      */
-    async function initAceEditor(targetId, initialValue, langId) {
+    function initAceEditor(targetId, initialValue, langId) {
         if (typeof ace === 'undefined') {
-            await new Promise(resolve => {
-                const script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/ace.js';
-                script.onload = resolve;
-                document.head.appendChild(script);
-            });
+            console.error("[BOJ_CF] Ace library not loaded.");
+            return null;
         }
+
+        // 사전 로드된 모듈을 사용하도록 packaged 설정
+        ace.config.set('packaged', true);
+        
+        // basePath 및 하위 경로를 로컬로 설정하여 동적 로딩 시 CSP 위반 방지
+        const acePath = chrome.runtime.getURL('libs_ace/');
+        ace.config.set('basePath', acePath);
+        ace.config.set('modePath', acePath);
+        ace.config.set('themePath', acePath);
+        ace.config.set('workerPath', acePath);
 
         editor = ace.edit(targetId);
         
@@ -25,6 +31,7 @@ window.BOJ_CF.Pages.Submit = (function() {
         const theme = settings.editorTheme || 'monokai';
         const fontSize = settings.editorFontSize || 14;
 
+        // 사전 로드된 테마 적용
         editor.setTheme(`ace/theme/${theme}`);
         editor.setFontSize(fontSize);
         editor.setValue(initialValue, -1);
@@ -119,18 +126,38 @@ window.BOJ_CF.Pages.Submit = (function() {
             document.getElementById('boj-target-lang').appendChild(langSelect);
             document.getElementById('boj-target-submit').appendChild(submitBtn);
             
+            // [로직 추가] 선호 언어 필터링 및 마지막 언어 복원
+            const settings = window.BOJ_CF.Settings.getAll();
+            const preferredLangs = settings.preferredLanguages || [];
+            const lastLang = localStorage.getItem('boj_cf_last_lang');
+
+            if (preferredLangs.length > 0) {
+                Array.from(langSelect.options).forEach(opt => {
+                    const isPreferred = preferredLangs.some(pref => opt.text.includes(pref));
+                    if (!isPreferred) {
+                        opt.style.display = 'none';
+                    }
+                });
+            }
+
+            if (lastLang) {
+                langSelect.value = lastLang;
+            }
+
             // Ace Editor 초기화
             codeTextArea.style.display = 'none';
-            await initAceEditor('boj-ace-editor', codeTextArea.value, langSelect.value);
+            initAceEditor('boj-ace-editor', codeTextArea.value, langSelect.value);
 
-            // 이벤트 바인딩: 에디터 내용 -> 원본 textarea 동기화
-            editor.on('change', () => {
-                codeTextArea.value = editor.getValue();
-            });
+            if (editor) {
+                editor.on('change', () => {
+                    codeTextArea.value = editor.getValue();
+                });
+            }
 
-            // 이벤트 바인딩: 언어 변경 -> 에디터 모드 변경
             langSelect.addEventListener('change', (e) => {
-                updateEditorMode(e.target.value);
+                const newLang = e.target.value;
+                updateEditorMode(newLang);
+                localStorage.setItem('boj_cf_last_lang', newLang);
             });
 
             submitBtn.className = "boj-btn boj-btn-primary";

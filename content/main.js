@@ -34,13 +34,22 @@
             document.head.appendChild(fontStyle);
 
             window.BOJ_CF.Settings.subscribe((settings) => {
+                // 폰트 적용
                 const ff = settings.fontFamily || 'SUIT';
                 fontStyle.innerHTML = `
                     body, input, textarea, select, button { 
                         font-family: "${ff}", "SUIT", sans-serif !important; 
                     }
                 `;
-                console.log(`[BOJ_CF] Font applied: ${ff}`);
+                
+                // 테마 적용 (data-theme 속성 활용)
+                let theme = settings.theme || 'auto';
+                if (theme === 'auto') {
+                    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                document.documentElement.setAttribute('data-theme', theme);
+                
+                console.log(`[BOJ_CF] Settings applied - Font: ${ff}, Theme: ${theme}`);
             });
         }
     }

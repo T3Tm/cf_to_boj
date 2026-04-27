@@ -1,0 +1,117 @@
+/**
+ * styles/themes/dark.css
+ * [Aggressive Dark Mode] 전역 배경 제압 및 텍스트 완전 반전
+ */
+
+[data-theme='dark'],
+[data-theme='dark'] body {
+    --boj-bg: #0d1117;
+    --boj-text: #c9d1d9;
+    --boj-border: #30363d;
+    --boj-table-header: #161b22;
+    --boj-primary: #58a6ff;
+    --boj-success: #3fb950;
+    --boj-danger: #f85149;
+    --boj-warning: #d29922;
+    --boj-bg-element: #161b22;
+    
+    background-color: var(--boj-bg) !important;
+    color: var(--boj-text) !important;
+}
+
+/* 1. 전체 화면 배경 제압 */
+[data-theme='dark'] #body,
+[data-theme='dark'] #content,
+[data-theme='dark'] #pageContent,
+[data-theme='dark'] .roundbox,
+[data-theme='dark'] .content-with-sidebar,
+[data-theme='dark'] .ttypography,
+[data-theme='dark'] #main {
+    background-color: var(--boj-bg) !important;
+    background: var(--boj-bg) !important;
+    color: var(--boj-text) !important;
+    border-color: var(--boj-border) !important;
+}
+
+/* 2. 모든 텍스트 강제 흰색(밝은 회색) 반전 */
+[data-theme='dark'] *:not(a):not(button):not(.user-red):not(.user-violet):not(.user-blue):not(.user-green):not(.user-orange):not(.user-gray):not(.verdict-ac):not(.verdict-wa):not(.verdict-err) {
+    color: var(--boj-text) !important;
+}
+
+/* 3. 문제 스크립트 스타일 표준화 (폰트 사이즈 16px 통일) */
+[data-theme='dark'] .problem-statement,
+[data-theme='dark'] .problem-statement div,
+[data-theme='dark'] .problem-statement p,
+[data-theme='dark'] .problem-statement section,
+[data-theme='dark'] .problem-statement li {
+    font-size: 16px !important;
+    line-height: 1.8 !important;
+    color: var(--boj-text) !important;
+}
+
+[data-theme='dark'] .problem-statement .title {
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    color: var(--boj-text) !important;
+    margin-bottom: 20px !important;
+}
+
+[data-theme='dark'] .problem-statement .section-title {
+    font-size: 24px !important;
+    color: var(--boj-primary) !important;
+    border-bottom: 1px solid var(--boj-border) !important;
+    margin-top: 30px !important;
+}
+
+/* 4. 모든 테이블 다크모드 통합 */
+[data-theme='dark'] table,
+[data-theme='dark'] .datatable,
+[data-theme='dark'] .status-frame-datatable,
+[data-theme='dark'] .boj-table {
+    background-color: var(--boj-bg-element) !important;
+    border: 1px solid var(--boj-border) !important;
+}
+
+[data-theme='dark'] th,
+[data-theme='dark'] td {
+    background-color: transparent !important;
+    border: 1px solid var(--boj-border) !important;
+    color: var(--boj-text) !important;
+}
+
+[data-theme='dark'] tr:nth-child(odd) td {
+    background-color: #161b22 !important;
+}
+
+[data-theme='dark'] tr:hover td {
+    background-color: #1c2128 !important;
+}
+
+/* 5. 코드 블록 및 예제 데이터 */
+[data-theme='dark'] pre,
+[data-theme='dark'] code,
+[data-theme='dark'] .sampledata {
+    background-color: #000000 !important;
+    color: #00ff00 !important; /* 백준 스타일 예제 가독성 */
+    border: 1px solid var(--boj-border) !important;
+    padding: 15px !important;
+    font-family: 'Consolas', monospace !important;
+}
+
+/* 6. 입력창 및 버튼 */
+[data-theme='dark'] input,
+[data-theme='dark'] select,
+[data-theme='dark'] textarea {
+    background-color: #161b22 !important;
+    color: var(--boj-text) !important;
+    border: 1px solid var(--boj-border) !important;
+}
+
+/* 7. 유저 핸들 색상 보정 */
+[data-theme='dark'] .user-black { color: #ffffff !important; }
+[data-theme='dark'] .user-admin { color: #ff5555 !important; }
+
+/* 8. Ace Editor 내부 다크모드 강제 (에디터 자체 테마 외 배경 보정) */
+[data-theme='dark'] .ace_editor {
+    border-color: var(--boj-border) !important;
+}
